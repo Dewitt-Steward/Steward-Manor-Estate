@@ -166,6 +166,70 @@
       color: var(--ink);
     }
 
+    .local-email-controls {
+      display: grid;
+      gap: 12px;
+      margin: 16px 0 0;
+    }
+
+    .local-email-controls[hidden] {
+      display: none !important;
+    }
+
+    .local-email-panel {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      padding: 18px;
+    }
+
+    .local-email-panel[hidden] {
+      display: none !important;
+    }
+
+    .local-email-panel form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .local-email-field {
+      display: grid;
+      gap: 6px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .local-email-field input,
+    .local-email-field textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      padding: 12px 14px;
+    }
+
+    .local-email-field textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .local-email-status {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .local-email-status[data-state="success"] {
+      color: var(--ink);
+    }
+
+    .local-email-status[data-state="error"] {
+      color: var(--ink);
+    }
+
     .layout {
       display: block;
     }
@@ -904,7 +968,7 @@
 
     .browser-toolbar {
       display: grid;
-      grid-template-columns: repeat(10, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
       align-items: start;
     }
@@ -1282,11 +1346,15 @@
       font-weight: 700;
     }
 
+    .destination-status[hidden] {
+      display: none !important;
+    }
+
     .destination-status-title {
       display: block;
       margin-bottom: 6px;
       color: var(--ink);
-      font-size: 18px;
+      font-size: 15px;
       font-weight: 800;
       letter-spacing: 0.01em;
       line-height: 1.1;
@@ -1295,15 +1363,19 @@
     .destination-status-copy {
       display: block;
       max-width: 960px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
     .destination-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
+    }
+
+    .destination-grid[hidden] {
+      display: none !important;
     }
 
     .destination-card {
@@ -1354,7 +1426,7 @@
       align-items: center;
       gap: 8px;
       max-width: 100%;
-      padding: 8px 14px 8px 10px;
+      padding: 6px 10px 6px 8px;
       border: 1px solid rgba(255, 255, 255, 0.44);
       border-radius: 0;
       background:
@@ -1362,7 +1434,7 @@
       backdrop-filter: blur(16px) saturate(140%);
       -webkit-backdrop-filter: blur(16px) saturate(140%);
       color: #ffffff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: 0.04em;
       line-height: 1;
@@ -1387,9 +1459,9 @@
     .destination-card-seasonal-badge-icon {
       display: inline-grid;
       place-items: center;
-      width: 22px;
-      height: 22px;
-      flex: 0 0 22px;
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
       border-radius: 0;
       background: linear-gradient(180deg, rgba(17, 17, 17, 0.96) 0%, rgba(58, 58, 58, 0.92) 100%);
       box-shadow:
@@ -1398,8 +1470,8 @@
     }
 
     .destination-card-seasonal-badge-icon svg {
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       display: block;
       fill: #ffffff;
     }
@@ -1598,6 +1670,58 @@
       gap: 16px;
     }
 
+    .destination-detail-pane {
+      display: grid;
+      gap: 18px;
+      padding-top: 6px;
+    }
+
+    .destination-detail-pane[hidden] {
+      display: none;
+    }
+
+    .destination-detail-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .destination-detail-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .destination-detail-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .destination-detail-close {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #111111;
+      color: #ffffff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 12px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .destination-detail-pane .destination-tabs,
+    .destination-detail-pane .destination-modal-hero,
+    .destination-detail-pane .destination-modal-body {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
     .destination-block {
       border: 1px solid var(--border);
       border-radius: 16px;
@@ -1641,6 +1765,8 @@
     }
 
     .destination-section-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
       border-radius: 14px;
       overflow: hidden;
       background: #ececec;
@@ -1650,6 +1776,12 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
+    }
+
+    .destination-section-image--transport img {
+      transform: translateY(var(--transport-offset-y, 0)) scale(var(--transport-scale, 1.56));
+      transform-origin: center center;
     }
 
     #browserDestinationsPane {
@@ -1847,6 +1979,31 @@
           <p id="refreshMergedStatus" class="refresh-status">Latest merged data status will appear here.</p>
         </div>
       </div>
+      <div class="local-email-controls" id="localEmailControls" hidden>
+        <div>
+          <button id="localEmailToggleButton" class="refresh-button" type="button" aria-expanded="false">Email Steward Manor Estate Travel</button>
+        </div>
+        <div class="local-email-panel" id="localEmailPanel" hidden>
+          <form id="localEmailForm">
+            <label class="local-email-field">
+              Name
+              <input id="localEmailName" name="name" type="text" required>
+            </label>
+            <label class="local-email-field">
+              Email
+              <input id="localEmailAddress" name="email" type="email" required>
+            </label>
+            <label class="local-email-field">
+              Message
+              <textarea id="localEmailMessage" name="message" required></textarea>
+            </label>
+            <div>
+              <button id="localEmailSubmitButton" class="refresh-button" type="submit">Send Email</button>
+            </div>
+            <p id="localEmailStatus" class="local-email-status"></p>
+          </form>
+        </div>
+      </div>
       <div class="itinerary-sticky-header">
         <div class="selection-head">
           <h3 id="itineraryTitle" class="selection-title"></h3>
@@ -1856,8 +2013,6 @@
           <div class="filter-control filter-control--placeholder-only browser-category-control">
             <select id="browserCategorySelect" class="filter-select" aria-label="Category">
               <option value="destinations">Destinations (0)</option>
-              <option value="itineraries">Itineraries (0)</option>
-              <option value="collection-holiday">Holiday Collection</option>
               <option value="collection-spring">Spring Collection</option>
               <option value="collection-summer">Summer Collection</option>
               <option value="collection-fall">Autumn Collection</option>
@@ -1884,101 +2039,10 @@
               </select>
             </div>
             <div class="filter-control filter-control--placeholder-only">
-              <label for="destinationPortOfCallFilter">Ports of Call</label>
-              <select id="destinationPortOfCallFilter" class="filter-select" aria-label="Ports of Call">
-                <option value="">Ports of Call</option>
-              </select>
-            </div>
-            <div class="filter-control filter-control--placeholder-only">
-              <label for="sailToFilter">Sail To</label>
-              <select id="sailToFilter" class="filter-select" aria-label="Sail To">
-                <option value="">Sail To</option>
-                <optgroup label="Americas">
-                  <option value="alaska">Alaska</option>
-                  <option value="bahamas">The Bahamas</option>
-                  <option value="bermuda">Bermuda</option>
-                  <option value="canada-new-england">Canada &amp; New England</option>
-                  <option value="caribbean">Caribbean</option>
-                  <option value="greenland-canada">Greenland &amp; Canada</option>
-                  <option value="hawaii">Hawaii</option>
-                  <option value="mexico">Mexico</option>
-                  <option value="panama-canal">Panama Canal</option>
-                  <option value="south-america">South America</option>
-                </optgroup>
-                <optgroup label="Australia &amp; South Pacific">
-                  <option value="australia">Australia</option>
-                  <option value="new-zealand">New Zealand</option>
-                  <option value="south-pacific">South Pacific</option>
-                </optgroup>
-                <optgroup label="Europe &amp; Asia">
-                  <option value="asia">Asia</option>
-                  <option value="europe">Europe</option>
-                  <option value="transatlantic">Transatlantic</option>
-                  <option value="transpacific">Transpacific</option>
-                </optgroup>
-                <optgroup label="Featured Destinations">
-                  <option value="amber-cove">Amber Cove</option>
-                  <option value="celebration-key">Celebration Key</option>
-                  <option value="grand-turk">Grand Turk</option>
-                  <option value="mahogany-bay-roatan">Mahogany Bay, Roatan</option>
-                  <option value="princess-cays">Princess Cays</option>
-                  <option value="half-moon-cay">Half Moon Cay</option>
-                </optgroup>
-              </select>
-            </div>
-            <div class="filter-control filter-control--placeholder-only">
-              <label for="departurePortFilterSelect">Sail From</label>
-              <select id="departurePortFilterSelect" class="filter-select" aria-label="Sail From">
-                <option value="">Sail From</option>
-              </select>
-            </div>
-            <div class="filter-control filter-control--placeholder-only">
               <label for="destinationBestTimeFilter">Best Time to Visit</label>
               <select id="destinationBestTimeFilter" class="filter-select" aria-label="Best Time to Visit">
                 <option value="">Best Time to Visit</option>
               </select>
-            </div>
-            <div class="filter-control filter-control--placeholder-only date-filter-control">
-              <label for="dateFilterButton">Dates</label>
-              <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-label="Dates" aria-expanded="false" aria-controls="dateFilterPanel">
-                <span id="dateFilterButtonText">All Dates</span>
-                <span class="date-filter-icon" id="dateFilterButtonIcon">▼</span>
-              </button>
-              <div id="dateFilterPanel" class="date-filter-panel" hidden>
-                <div class="date-filter-tabs">
-                  <div class="date-filter-tab-bar">
-                    <button id="dateFilterTabMonths" class="date-filter-tab is-active" type="button" data-date-filter-tab="months">Months</button>
-                    <button id="dateFilterTabRanges" class="date-filter-tab" type="button" data-date-filter-tab="ranges">Date Range</button>
-                  </div>
-                </div>
-                <div id="dateFilterMonthsPane" class="date-filter-pane">
-                  <div id="dateFilterYears" class="date-filter-years"></div>
-                </div>
-                <div id="dateFilterRangesPane" class="date-filter-pane" hidden>
-                  <div id="dateRangeCalendar" class="date-range-calendar"></div>
-                </div>
-                <div class="date-filter-actions">
-                  <button id="dateFilterClearButton" class="reset-button" type="button">All Dates</button>
-                  <button id="dateFilterApplyButton" class="reset-button" type="button">Update Results</button>
-                </div>
-              </div>
-            </div>
-            <div class="filter-control filter-control--placeholder-only date-filter-control">
-              <label for="durationFilterButton">Duration</label>
-              <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-label="Duration" aria-expanded="false" aria-controls="durationFilterPanel">
-                <span id="durationFilterButtonText">All Durations</span>
-                <span class="date-filter-icon">▼</span>
-              </button>
-              <div id="durationFilterPanel" class="date-filter-panel" hidden>
-                <div id="durationFilterOptions" class="duration-filter-options">
-                  <button class="duration-filter-option" type="button" data-draft-duration-filter="2-5">2-5 Days</button>
-                  <button class="duration-filter-option" type="button" data-draft-duration-filter="6-9">6-9 Days</button>
-                  <button class="duration-filter-option" type="button" data-draft-duration-filter="10+">10+ Days</button>
-                </div>
-                <div class="date-filter-actions">
-                  <button id="durationFilterApplyButton" class="reset-button" type="button">Update Results</button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2005,10 +2069,23 @@
             </div>
               <div id="browserDestinationsPane">
                 <p class="destination-status" id="destinationStatus">Loading destinations...</p>
+                <div class="destination-detail-pane" id="destinationDetailPane" hidden>
+                  <div class="destination-detail-head">
+                    <div>
+                      <h2 class="destination-detail-title" id="destinationDetailTitle"></h2>
+                      <p class="destination-detail-subtitle" id="destinationDetailSubtitle"></p>
+                    </div>
+                    <button class="destination-detail-close" id="destinationDetailClose" type="button">Back to Destinations</button>
+                  </div>
+                  <div class="destination-tabs" id="destinationDetailTabs"></div>
+                  <div class="destination-modal-hero" id="destinationDetailHero" hidden>
+                    <div class="destination-modal-hero-image">
+                      <img id="destinationDetailHeroImage" alt="" loading="lazy" decoding="async">
+                    </div>
+                  </div>
+                  <div class="destination-modal-body" id="destinationDetailBody"></div>
+                </div>
                 <div class="destination-grid" id="destinationGrid"></div>
-              </div>
-              <div id="browserItinerariesPane" hidden>
-                <ul id="itineraryList" class="itinerary-list"></ul>
               </div>
             </div>
           </section>
@@ -3560,7 +3637,14 @@
     }
 
     function hideItineraryBrowser() {
-      document.getElementById("itineraryBrowser").hidden = false;
+      const itineraryBrowserEl = document.getElementById("itineraryBrowser");
+      if (!itineraryBrowserEl) {
+        currentItineraryMonth = null;
+        currentDeparturePortFilter = null;
+        currentItineraryBrowserOpen = false;
+        return;
+      }
+      itineraryBrowserEl.hidden = false;
       currentItineraryMonth = null;
       currentDeparturePortFilter = null;
       currentItineraryBrowserOpen = false;
@@ -3582,6 +3666,12 @@
       const durationFilterButtonText = document.getElementById("durationFilterButtonText");
       const durationFilterPanel = document.getElementById("durationFilterPanel");
       const durationFilterOptions = document.getElementById("durationFilterOptions");
+
+      if (!panel || !listEl || !titleEl || !copyEl) {
+        currentItineraryResultsCount = 0;
+        updateBrowserTabCounts();
+        return;
+      }
       const dateFilterTabMonths = document.getElementById("dateFilterTabMonths");
       const dateFilterTabRanges = document.getElementById("dateFilterTabRanges");
       const dateFilterYears = document.getElementById("dateFilterYears");
@@ -4938,7 +5028,30 @@
           ? destinationsPayload.__cruises_metadata
           : {};
 
-        controlsEl.hidden = !isQuarterlyRefreshDue(metadata.merged_at);
+        controlsEl.hidden = !metadata.merged_at || !isQuarterlyRefreshDue(metadata.merged_at);
+      } catch (error) {
+      }
+    }
+
+    async function configureLocalEmailControls() {
+      const controlsEl = document.getElementById("localEmailControls");
+      if (!controlsEl) {
+        return;
+      }
+
+      controlsEl.hidden = true;
+
+      try {
+        const response = await fetch("./healthz", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json().catch(function() {
+          return {};
+        });
+
+        controlsEl.hidden = !payload || !payload.ok;
       } catch (error) {
       }
     }
@@ -4986,12 +5099,11 @@
 
     function updateRefreshStatusFromPayload(mergedPayload) {
       const metadata = mergedPayload && mergedPayload.__cruises_metadata ? mergedPayload.__cruises_metadata : {};
-      const mergedAt = metadata.merged_at ? formatRefreshTimestamp(metadata.merged_at) : "Unknown";
-      const cruisesAt = metadata.cruises_generated_at ? formatRefreshTimestamp(metadata.cruises_generated_at) : "";
-      const sailingCount = typeof metadata.total_cruise_sailings === "number" ? metadata.total_cruise_sailings : null;
-      const cruisePart = cruisesAt ? " Cruise data: " + cruisesAt + "." : "";
-      const sailingPart = sailingCount !== null ? " " + sailingCount + " sailings merged." : "";
-      setRefreshStatus("Merged: " + mergedAt + "." + cruisePart + sailingPart, "success");
+      if (metadata.merged_at) {
+        setRefreshStatus("Merged: " + formatRefreshTimestamp(metadata.merged_at) + ".", "success");
+      } else {
+        setRefreshStatus("Destination data loaded.", "success");
+      }
     }
 
     async function handleRefreshMergedData() {
@@ -5050,6 +5162,97 @@
       button.addEventListener("click", handleRefreshMergedData);
     }
 
+    function setLocalEmailStatus(message, state) {
+      const statusEl = document.getElementById("localEmailStatus");
+      if (!statusEl) {
+        return;
+      }
+
+      statusEl.textContent = message || "";
+      if (state) {
+        statusEl.setAttribute("data-state", state);
+      } else {
+        statusEl.removeAttribute("data-state");
+      }
+    }
+
+    async function handleLocalEmailSubmit(event) {
+      event.preventDefault();
+
+      const submitButton = document.getElementById("localEmailSubmitButton");
+      const formEl = document.getElementById("localEmailForm");
+      const nameEl = document.getElementById("localEmailName");
+      const emailEl = document.getElementById("localEmailAddress");
+      const messageEl = document.getElementById("localEmailMessage");
+
+      if (!formEl || !nameEl || !emailEl || !messageEl) {
+        return;
+      }
+
+      const payload = {
+        name: nameEl.value.trim(),
+        email: emailEl.value.trim(),
+        message: messageEl.value.trim()
+      };
+
+      if (!payload.name || !payload.email || !payload.message) {
+        setLocalEmailStatus("Name, email, and message are required.", "error");
+        return;
+      }
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Sending...";
+      }
+      setLocalEmailStatus("Sending...", "");
+
+      try {
+        const response = await fetch("./send-travel-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload),
+          cache: "no-store"
+        });
+        const result = await response.json().catch(function() {
+          return {};
+        });
+
+        if (!response.ok) {
+          throw new Error(result.error || "Email failed.");
+        }
+
+        formEl.reset();
+        setLocalEmailStatus("Your message has been sent.", "success");
+      } catch (error) {
+        setLocalEmailStatus(error && error.message ? error.message : "Email failed.", "error");
+      } finally {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = "Send Email";
+        }
+      }
+    }
+
+    function wireLocalEmailControls() {
+      const toggleButton = document.getElementById("localEmailToggleButton");
+      const panelEl = document.getElementById("localEmailPanel");
+      const formEl = document.getElementById("localEmailForm");
+
+      if (!toggleButton || !panelEl || !formEl) {
+        return;
+      }
+
+      toggleButton.addEventListener("click", function() {
+        const nextExpanded = panelEl.hidden;
+        panelEl.hidden = !nextExpanded;
+        toggleButton.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
+      });
+
+      formEl.addEventListener("submit", handleLocalEmailSubmit);
+    }
+
     function setSearchFeedbackVisible(visible, message) {
       const resultsAreaEl = document.querySelector(".browser-results-area");
       const overlayEl = document.getElementById("searchFeedback");
@@ -5100,10 +5303,6 @@
       }
 
       Array.from(categorySelect.options).forEach(function(option) {
-        if (option.value === "itineraries") {
-          option.textContent = "Itineraries (" + totalItineraryCount + ")";
-          return;
-        }
         if (option.value === "destinations") {
           option.textContent = "Destinations (" + totalDestinationCount + ")";
         }
@@ -5121,9 +5320,6 @@
 
     function getSeasonForCollectionCategoryValue(categoryValue) {
       const value = String(categoryValue || "");
-      if (value === "collection-holiday") {
-        return "";
-      }
       if (value === "collection-spring") {
         return "Spring";
       }
@@ -5140,37 +5336,26 @@
     }
 
     function isHolidayCollectionCategoryValue(categoryValue) {
-      return String(categoryValue || "") === "collection-holiday";
+      return false;
     }
 
     function setBrowserTab(tabKey) {
       const categorySelect = document.getElementById("browserCategorySelect");
-      const itinerariesPane = document.getElementById("browserItinerariesPane");
       const destinationsPane = document.getElementById("browserDestinationsPane");
-      if (!categorySelect || !itinerariesPane || !destinationsPane) {
+      if (!categorySelect || !destinationsPane) {
         return;
       }
 
-      currentBrowserTab = tabKey === "itineraries" ? "itineraries" : "destinations";
+      currentBrowserTab = "destinations";
       categorySelect.value = Array.from(categorySelect.options).some(function(option) {
         return option.value === currentBrowserCategoryValue;
       }) ? currentBrowserCategoryValue : currentBrowserTab;
-      itinerariesPane.hidden = currentBrowserTab !== "itineraries";
-      destinationsPane.hidden = currentBrowserTab !== "destinations";
+      destinationsPane.hidden = false;
       syncAllCustomFilterSelects(false);
     }
 
     function autoSwitchBrowserTabIfNeeded() {
-      if (isBootstrappingBrowserView) {
-        return;
-      }
-      if (currentBrowserTab === "destinations" && currentDestinationResultsCount === 0 && currentItineraryResultsCount > 0) {
-        setBrowserTab("itineraries");
-        return;
-      }
-      if (currentBrowserTab === "itineraries" && currentItineraryResultsCount === 0 && currentDestinationResultsCount > 0) {
-        setBrowserTab("destinations");
-      }
+      return;
     }
 
     function refreshDestinationGridIfAvailable() {
@@ -5630,18 +5815,7 @@
     }
 
     function getBaseDestinationItemsForCurrentCategory() {
-      const scopedCruises = getCruisesForSelectedDestinationScope();
-      const scopedCruiseIds = new Set(scopedCruises.map(function(cruise) {
-        return String(cruise && cruise.sailingId || "");
-      }).filter(Boolean));
-
-      return currentActiveCategoryKey
-        ? destinationGalleryData.filter(function(item) {
-            return getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
-              return scopedCruiseIds.has(String(cruiseId || ""));
-            });
-          })
-        : destinationGalleryData.slice();
+      return destinationGalleryData.slice();
     }
 
     function getCruisePortOfCalls(cruise) {
@@ -5780,7 +5954,7 @@
     }
 
     function matchesActiveDestinationItemFilters(item, ignoredFilterKey) {
-      if (currentDestinationNameFilter && ignoredFilterKey !== "destination" && !destinationMatchesCombinedPlace(item, currentDestinationNameFilter)) {
+      if (currentDestinationNameFilter && ignoredFilterKey !== "destination" && item.key !== currentDestinationNameFilter) {
         return false;
       }
       if (currentDestinationRegionFilter && ignoredFilterKey !== "region" && item.region !== currentDestinationRegionFilter) {
@@ -5789,7 +5963,7 @@
       if (currentDestinationSettingFilter && ignoredFilterKey !== "setting" && item.setting !== currentDestinationSettingFilter) {
         return false;
       }
-      if (currentDestinationPortOfCallFilter && ignoredFilterKey !== "port" && !destinationMatchesPortOfCall(item, currentDestinationPortOfCallFilter)) {
+      if (currentDestinationBestTimeFilter && ignoredFilterKey !== "bestTime" && item.bestTime !== currentDestinationBestTimeFilter) {
         return false;
       }
       return true;
@@ -5920,70 +6094,36 @@
     function refreshDestinationDependentFilterOptions() {
       const destinationFilter = document.getElementById("destinationNameFilter");
       const regionFilter = document.getElementById("destinationRegionFilter");
-      const portOfCallFilter = document.getElementById("destinationPortOfCallFilter");
       const settingFilter = document.getElementById("destinationSettingFilter");
       const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
 
-      if (!destinationFilter || !regionFilter || !portOfCallFilter || !settingFilter || !bestTimeFilter || !destinationGalleryData.length) {
+      if (!destinationFilter || !regionFilter || !settingFilter || !bestTimeFilter || !destinationGalleryData.length) {
         return;
       }
 
       const destinationScopedItems = getDestinationItemsForFilterScope("destination");
       const regionScopedItems = getDestinationItemsForFilterScope("region");
       const settingScopedItems = getDestinationItemsForFilterScope("setting");
-      const portScopedCruises = getCruisesForDestinationFilterScope("port");
-      const bestTimeScopedCruises = getCruisesForDestinationFilterScope("bestTime");
-      const previousPlaceLabels = new Map(currentDestinationPlaceLabels);
+      const bestTimeScopedItems = getDestinationItemsForFilterScope("bestTime");
+
       const destinationNameCounts = destinationScopedItems.reduce(function(acc, item) {
         acc[item.name] = (acc[item.name] || 0) + 1;
         return acc;
       }, {});
-      const destinationNameValues = new Set(destinationScopedItems.map(function(item) {
-        return normalizeDestinationRouteValue(item.name);
-      }).filter(Boolean));
-      const destinationOptions = destinationScopedItems
-        .map(function(item) {
-          return {
-            value: createDestinationPlaceOptionValue("destination", item.key),
-            label: destinationNameCounts[item.name] > 1 ? (item.name + " | " + item.country) : item.name,
-            groupLabel: getDestinationOptionGroupLabel(item)
-          };
-        });
-      const itineraryOnlyLocationOptions = currentBrowserTab === "itineraries"
-        ? Array.from(
-            getCruisesForDestinationFilterScope("destination").reduce(function(map, cruise) {
-              getCruiseLocations(cruise).forEach(function(location) {
-                if (destinationNameValues.has(location.value) || map.has(location.value)) {
-                  return;
-                }
-                map.set(location.value, location.label);
-              });
-              return map;
-            }, new Map()).entries()
-          ).map(function(entry) {
-            return {
-              value: createDestinationPlaceOptionValue("location", entry[0]),
-              label: entry[1],
-              groupLabel: getLocationOptionGroupLabel(entry[1])
-            };
-          })
-        : [];
-      let combinedDestinationOptions = destinationOptions.concat(itineraryOnlyLocationOptions);
-      if (currentDestinationNameFilter && combinedDestinationOptions.every(function(option) { return option.value !== currentDestinationNameFilter; })) {
-        combinedDestinationOptions.push({
-          value: currentDestinationNameFilter,
-          label: previousPlaceLabels.get(currentDestinationNameFilter) || currentDestinationNameFilter,
-          groupLabel: "Selected"
-        });
-      }
-      combinedDestinationOptions = combinedDestinationOptions.sort(function(a, b) {
-        return String(a.groupLabel || "").localeCompare(String(b.groupLabel || "")) || a.label.localeCompare(b.label);
+
+      const destinationOptions = destinationScopedItems.map(function(item) {
+        return {
+          value: item.key,
+          label: destinationNameCounts[item.name] > 1 ? (item.name + " | " + item.country) : item.name,
+          groupLabel: getDestinationOptionGroupLabel(item)
+        };
       });
-      currentDestinationPlaceLabels = new Map(combinedDestinationOptions.map(function(option) {
+
+      currentDestinationPlaceLabels = new Map(destinationOptions.map(function(option) {
         return [option.value, option.label];
       }));
 
-      const destinationGroups = combinedDestinationOptions.reduce(function(groups, option) {
+      const destinationGroups = destinationOptions.reduce(function(groups, option) {
         const groupLabel = option.groupLabel || "Destinations";
         let group = groups.find(function(entry) {
           return entry.label === groupLabel;
@@ -5999,79 +6139,26 @@
         return groups;
       }, []);
 
-      fillGroupedOptionSelect(
-        destinationFilter,
-        destinationGroups,
-        "Destinations"
-      );
-
+      fillGroupedOptionSelect(destinationFilter, destinationGroups, "Destinations");
       fillDestinationSelect(
         regionFilter,
-        Array.from(new Set(regionScopedItems.map(function(item) { return item.region; }).filter(Boolean))).concat(
-          currentDestinationRegionFilter ? [currentDestinationRegionFilter] : []
-        ).filter(Boolean).sort(function(a, b) {
+        Array.from(new Set(regionScopedItems.map(function(item) { return item.region; }).filter(Boolean))).sort(function(a, b) {
           return a.localeCompare(b);
         }),
         "Region"
       );
-
       fillDestinationSelect(
         settingFilter,
         orderValuesByPreferred(
-          Array.from(new Set(settingScopedItems.map(function(item) { return item.setting; }).filter(Boolean))).concat(
-            currentDestinationSettingFilter ? [currentDestinationSettingFilter] : []
-          ),
+          Array.from(new Set(settingScopedItems.map(function(item) { return item.setting; }).filter(Boolean))),
           DESTINATION_SETTING_ORDER
         ),
         "Setting"
       );
-
-      fillOptionSelect(
-        portOfCallFilter,
-        Array.from(
-          portScopedCruises.reduce(function(map, cruise) {
-            getCruisePortOfCalls(cruise).forEach(function(port) {
-              if (!map.has(port.value)) {
-                map.set(port.value, port.label);
-              }
-            });
-            return map;
-          }, new Map()).entries()
-        ).map(function(entry) {
-          return {
-            value: entry[0],
-            label: entry[1]
-          };
-        }).concat(
-          currentDestinationPortOfCallFilter && Array.from(
-            portScopedCruises.reduce(function(map, cruise) {
-              getCruisePortOfCalls(cruise).forEach(function(port) {
-                if (!map.has(port.value)) {
-                  map.set(port.value, port.label);
-                }
-              });
-              return map;
-            }, new Map()).entries()
-          ).every(function(entry) {
-            return entry[0] !== currentDestinationPortOfCallFilter;
-          }) ? [{
-            value: currentDestinationPortOfCallFilter,
-            label: currentDestinationPortOfCallFilter
-          }] : []
-        ).sort(function(a, b) {
-          return a.label.localeCompare(b.label);
-        }),
-        "Ports of Call"
-      );
-
       fillDestinationSelect(
         bestTimeFilter,
         orderValuesByPreferred(
-          Array.from(new Set(bestTimeScopedCruises.map(function(cruise) {
-            return getSeasonLabelForDepartureDate(cruise && cruise.departureDate);
-          }).filter(Boolean))).concat(
-            currentDestinationBestTimeFilter ? [currentDestinationBestTimeFilter] : []
-          ),
+          Array.from(new Set(bestTimeScopedItems.map(function(item) { return item.bestTime; }).filter(Boolean))),
           DESTINATION_BEST_TIME_ORDER
         ),
         "Best Time to Visit"
@@ -6080,9 +6167,7 @@
       destinationFilter.value = currentDestinationNameFilter;
       regionFilter.value = currentDestinationRegionFilter;
       settingFilter.value = currentDestinationSettingFilter;
-      portOfCallFilter.value = currentDestinationPortOfCallFilter;
       bestTimeFilter.value = isInitialCollectionMode ? "" : currentDestinationBestTimeFilter;
-      refreshDestinationCruiseIdSet();
       syncAllCustomFilterSelects(false);
     }
 
@@ -6200,12 +6285,7 @@
       if (!item || !season) {
         return false;
       }
-      if (item.bestTime === season) {
-        return true;
-      }
-      return getDestinationMatchedCruises(item).some(function(cruise) {
-        return getSeasonLabelForDepartureDate(cruise && cruise.departureDate) === season;
-      });
+      return item.bestTime === season;
     }
 
     function matchesCurrentBestTimeFilter(cruise) {
@@ -6295,12 +6375,52 @@
         return '<div class="destination-block"><div class="destination-rich"><p>No getting there content is available.</p></div></div>';
       }
 
+      const transportImageAdjustments = {
+        "small_Airoplane_1_4cb9f92748.jpg": { scale: 1.50, y: "0%" },
+        "small_Bus_f467f86310.jpg": { scale: 1.62, y: "0%" },
+        "small_Taxi_1_25986cae2e.jpg": { scale: 1.86, y: "0%" },
+        "small_Rail_6357d1e3b0.jpg": { scale: 1.60, y: "0%" },
+        "small_Cruise_1_1c352c4a34.jpg": { scale: 1.52, y: "0%" },
+        "small_Cruise_7b2dd60a9e.jpg": { scale: 1.52, y: "0%" },
+        "small_Rental_619c4bf13f.jpg": { scale: 1.74, y: "0%" },
+        "small_Cycle_1_038e51a8d2.jpg": { scale: 1.78, y: "0%" },
+        "small_Cycle_3e750d57de.jpg": { scale: 1.78, y: "0%" },
+        "small_Walking_c1cd34d75e.jpg": { scale: 1.92, y: "0%" },
+        "small_Metro_a29872e867.jpg": { scale: 1.64, y: "0%" },
+        "small_Public_tranp_3aef737af5.jpg": { scale: 1.64, y: "0%" },
+        "small_Tram_a85c3570e6.jpg": { scale: 1.66, y: "0%" },
+        "small_Water_Taxi_d229940bfe.jpg": { scale: 1.88, y: "0%" },
+        "small_Driving_5bf30a8865.jpg": { scale: 1.74, y: "0%" },
+        "small_Bike_rent_0ab65fb1c7.jpg": { scale: 1.80, y: "0%" },
+        "small_Pvt_Boats_efd673b66d.jpg": { scale: 1.64, y: "0%" },
+        "small_Golf_Buggy_103653c011.jpg": { scale: 1.88, y: "0%" },
+        "small_Pedicabs_d793c41763.jpg": { scale: 1.86, y: "0%" },
+        "small_Road_access_488b0cbeae.jpg": { scale: 1.62, y: "0%" },
+        "small_Cable_Car_1_d2134bb48d.jpg": { scale: 1.68, y: "0%" },
+        "small_Island_plane_3d1a4f0760.jpg": { scale: 1.54, y: "0%" },
+        "small_Coco_Taxis_e85d4c8e76.jpg": { scale: 1.88, y: "0%" },
+        "small_Horse_Carriage_8e8ac9662c.jpg": { scale: 1.88, y: "0%" },
+        "small_jeepneys_f55ff8e524.jpg": { scale: 1.74, y: "0%" },
+        "small_Funicular_porto_b6e563e479.jpg": { scale: 1.74, y: "0%" },
+        "small_Trolly_tram_8f93af6d8d.jpg": { scale: 1.68, y: "0%" },
+        "small_Tour_Guide_26c86ed80f.jpg": { scale: 1.68, y: "0%" },
+        "small_helicopter_41e8edc010.jpg": { scale: 1.56, y: "0%" },
+        "small_Cyclo_85c74dc482.jpg": { scale: 1.86, y: "0%" }
+      };
+
       return (detail.getting_there.intro && detail.getting_there.intro.html
         ? '<section class="destination-block"><h3>' + escapeHtml(detail.getting_there.intro.title || "Getting There") + '</h3><div class="destination-rich">' + detail.getting_there.intro.html + '</div></section>'
         : '') +
         (detail.getting_there.sections || []).map(function(section) {
+          const imageUrl = String(section.image_url || "");
+          const imageFileName = imageUrl.split("/").pop();
+          const transportAdjustment = transportImageAdjustments[imageFileName] || null;
+          const imageClass = "destination-section-image" + (transportAdjustment ? " destination-section-image--transport" : "");
+          const imageStyle = transportAdjustment
+            ? ' style="--transport-scale:' + transportAdjustment.scale + ';--transport-offset-y:' + transportAdjustment.y + ';"'
+            : "";
           return '<section class="destination-block"><div class="destination-section-item">' +
-            (section.image_url ? '<div class="destination-section-image"><img src="' + escapeHtml(section.image_url) + '" alt="' + escapeHtml(section.title || "") + '" loading="lazy" decoding="async"></div>' : '<div></div>') +
+            (section.image_url ? '<div class="' + imageClass + '"' + imageStyle + '><img src="' + escapeHtml(section.image_url) + '" alt="' + escapeHtml(section.title || "") + '" loading="lazy" decoding="async"></div>' : '<div></div>') +
             '<div><h3>' + escapeHtml(section.title || "") + '</h3><div class="destination-rich">' + (section.html || "") + '</div></div>' +
           '</div></section>';
         }).join("");
@@ -6472,63 +6592,10 @@
       return matchedCruiseIds;
     }
 
-    function renderDestinationCruises(destination) {
-      const cruises = filterCruisesByCurrentControls(getDestinationMatchedCruises(destination));
-
-      if (!cruises.length) {
-        return '';
-      }
-
-      return '<section class="destination-block"><h3>Applicable Itineraries</h3><div class="destination-rich"><p>' +
-        escapeHtml(destination.name) + ' appears in ' + escapeHtml(String(cruises.length)) + ' itinerary result' + (cruises.length === 1 ? '' : 's') + ' based on route matching.</p></div></section>' +
-        '<ul class="itinerary-list">' + cruises.map(function(cruise, index) {
-          const itineraryRoute = buildFullRouteDisplay(cruise);
-          const finalPaymentDueLabel = getFinalPaymentDueLabel(cruise);
-          const depositLabels = getDepositLabels(cruise);
-          const showDepositPill = depositLabels.deposit !== finalPaymentDueLabel;
-          const finalPaymentPillLabel = finalPaymentDueLabel === "Final Payment Due Now"
-            ? finalPaymentDueLabel
-            : "Final Payment Due: " + finalPaymentDueLabel;
-          const offers = [
-            getEarlySaverOfferCopy(cruise),
-            getFunSelectOfferCopy(cruise),
-            getSuperSaverOfferCopy(cruise)
-          ];
-          const eligibleOfferCount = offers.filter(function(offer) {
-            return offer.status === "Eligible";
-          }).length;
-          const offersButtonLabel = eligibleOfferCount + " " + (eligibleOfferCount === 1 ? "Offer Found!" : "Offers Found!");
-          const itineraryNarrative = buildCruiseNarrative(cruise, finalPaymentDueLabel, depositLabels.deposit, eligibleOfferCount, false);
-          const offerId = "destination-itinerary-offer-" + escapeHtml(destination.key) + "-" + index;
-
-          return '<li><strong>' + escapeHtml(cruise.itineraryTitle) + '</strong>' +
-            '<div class="itinerary-pill-stack">' +
-              (showDepositPill ? '<div class="itinerary-pill">' + escapeHtml(depositLabels.deposit) + '</div>' : '') +
-              '<div class="itinerary-pill is-final-payment' + (finalPaymentDueLabel === "Final Payment Due Now" ? ' is-due-now' : '') + '">' + escapeHtml(finalPaymentPillLabel) + '</div>' +
-            '</div>' +
-            '<div class="itinerary-meta">' + escapeHtml(formatCruiseDate(cruise.departureDate)) + ' to ' + escapeHtml(formatCruiseDate(cruise.arrivalDate)) + '</div>' +
-            '<div class="itinerary-meta">' + escapeHtml(cruise.shipName) + '</div>' +
-            '<p class="itinerary-summary">' + escapeHtml(itineraryNarrative) + '</p>' +
-            '<div class="itinerary-footer">' +
-              '<button class="itinerary-offers-link" type="button" data-offer-target="' + offerId + '" aria-expanded="false">' + offersButtonLabel + '</button>' +
-              '<div class="itinerary-meta itinerary-route">Route: ' + escapeHtml(itineraryRoute) + '</div>' +
-              '<div class="itinerary-footer-spacer" aria-hidden="true"></div>' +
-            '</div>' +
-            '<div class="itinerary-offer-details" id="' + offerId + '" hidden>' +
-              offers.map(function(offer) {
-                const statusClass = offer.status === "Eligible" ? " is-eligible" : " is-not-eligible";
-                return '<div class="itinerary-offer-item"><div class="itinerary-offer-title">' + escapeHtml(offer.title) + '</div>' +
-                  (offer.status ? '<div class="itinerary-offer-status' + statusClass + '">' + escapeHtml(offer.status) + '</div>' : '') +
-                  '<div class="itinerary-meta">' + escapeHtml(offer.detail) + '</div></div>';
-              }).join("") +
-            '</div></li>';
-        }).join("") + '</ul>';
-    }
-
     function renderDestinationModalTab() {
-      const tabsEl = document.getElementById("destinationTabs");
-      const bodyEl = document.getElementById("destinationModalBody");
-      const heroEl = document.getElementById("destinationModalHero");
+      const tabsEl = document.getElementById("destinationDetailTabs");
+      const bodyEl = document.getElementById("destinationDetailBody");
+      const heroEl = document.getElementById("destinationDetailHero");
       if (!currentDestinationDetail) {
         tabsEl.innerHTML = "";
         bodyEl.innerHTML = '<div class="destination-block"><div class="destination-rich"><p>No destination selected.</p></div></div>';
@@ -6539,8 +6606,7 @@
       const tabs = [
         { key: "overview", label: "Overview" },
         { key: "getting-there", label: "Getting There" },
-        { key: "things-to-do", label: "Things To Do" },
-        { key: "cruises", label: "Itineraries" }
+        { key: "things-to-do", label: "Things To Do" }
       ];
 
       tabsEl.innerHTML = tabs.map(function(tab) {
@@ -6553,36 +6619,61 @@
         bodyEl.innerHTML = renderDestinationOverview(currentDestinationDetail.detail);
       } else if (currentDestinationTab === "getting-there") {
         bodyEl.innerHTML = renderDestinationGettingThere(currentDestinationDetail.detail);
-      } else if (currentDestinationTab === "things-to-do") {
-        bodyEl.innerHTML = renderDestinationThingsToDo(currentDestinationDetail.detail);
       } else {
-        bodyEl.innerHTML = renderDestinationCruises(currentDestinationDetail);
+        bodyEl.innerHTML = renderDestinationThingsToDo(currentDestinationDetail.detail);
       }
     }
 
     function openDestinationModal(destination) {
+      const detailPaneEl = document.getElementById("destinationDetailPane");
+      const destinationsPaneEl = document.getElementById("browserDestinationsPane");
+      const gridEl = document.getElementById("destinationGrid");
+      const statusEl = document.getElementById("destinationStatus");
       currentDestinationDetail = destination;
       currentDestinationTab = "overview";
-      document.getElementById("destinationModalTitle").textContent = destination.name;
-      document.getElementById("destinationModalSubtitle").textContent = destination.country;
-      document.getElementById("destinationModalHero").hidden = true;
-      document.getElementById("destinationModalHeroImage").removeAttribute("src");
-      document.getElementById("destinationModalHeroImage").alt = "";
+      document.getElementById("destinationDetailTitle").textContent = destination.name;
+      document.getElementById("destinationDetailSubtitle").textContent = destination.country;
+      document.getElementById("destinationDetailHero").hidden = true;
+      document.getElementById("destinationDetailHeroImage").removeAttribute("src");
+      document.getElementById("destinationDetailHeroImage").alt = "";
       renderDestinationModalTab();
-      document.getElementById("destinationModal").classList.add("is-open");
-      document.getElementById("destinationModal").setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
+      if (statusEl) {
+        statusEl.hidden = true;
+      }
+      if (gridEl) {
+        gridEl.hidden = true;
+      }
+      if (detailPaneEl) {
+        detailPaneEl.hidden = false;
+      }
+      if (destinationsPaneEl) {
+        destinationsPaneEl.scrollIntoView({ block: "start", behavior: "auto" });
+      }
+      window.scrollTo({ top: 0, behavior: "auto" });
     }
 
     function closeDestinationModal() {
-      document.getElementById("destinationModal").classList.remove("is-open");
-      document.getElementById("destinationModal").setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
+      const detailPaneEl = document.getElementById("destinationDetailPane");
+      const destinationsPaneEl = document.getElementById("browserDestinationsPane");
+      const gridEl = document.getElementById("destinationGrid");
+      const statusEl = document.getElementById("destinationStatus");
+      if (detailPaneEl) {
+        detailPaneEl.hidden = true;
+      }
+      if (statusEl) {
+        statusEl.hidden = false;
+      }
+      if (gridEl) {
+        gridEl.hidden = false;
+      }
+      if (destinationsPaneEl) {
+        destinationsPaneEl.scrollIntoView({ block: "start", behavior: "auto" });
+      }
     }
 
     function refreshDestinationModalIfOpen() {
-      const modalEl = document.getElementById("destinationModal");
-      if (!modalEl || !modalEl.classList.contains("is-open") || !currentDestinationDetail) {
+      const detailPaneEl = document.getElementById("destinationDetailPane");
+      if (!detailPaneEl || detailPaneEl.hidden || !currentDestinationDetail) {
         return;
       }
 
@@ -6600,9 +6691,8 @@
       const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
       const statusEl = document.getElementById("destinationStatus");
       const gridEl = document.getElementById("destinationGrid");
-      const modalEl = document.getElementById("destinationModal");
-      const modalCloseEl = document.getElementById("destinationModalClose");
-      const tabsEl = document.getElementById("destinationTabs");
+      const detailCloseEl = document.getElementById("destinationDetailClose");
+      const tabsEl = document.getElementById("destinationDetailTabs");
 
       const countryEntries = Object.entries(mergedPayload)
         .filter(function(entry) { return entry[0].indexOf("__") !== 0; })
@@ -6618,9 +6708,7 @@
             region: destination.region && destination.region.label ? destination.region.label : "",
             setting: destination.setting && destination.setting.label ? destination.setting.label : "",
             bestTime: destination.best_time_to_visit && destination.best_time_to_visit.label ? destination.best_time_to_visit.label : "",
-            detail: destination.explore || null,
-            cruiseIds: Array.isArray(destination.cruise_ids) ? destination.cruise_ids.slice() : [],
-            countryCruiseIds: Array.isArray(country.cruise_ids) ? country.cruise_ids.slice() : []
+            detail: destination.explore || null
           };
         });
       }).sort(function(a, b) {
@@ -6632,36 +6720,21 @@
       refreshDestinationDependentFilterOptions();
 
       function renderGrid() {
-        const filteredCruiseIdSet = getCurrentFilteredCruiseIdSet();
-        const applyCruiseFiltersToDestinations = hasActiveCruiseFilters();
         const filtered = getDestinationItemsForFilterScope("bestTime").filter(function(item) {
-          if (!matchesActiveDestinationItemFilters(item, "bestTime")) {
-            return false;
-          }
-          if (!applyCruiseFiltersToDestinations) {
-            return true;
-          }
-          return getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
-            return filteredCruiseIdSet.has(String(cruiseId || ""));
-          });
+          return matchesActiveDestinationItemFilters(item, "bestTime");
         });
 
         currentDestinationResultsCount = filtered.length;
         updateBrowserTabCounts();
         autoSwitchBrowserTabIfNeeded();
         const seasonStatus = getSeasonStatusContent(currentDestinationBestTimeFilter);
-        const holidayStatus = currentHolidayCollectionFilter ? getHolidayCollectionStatusContent() : null;
-        statusEl.innerHTML = holidayStatus
-          ? '<span class="destination-status-title">' + escapeHtml(holidayStatus.title) + '</span>' +
-            '<span class="destination-status-copy">' + escapeHtml(holidayStatus.copy) + '</span>'
-          : seasonStatus
+        statusEl.innerHTML = seasonStatus
           ? '<span class="destination-status-title">' + escapeHtml(seasonStatus.title) + '</span>' +
             '<span class="destination-status-copy">' + escapeHtml(seasonStatus.copy) + '</span>'
           : (filtered.length + " destinations");
         gridEl.innerHTML = filtered.length ? filtered.map(function(item) {
           const badgeSeason = currentDestinationBestTimeFilter || getCurrentSeasonLabel();
           const showSeasonalBadge = destinationMatchesSeason(item, badgeSeason);
-          const showHolidayBadge = destinationHasHolidayCollection(item);
           const seasonalBadgeHtml = showSeasonalBadge
             ? '<div class="destination-card-seasonal-badge">' +
                 '<span class="destination-card-seasonal-badge-icon" aria-hidden="true">' +
@@ -6670,16 +6743,8 @@
                 '<span class="destination-card-seasonal-badge-text">' + escapeHtml(getSeasonCollectionBadgeText(badgeSeason)) + '</span>' +
               '</div>'
             : '';
-          const holidayBadgeHtml = showHolidayBadge
-            ? '<div class="destination-card-seasonal-badge destination-card-holiday-badge">' +
-                '<span class="destination-card-seasonal-badge-icon" aria-hidden="true">' +
-                  '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm11 8H6v10h12V10zm-9 3h2v2H9v-2zm4 0h2v2h-2v-2zm-4 4h2v2H9v-2z"/></svg>' +
-                '</span>' +
-                '<span class="destination-card-seasonal-badge-text">' + escapeHtml(getHolidayCollectionBadgeText()) + '</span>' +
-              '</div>'
-            : '';
-          const badgeStackHtml = (seasonalBadgeHtml || holidayBadgeHtml)
-            ? '<div class="destination-card-badge-stack">' + seasonalBadgeHtml + holidayBadgeHtml + '</div>'
+          const badgeStackHtml = seasonalBadgeHtml
+            ? '<div class="destination-card-badge-stack">' + seasonalBadgeHtml + '</div>'
             : '';
           return '<article class="destination-card">' +
             '<div class="destination-card-image">' +
@@ -6702,7 +6767,6 @@
           exitInitialCollectionMode(changedKey);
           currentDestinationNameFilter = destinationNameFilter ? (destinationNameFilter.value || "") : "";
           currentDestinationRegionFilter = regionFilter ? (regionFilter.value || "") : "";
-          currentDestinationPortOfCallFilter = portOfCallFilter ? (portOfCallFilter.value || "") : "";
           currentDestinationSettingFilter = settingFilter ? (settingFilter.value || "") : "";
           currentDestinationBestTimeFilter = isInitialCollectionMode && bestTimeFilter && !bestTimeFilter.value
             ? currentDestinationBestTimeFilter
@@ -6714,14 +6778,9 @@
             regionFilter.value = currentDestinationRegionFilter;
           }
           settingFilter.value = currentDestinationSettingFilter;
-          if (portOfCallFilter) {
-            portOfCallFilter.value = currentDestinationPortOfCallFilter;
-          }
           bestTimeFilter.value = currentDestinationBestTimeFilter;
           refreshDestinationDependentFilterOptions();
-          refreshDestinationCruiseIdSet();
           renderGrid();
-          renderItineraryBrowser();
           refreshDestinationModalIfOpen();
         }, "Searching destinations...");
       }
@@ -6736,11 +6795,6 @@
           handleDestinationFiltersChange("region");
         };
       }
-      if (portOfCallFilter) {
-        portOfCallFilter.onchange = function() {
-          handleDestinationFiltersChange("port");
-        };
-      }
       settingFilter.onchange = function() {
         handleDestinationFiltersChange("setting");
       };
@@ -6749,7 +6803,6 @@
           exitInitialCollectionMode("bestTime");
           currentDestinationNameFilter = destinationNameFilter ? (destinationNameFilter.value || "") : "";
           currentDestinationRegionFilter = regionFilter ? (regionFilter.value || "") : "";
-          currentDestinationPortOfCallFilter = portOfCallFilter ? (portOfCallFilter.value || "") : "";
           currentDestinationSettingFilter = settingFilter ? (settingFilter.value || "") : "";
           currentDestinationBestTimeFilter = bestTimeFilter ? (bestTimeFilter.value || "") : "";
           if (destinationNameFilter) {
@@ -6759,14 +6812,9 @@
             regionFilter.value = currentDestinationRegionFilter;
           }
           settingFilter.value = currentDestinationSettingFilter;
-          if (portOfCallFilter) {
-            portOfCallFilter.value = currentDestinationPortOfCallFilter;
-          }
           bestTimeFilter.value = currentDestinationBestTimeFilter;
           refreshDestinationDependentFilterOptions();
-          refreshDestinationCruiseIdSet();
           renderGrid();
-          renderItineraryBrowser();
           refreshDestinationModalIfOpen();
         }, "Searching destinations...");
       };
@@ -6777,25 +6825,7 @@
           openDestinationModal(destination);
         }
       };
-      modalCloseEl.onclick = closeDestinationModal;
-      modalEl.onclick = function(event) {
-        if (event.target === modalEl) {
-          closeDestinationModal();
-        }
-      };
-      document.getElementById("destinationModalBody").onclick = function(event) {
-        const button = event.target.closest("[data-offer-target]");
-        if (!button) {
-          return;
-        }
-        const targetId = button.getAttribute("data-offer-target");
-        const target = targetId ? document.getElementById(targetId) : null;
-        if (!target) {
-          return;
-        }
-        target.hidden = !target.hidden;
-        button.setAttribute("aria-expanded", target.hidden ? "false" : "true");
-      };
+      detailCloseEl.onclick = closeDestinationModal;
       tabsEl.onclick = function(event) {
         const button = event.target.closest("[data-destination-tab]");
         if (!button) {
@@ -6810,24 +6840,20 @@
 
     function wireBrowserTabs() {
       const categorySelect = document.getElementById("browserCategorySelect");
-      const itinerariesPane = document.getElementById("browserItinerariesPane");
       const destinationsPane = document.getElementById("browserDestinationsPane");
 
-      if (!categorySelect || !itinerariesPane || !destinationsPane) {
+      if (!categorySelect || !destinationsPane) {
         return;
       }
 
       categorySelect.addEventListener("change", function() {
         const nextValue = categorySelect.value || "destinations";
         const collectionSeason = getSeasonForCollectionCategoryValue(nextValue);
-        const holidayCollection = isHolidayCollectionCategoryValue(nextValue);
-        const nextTab = nextValue === "itineraries" ? "itineraries" : "destinations";
-        currentBrowserCategoryValue = (collectionSeason || holidayCollection) ? nextValue : nextTab;
-        setBrowserTab(nextTab);
-        resetAllFiltersForCategorySwitch(collectionSeason, holidayCollection);
+        currentBrowserCategoryValue = collectionSeason ? nextValue : "destinations";
+        setBrowserTab("destinations");
+        resetAllFiltersForCategorySwitch(collectionSeason, false);
         refreshDestinationDependentFilterOptions();
         refreshDestinationGridIfAvailable();
-        renderItineraryBrowser();
         refreshDestinationModalIfOpen();
       });
 
@@ -6847,27 +6873,8 @@
         }
 
         const mergedPayload = await mergedResponse.json();
-        const cruises = Object.values(mergedPayload.__cruises_index || {}).map(function(cruise) {
-          return mapMergedCruiseToBrowserShape(cruise);
-        });
-
-        const payload = {
-          generatedAt: mergedPayload.__cruises_metadata && mergedPayload.__cruises_metadata.cruises_generated_at
-            ? mergedPayload.__cruises_metadata.cruises_generated_at
-            : "",
-          source: mergedPayload.__cruises_metadata && mergedPayload.__cruises_metadata.cruises_source
-            ? mergedPayload.__cruises_metadata.cruises_source
-            : "",
-          totalItineraries: mergedPayload.__cruises_metadata && typeof mergedPayload.__cruises_metadata.total_cruise_itineraries === "number"
-            ? mergedPayload.__cruises_metadata.total_cruise_itineraries
-            : cruises.length,
-          totalSailings: mergedPayload.__cruises_metadata && typeof mergedPayload.__cruises_metadata.total_cruise_sailings === "number"
-            ? mergedPayload.__cruises_metadata.total_cruise_sailings
-            : cruises.length,
-          cruises: cruises
-        };
-
-        totalItineraryCount = cruises.length;
+        const payload = { generatedAt: "", source: "", totalItineraries: 0, totalSailings: 0, cruises: [] };
+        totalItineraryCount = 0;
         currentPayload = payload;
         renderWorldMap(payload);
         renderDestinationGallery(mergedPayload);
@@ -6950,11 +6957,12 @@
     renderWorldMap(currentPayload);
     loadMap();
     configureRefreshControls();
+    configureLocalEmailControls();
     bindMapViewControls();
     wireDropdownFilters();
     wireBrowserTabs();
-    wireItineraryCountButtons();
     wireRefreshMergedButton();
+    wireLocalEmailControls();
     initializeCustomFilterSelects();
     queueEmbedHeightPost();
 
