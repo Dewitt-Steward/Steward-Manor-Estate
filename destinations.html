@@ -50,14 +50,20 @@
     }
 
     .hero {
+      position: sticky;
+      top: 0;
+      z-index: 35;
       padding: 24px 28px;
-      margin-bottom: 20px;
+      margin-bottom: 0;
+      border-bottom: 0;
+      border-radius: 20px 20px 0 0;
+      box-shadow: 0 18px 36px rgba(22, 50, 79, 0.14);
     }
 
     .hero.is-compact {
       padding-top: 18px;
       padding-bottom: 18px;
-      margin-bottom: 12px;
+      margin-bottom: 0;
     }
 
     .hero-head {
@@ -161,7 +167,9 @@
     }
 
     .map-panel {
-      padding: 18px 18px 0;
+      padding: 0 18px 0;
+      border-top: 0;
+      border-radius: 0 0 20px 20px;
     }
 
     .map-main,
@@ -633,14 +641,12 @@
     }
 
     .itinerary-sticky-header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      margin: 0 0 12px;
-      padding: 18px 18px 14px;
-      background: #fbfdff;
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 8px 20px rgba(22, 50, 79, 0.04);
+      position: static;
+      margin: 14px 0 0;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
     }
 
     .browser-toolbar {
@@ -1367,6 +1373,14 @@
         padding: 18px;
       }
 
+      .hero {
+        border-radius: 16px 16px 0 0;
+      }
+
+      .map-panel {
+        border-radius: 0 0 16px 16px;
+      }
+
       .hero-actions {
         width: 100%;
         justify-items: start;
@@ -1475,128 +1489,126 @@
           <p id="refreshMergedStatus" class="refresh-status">Latest merged data status will appear here.</p>
         </div>
       </div>
-      <section class="categories-panel">
-      </section>
+      <div class="itinerary-sticky-header">
+        <div class="selection-head">
+          <h3 id="itineraryTitle" class="selection-title"></h3>
+        </div>
+        <p id="itineraryCopy" class="itinerary-copy"></p>
+        <div class="browser-toolbar">
+          <div class="filter-control browser-category-control">
+            <label for="browserCategorySelect">Category</label>
+            <select id="browserCategorySelect" class="filter-select">
+              <option value="destinations">Destinations (0)</option>
+              <option value="itineraries">Itineraries (0)</option>
+            </select>
+          </div>
+          <div class="filter-controls" id="filterControls">
+            <div class="filter-control">
+              <label for="sailToFilter">Sail To</label>
+              <select id="sailToFilter" class="filter-select">
+                <option value="">All Destinations</option>
+                <optgroup label="Americas">
+                  <option value="alaska">Alaska</option>
+                  <option value="bahamas">The Bahamas</option>
+                  <option value="bermuda">Bermuda</option>
+                  <option value="canada-new-england">Canada &amp; New England</option>
+                  <option value="caribbean">Caribbean</option>
+                  <option value="greenland-canada">Greenland &amp; Canada</option>
+                  <option value="hawaii">Hawaii</option>
+                  <option value="mexico">Mexico</option>
+                  <option value="panama-canal">Panama Canal</option>
+                  <option value="south-america">South America</option>
+                </optgroup>
+                <optgroup label="Australia &amp; South Pacific">
+                  <option value="australia">Australia</option>
+                  <option value="new-zealand">New Zealand</option>
+                  <option value="south-pacific">South Pacific</option>
+                </optgroup>
+                <optgroup label="Europe &amp; Asia">
+                  <option value="asia">Asia</option>
+                  <option value="europe">Europe</option>
+                  <option value="transatlantic">Transatlantic</option>
+                  <option value="transpacific">Transpacific</option>
+                </optgroup>
+                <optgroup label="Featured Destinations">
+                  <option value="amber-cove">Amber Cove</option>
+                  <option value="celebration-key">Celebration Key</option>
+                  <option value="grand-turk">Grand Turk</option>
+                  <option value="mahogany-bay-roatan">Mahogany Bay, Roatan</option>
+                  <option value="princess-cays">Princess Cays</option>
+                  <option value="half-moon-cay">Half Moon Cay</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="filter-control">
+              <label for="departurePortFilterSelect">Sail From</label>
+              <select id="departurePortFilterSelect" class="filter-select">
+                <option value="">All Sail From Ports</option>
+              </select>
+            </div>
+            <div class="filter-control date-filter-control">
+              <label for="dateFilterButton">Dates</label>
+              <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="dateFilterPanel">
+                <span id="dateFilterButtonText">All Dates</span>
+                <span class="date-filter-icon" id="dateFilterButtonIcon">▼</span>
+              </button>
+              <div id="dateFilterPanel" class="date-filter-panel" hidden>
+                <div class="date-filter-tabs">
+                  <div class="date-filter-tab-bar">
+                    <button id="dateFilterTabMonths" class="date-filter-tab is-active" type="button" data-date-filter-tab="months">Months</button>
+                    <button id="dateFilterTabRanges" class="date-filter-tab" type="button" data-date-filter-tab="ranges">Date Range</button>
+                  </div>
+                </div>
+                <div id="dateFilterMonthsPane" class="date-filter-pane">
+                  <div id="dateFilterYears" class="date-filter-years"></div>
+                </div>
+                <div id="dateFilterRangesPane" class="date-filter-pane" hidden>
+                  <div id="dateRangeCalendar" class="date-range-calendar"></div>
+                </div>
+                <div class="date-filter-actions">
+                  <button id="dateFilterClearButton" class="reset-button" type="button">All Dates</button>
+                  <button id="dateFilterApplyButton" class="reset-button" type="button">Update Results</button>
+                </div>
+              </div>
+            </div>
+            <div class="filter-control date-filter-control">
+              <label for="durationFilterButton">Duration</label>
+              <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="durationFilterPanel">
+                <span id="durationFilterButtonText">All Durations</span>
+                <span class="date-filter-icon">▼</span>
+              </button>
+              <div id="durationFilterPanel" class="date-filter-panel" hidden>
+                <div id="durationFilterOptions" class="duration-filter-options">
+                  <button class="duration-filter-option" type="button" data-draft-duration-filter="2-5">2-5 Days</button>
+                  <button class="duration-filter-option" type="button" data-draft-duration-filter="6-9">6-9 Days</button>
+                  <button class="duration-filter-option" type="button" data-draft-duration-filter="10+">10+ Days</button>
+                </div>
+                <div class="date-filter-actions">
+                  <button id="durationFilterApplyButton" class="reset-button" type="button">Update Results</button>
+                </div>
+              </div>
+            </div>
+            <div class="filter-control">
+              <label for="destinationSettingFilter">Setting</label>
+              <select id="destinationSettingFilter" class="filter-select">
+                <option value="">Setting</option>
+              </select>
+            </div>
+            <div class="filter-control">
+              <label for="destinationBestTimeFilter">Best Time to Visit</label>
+              <select id="destinationBestTimeFilter" class="filter-select">
+                <option value="">Best Time to Visit</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <div class="layout">
       <section class="map-panel">
         <div class="map-main has-itinerary" id="mapMain">
           <section id="itineraryBrowser" class="selection-panel">
-            <div class="itinerary-sticky-header">
-              <div class="selection-head">
-                <h3 id="itineraryTitle" class="selection-title"></h3>
-              </div>
-              <p id="itineraryCopy" class="itinerary-copy"></p>
-              <div class="browser-toolbar">
-                <div class="filter-control browser-category-control">
-                  <label for="browserCategorySelect">Category</label>
-                  <select id="browserCategorySelect" class="filter-select">
-                    <option value="destinations">Destinations (0)</option>
-                    <option value="itineraries">Itineraries (0)</option>
-                  </select>
-                </div>
-                <div class="filter-controls" id="filterControls">
-                  <div class="filter-control">
-                    <label for="sailToFilter">Sail To</label>
-                    <select id="sailToFilter" class="filter-select">
-                      <option value="">All Destinations</option>
-                      <optgroup label="Americas">
-                        <option value="alaska">Alaska</option>
-                        <option value="bahamas">The Bahamas</option>
-                        <option value="bermuda">Bermuda</option>
-                        <option value="canada-new-england">Canada &amp; New England</option>
-                        <option value="caribbean">Caribbean</option>
-                        <option value="greenland-canada">Greenland &amp; Canada</option>
-                        <option value="hawaii">Hawaii</option>
-                        <option value="mexico">Mexico</option>
-                        <option value="panama-canal">Panama Canal</option>
-                        <option value="south-america">South America</option>
-                      </optgroup>
-                      <optgroup label="Australia &amp; South Pacific">
-                        <option value="australia">Australia</option>
-                        <option value="new-zealand">New Zealand</option>
-                        <option value="south-pacific">South Pacific</option>
-                      </optgroup>
-                      <optgroup label="Europe &amp; Asia">
-                        <option value="asia">Asia</option>
-                        <option value="europe">Europe</option>
-                        <option value="transatlantic">Transatlantic</option>
-                        <option value="transpacific">Transpacific</option>
-                      </optgroup>
-                      <optgroup label="Featured Destinations">
-                        <option value="amber-cove">Amber Cove</option>
-                        <option value="celebration-key">Celebration Key</option>
-                        <option value="grand-turk">Grand Turk</option>
-                        <option value="mahogany-bay-roatan">Mahogany Bay, Roatan</option>
-                        <option value="princess-cays">Princess Cays</option>
-                        <option value="half-moon-cay">Half Moon Cay</option>
-                      </optgroup>
-                    </select>
-                  </div>
-                  <div class="filter-control">
-                    <label for="departurePortFilterSelect">Sail From</label>
-                    <select id="departurePortFilterSelect" class="filter-select">
-                      <option value="">All Sail From Ports</option>
-                    </select>
-                  </div>
-                  <div class="filter-control date-filter-control">
-                    <label for="dateFilterButton">Dates</label>
-                    <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="dateFilterPanel">
-                      <span id="dateFilterButtonText">All Dates</span>
-                      <span class="date-filter-icon" id="dateFilterButtonIcon">▼</span>
-                    </button>
-                    <div id="dateFilterPanel" class="date-filter-panel" hidden>
-                      <div class="date-filter-tabs">
-                        <div class="date-filter-tab-bar">
-                          <button id="dateFilterTabMonths" class="date-filter-tab is-active" type="button" data-date-filter-tab="months">Months</button>
-                          <button id="dateFilterTabRanges" class="date-filter-tab" type="button" data-date-filter-tab="ranges">Date Range</button>
-                        </div>
-                      </div>
-                      <div id="dateFilterMonthsPane" class="date-filter-pane">
-                        <div id="dateFilterYears" class="date-filter-years"></div>
-                      </div>
-                      <div id="dateFilterRangesPane" class="date-filter-pane" hidden>
-                        <div id="dateRangeCalendar" class="date-range-calendar"></div>
-                      </div>
-                      <div class="date-filter-actions">
-                        <button id="dateFilterClearButton" class="reset-button" type="button">All Dates</button>
-                        <button id="dateFilterApplyButton" class="reset-button" type="button">Update Results</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="filter-control date-filter-control">
-                    <label for="durationFilterButton">Duration</label>
-                    <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="durationFilterPanel">
-                      <span id="durationFilterButtonText">All Durations</span>
-                      <span class="date-filter-icon">▼</span>
-                    </button>
-                    <div id="durationFilterPanel" class="date-filter-panel" hidden>
-                      <div id="durationFilterOptions" class="duration-filter-options">
-                        <button class="duration-filter-option" type="button" data-draft-duration-filter="2-5">2-5 Days</button>
-                        <button class="duration-filter-option" type="button" data-draft-duration-filter="6-9">6-9 Days</button>
-                        <button class="duration-filter-option" type="button" data-draft-duration-filter="10+">10+ Days</button>
-                      </div>
-                      <div class="date-filter-actions">
-                        <button id="durationFilterApplyButton" class="reset-button" type="button">Update Results</button>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="filter-control">
-                    <label for="destinationSettingFilter">Setting</label>
-                    <select id="destinationSettingFilter" class="filter-select">
-                      <option value="">Setting</option>
-                    </select>
-                  </div>
-                  <div class="filter-control">
-                    <label for="destinationBestTimeFilter">Best Time to Visit</label>
-                    <select id="destinationBestTimeFilter" class="filter-select">
-                      <option value="">Best Time to Visit</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
             <div id="searchFeedback" class="search-feedback" hidden aria-live="polite" aria-busy="true">
               <div class="search-feedback-card">
                 <div class="search-feedback-spinner" aria-hidden="true"></div>
