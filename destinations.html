@@ -1,0 +1,5390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Datamaps World Choropleth</title>
+  <style>
+    :root {
+      --page-bg: #f4f7fb;
+      --panel-bg: #ffffff;
+      --ink: #16324f;
+      --muted: #5b7083;
+      --border: #d8e2ec;
+      --accent-0: #eef3f8;
+      --accent-1: #d7e6f6;
+      --accent-2: #2f6fae;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(111, 164, 216, 0.18), transparent 28%),
+        linear-gradient(180deg, #f8fbfe 0%, var(--page-bg) 100%);
+    }
+
+    .page {
+      width: calc(100% - 16px);
+      margin: 0 auto;
+      padding: 24px 0 32px;
+    }
+
+    .hero,
+    .map-panel,
+    .categories-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(22, 50, 79, 0.08);
+    }
+
+    .hero {
+      padding: 24px 28px;
+      margin-bottom: 20px;
+    }
+
+    .hero-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .hero-copy-block {
+      min-width: min(100%, 520px);
+      flex: 1 1 520px;
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .hero .filter-controls {
+      width: min(1100px, 100%);
+      margin: 18px auto 0;
+    }
+
+    .hero .categories-panel {
+      margin: 8px auto 0;
+      padding: 0;
+      width: min(1100px, 100%);
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .hero-actions {
+      display: grid;
+      gap: 10px;
+      justify-items: end;
+      min-width: 260px;
+    }
+
+    .hero-actions[hidden] {
+      display: none !important;
+    }
+
+    .refresh-button {
+      border: 1px solid var(--accent-2);
+      border-radius: 999px;
+      background: var(--accent-2);
+      color: #ffffff;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 11px 16px;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(47, 111, 174, 0.18);
+    }
+
+    .refresh-button[disabled] {
+      cursor: wait;
+      opacity: 0.7;
+    }
+
+    .refresh-status {
+      margin: 0;
+      max-width: 320px;
+      text-align: right;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .refresh-status[data-state="success"] {
+      color: #196944;
+    }
+
+    .refresh-status[data-state="error"] {
+      color: #9b2d30;
+    }
+
+    .layout {
+      display: block;
+    }
+
+    .map-panel {
+      padding: 18px 18px 12px;
+    }
+
+    .map-main,
+    .map-main.has-itinerary {
+      display: block;
+    }
+
+    .panel-title {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .map-head .panel-title {
+      margin-bottom: 0;
+    }
+
+    #map {
+      position: relative;
+      width: 100%;
+      height: min(72vh, 860px);
+      min-height: 560px;
+      border-radius: 16px;
+      background: #eef3f8;
+      overflow: hidden;
+    }
+
+    #map.is-pannable {
+      cursor: grab;
+    }
+
+    #map.is-pannable.is-dragging {
+      cursor: grabbing;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 25;
+      display: flex;
+      gap: 10px;
+    }
+
+    .map-control-button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(22, 50, 79, 0.12);
+    }
+
+    .map-overlay {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      width: min(320px, calc(100% - 32px));
+      max-height: calc(100% - 32px);
+      overflow: auto;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 14px 32px rgba(22, 50, 79, 0.12);
+      backdrop-filter: blur(8px);
+    }
+
+    .map-overlay[hidden] {
+      display: none;
+    }
+
+    .map-overlay-title {
+      margin: 0 0 10px;
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .map-overlay-list {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .categories-panel {
+      margin-top: 0;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    .map-panel .categories-panel {
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+
+    .legend {
+      margin: 0 0 18px;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .legend li,
+    .top-states li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .top-states {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .top-states li {
+      justify-content: space-between;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdff;
+    }
+
+    .top-states strong {
+      font-size: 15px;
+    }
+
+    .top-states span {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .filter-controls {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .filter-control {
+      display: grid;
+      gap: 6px;
+    }
+
+    .filter-control label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .filter-select {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 10px 12px;
+      width: 100%;
+    }
+
+    .date-filter-control {
+      position: relative;
+    }
+
+    .date-filter-trigger {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .date-filter-trigger.is-open {
+      border-color: var(--accent-2);
+      background: var(--accent-0);
+      color: var(--ink);
+    }
+
+    .date-filter-icon {
+      flex: 0 0 auto;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .date-filter-panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 40;
+      width: clamp(720px, 72vw, 1080px);
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+      box-shadow: 0 16px 40px rgba(22, 50, 79, 0.12);
+    }
+
+    .date-filter-panel[hidden] {
+      display: none;
+    }
+
+    .date-filter-tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .date-filter-tab-bar {
+      display: inline-grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 0;
+      padding: 6px;
+      border-radius: 0;
+      background: #e9eef6;
+    }
+
+    .date-filter-tab {
+      border: 1px solid transparent;
+      border-radius: 0;
+      background: transparent;
+      color: var(--accent-2);
+      font: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 12px 24px;
+      cursor: pointer;
+    }
+
+    .date-filter-tab.is-active {
+      border-color: var(--accent-2);
+      background: #ffffff;
+      color: var(--accent-2);
+    }
+
+    .date-filter-pane[hidden] {
+      display: none;
+    }
+
+    .date-filter-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 18px;
+    }
+
+    .duration-filter-options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .duration-filter-option {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 12px 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .duration-filter-option.is-active {
+      border-color: var(--accent-2);
+      background: var(--accent-0);
+      color: var(--ink);
+    }
+
+    .date-filter-years {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .date-range-calendar {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) 44px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .date-range-nav {
+      border: 0;
+      background: transparent;
+      color: var(--accent-2);
+      font: inherit;
+      font-size: 34px;
+      line-height: 1;
+      padding: 48px 0 0;
+      cursor: pointer;
+    }
+
+    .date-range-month {
+      display: grid;
+      gap: 10px;
+    }
+
+    .date-range-month-title {
+      margin: 0;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .date-range-weekdays,
+    .date-range-days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .date-range-weekdays {
+      gap: 8px;
+    }
+
+    .date-range-days {
+      gap: 0;
+    }
+
+    .date-range-weekdays span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .date-range-day {
+      min-height: 42px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      cursor: default;
+    }
+
+    .date-range-day.is-available {
+      color: var(--accent-2);
+      cursor: pointer;
+    }
+
+    .date-range-day.is-selected {
+      background: var(--accent-2);
+      color: #ffffff;
+    }
+
+    .date-range-day.range-start,
+    .date-range-day.range-end,
+    .date-range-day.range-single {
+      background: var(--accent-2);
+      color: #ffffff;
+    }
+
+    .date-range-day.range-start {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .date-range-day.range-end {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .date-range-day.range-single {
+      border-radius: 0;
+    }
+
+    .date-range-day.is-empty {
+      visibility: hidden;
+    }
+
+    .selection-panel {
+      margin-top: 0;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fbfdff;
+    }
+
+    #itineraryBrowser {
+      position: relative;
+      max-height: min(72vh, 860px);
+      overflow: auto;
+      overflow-x: hidden;
+      padding: 0;
+    }
+
+    .search-feedback {
+      position: absolute;
+      inset: 0;
+      z-index: 40;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(251, 253, 255, 0.84);
+      backdrop-filter: blur(4px);
+    }
+
+    .search-feedback[hidden] {
+      display: none;
+    }
+
+    .search-feedback-card {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      min-width: 180px;
+      padding: 18px 22px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 14px 32px rgba(22, 50, 79, 0.12);
+    }
+
+    .search-feedback-spinner {
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(47, 111, 174, 0.18);
+      border-top-color: var(--accent-2);
+      border-radius: 50%;
+      animation: search-spin 0.9s linear infinite;
+    }
+
+    .search-feedback-text {
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @keyframes search-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .itinerary-sticky-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      margin: 0 0 12px;
+      padding: 18px 18px 14px;
+      background: #fbfdff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 8px 20px rgba(22, 50, 79, 0.04);
+    }
+
+    .browser-toolbar {
+      display: grid;
+      grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .browser-toolbar .browser-category-control {
+      margin: 0;
+    }
+
+    .browser-toolbar .filter-controls {
+      margin: 0;
+      width: 100%;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+    }
+
+    .selection-panel[hidden] {
+      display: none;
+    }
+
+    .selection-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .selection-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .selection-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .reset-button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fbfdff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .reset-button[hidden] {
+      display: none;
+    }
+
+    .itinerary-filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .itinerary-filter-button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .itinerary-filter-button.is-active {
+      border-color: var(--accent-2);
+      background: var(--accent-0);
+      color: var(--ink);
+    }
+
+    .itinerary-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .departure-port-panel {
+      margin: 8px 0 14px;
+    }
+
+    .departure-port-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .departure-port-button {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .departure-port-button.is-active {
+      border-color: var(--accent-2);
+      background: var(--accent-0);
+      color: var(--ink);
+    }
+
+    .year-sections {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+      align-items: start;
+    }
+
+    .year-section {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+    }
+
+    .year-title {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .month-button {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 10px 8px;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .month-button[disabled] {
+      cursor: default;
+      color: var(--muted);
+      background: #f5f7fa;
+    }
+
+    .month-button.is-active {
+      background: var(--ink);
+      color: #ffffff;
+      border-color: var(--ink);
+    }
+
+    .itinerary-list {
+      margin: 0;
+      padding: 0 18px 18px;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .itinerary-list li {
+      position: relative;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fbfdff;
+      display: grid;
+      gap: 4px;
+      font-size: 14px;
+    }
+
+    .itinerary-list strong {
+      display: block;
+      padding-right: 360px;
+      font-size: 15px;
+    }
+
+    .itinerary-summary {
+      margin: 2px 0 10px;
+      padding-right: 360px;
+      color: var(--ink);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .itinerary-pill-stack {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: grid;
+      justify-items: end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .itinerary-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 0;
+      background: var(--accent-2);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .itinerary-pill.is-final-payment {
+      background: #f4df72;
+      color: #000000;
+    }
+
+    .itinerary-pill.is-final-payment.is-due-now {
+      color: #b42318;
+    }
+
+    .itinerary-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .itinerary-footer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .itinerary-route {
+      text-align: center;
+      justify-self: center;
+      align-self: start;
+    }
+
+    .itinerary-footer-spacer {
+      min-width: 0;
+    }
+
+    .itinerary-offers-link {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #1d7a34;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      white-space: nowrap;
+      justify-self: start;
+      align-self: start;
+      cursor: pointer;
+    }
+
+    .itinerary-offers-link::after {
+      content: "\25BE";
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .itinerary-offers-link[aria-expanded="true"]::after {
+      content: "\25B4";
+    }
+
+    .itinerary-offers-link:hover {
+      text-decoration: underline;
+    }
+
+    .itinerary-offer-details {
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 4px;
+    }
+
+    .itinerary-offer-details[hidden] {
+      display: none;
+    }
+
+    .itinerary-offer-title {
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .itinerary-offer-item {
+      display: grid;
+      gap: 2px;
+    }
+
+    .itinerary-offer-item + .itinerary-offer-item {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .itinerary-offer-status {
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .itinerary-offer-status.is-eligible {
+      color: #1d7a34;
+    }
+
+    .itinerary-offer-status.is-not-eligible {
+      color: #b3261e;
+    }
+
+    .destination-panel {
+      margin-top: 20px;
+      padding: 24px;
+    }
+
+    .destination-panel-head {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .destination-panel-head h2 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.05;
+    }
+
+    .destination-panel-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .destination-filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .destination-status {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .destination-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .destination-card {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #fbfdff;
+      overflow: hidden;
+      cursor: default;
+      text-align: left;
+      padding: 0;
+      box-shadow: 0 10px 24px rgba(22, 50, 79, 0.06);
+    }
+
+    .destination-card-image {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      background: #dce6f0;
+      border-radius: 0;
+      overflow: hidden;
+    }
+
+    .destination-card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .destination-card-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(22, 50, 79, 0.08) 0%, rgba(22, 50, 79, 0.26) 100%);
+      pointer-events: none;
+    }
+
+    .destination-card-explore {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      opacity: 0;
+      visibility: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 10px 18px;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(22, 50, 79, 0.16);
+      transition: opacity 0.18s ease, visibility 0.18s ease;
+    }
+
+    .destination-card-image:hover .destination-card-explore,
+    .destination-card-image:focus-within .destination-card-explore {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (hover: none) {
+      .destination-card-explore {
+        opacity: 1;
+        visibility: visible;
+      }
+    }
+
+    .destination-card-copy {
+      display: grid;
+      gap: 4px;
+      padding: 10px 12px 12px;
+    }
+
+    .destination-card-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .destination-card-country {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .destination-card-meta {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .destination-empty {
+      grid-column: 1 / -1;
+      padding: 18px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      background: #fbfdff;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .destination-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(9, 19, 31, 0.82);
+      backdrop-filter: blur(8px);
+    }
+
+    .destination-modal.is-open {
+      display: flex;
+    }
+
+    .destination-modal-panel {
+      width: min(1100px, 100%);
+      max-height: 90vh;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(22, 50, 79, 0.26);
+    }
+
+    .destination-modal-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px 22px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .destination-modal-title {
+      margin: 0;
+      font-size: 30px;
+      line-height: 1.05;
+    }
+
+    .destination-modal-subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .destination-modal-close {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fbfdff;
+      color: var(--ink);
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .destination-modal-hero {
+      padding: 0 22px;
+    }
+
+    .destination-modal-hero[hidden] {
+      display: none;
+    }
+
+    .destination-modal-hero-image {
+      width: 100%;
+      max-height: 280px;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #dce6f0;
+    }
+
+    .destination-modal-hero-image img {
+      width: 100%;
+      height: 100%;
+      max-height: 280px;
+      object-fit: cover;
+    }
+
+    .destination-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 14px 22px 0;
+    }
+
+    .destination-tab {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #fbfdff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 10px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .destination-tab.is-active {
+      border-color: var(--accent-2);
+      background: var(--accent-2);
+      color: #ffffff;
+    }
+
+    .destination-modal-body {
+      overflow: auto;
+      padding: 20px 22px 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .destination-block {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: #fbfdff;
+      padding: 18px;
+    }
+
+    .destination-block h3,
+    .destination-block h4 {
+      margin: 0 0 12px;
+    }
+
+    .destination-rich {
+      line-height: 1.7;
+      color: var(--ink);
+    }
+
+    .destination-rich p:first-child,
+    .destination-rich ul:first-child,
+    .destination-rich ol:first-child {
+      margin-top: 0;
+    }
+
+    .destination-rich p:last-child,
+    .destination-rich ul:last-child,
+    .destination-rich ol:last-child {
+      margin-bottom: 0;
+    }
+
+    .destination-section-item {
+      display: grid;
+      grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .destination-section-item + .destination-section-item {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .destination-section-image {
+      border-radius: 14px;
+      overflow: hidden;
+      background: #dce6f0;
+    }
+
+    .destination-section-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    #browserDestinationsPane {
+      padding: 18px;
+    }
+
+    #browserDestinationsPane[hidden] {
+      display: none;
+    }
+
+    #browserDestinationsPane .destination-panel-head h2 {
+      font-size: 22px;
+    }
+
+    .datamaps-hoverover {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(22, 50, 79, 0.12);
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--ink);
+      box-shadow: 0 10px 30px rgba(22, 50, 79, 0.15);
+      font-family: inherit;
+    }
+
+    .datamaps-hoverover strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1280px) {
+      .browser-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .year-sections {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .date-filter-panel {
+        width: min(100vw - 40px, 920px);
+      }
+
+      .date-filter-years {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .date-range-calendar {
+        grid-template-columns: 32px minmax(0, 1fr) minmax(0, 1fr) 32px;
+      }
+    }
+
+    @media (max-width: 980px) {
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1440px);
+        padding-top: 12px;
+      }
+
+      .hero,
+      .map-panel,
+      .categories-panel {
+        border-radius: 16px;
+      }
+
+      .hero,
+      .categories-panel {
+        padding: 18px;
+      }
+
+      .hero-actions {
+        width: 100%;
+        justify-items: start;
+      }
+
+      .refresh-status {
+        max-width: none;
+        text-align: left;
+      }
+
+      #map {
+        min-height: 420px;
+        height: 60vh;
+      }
+
+      .year-sections {
+        grid-template-columns: 1fr;
+      }
+
+      .month-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .filter-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .destination-filters,
+      .destination-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .selection-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .selection-actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .filter-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .destination-filters,
+      .destination-grid,
+      .destination-section-item {
+        grid-template-columns: 1fr;
+      }
+
+      .duration-filter-options {
+        grid-template-columns: 1fr;
+      }
+
+      .date-filter-panel {
+        left: 0;
+        right: auto;
+        width: min(100vw - 40px, 100%);
+      }
+
+      .date-filter-years {
+        grid-template-columns: 1fr;
+      }
+
+      .date-filter-tab-bar {
+        width: 100%;
+        grid-template-columns: 1fr;
+      }
+
+      .date-range-calendar {
+        grid-template-columns: 1fr;
+      }
+
+      .date-range-nav {
+        padding-top: 0;
+      }
+
+      .itinerary-list strong {
+        padding-right: 0;
+      }
+
+      .itinerary-summary {
+        padding-right: 0;
+      }
+
+      .itinerary-pill-stack {
+        position: static;
+        justify-items: start;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-head">
+        <div class="hero-copy-block">
+          <h1 id="heroTitle">Explore Destinations</h1>
+          <p id="heroCopy"></p>
+        </div>
+        <div class="hero-actions" id="refreshControls" hidden>
+          <button id="refreshMergedButton" class="refresh-button" type="button">Update Latest Data</button>
+          <p id="refreshMergedStatus" class="refresh-status">Latest merged data status will appear here.</p>
+        </div>
+      </div>
+      <section class="categories-panel">
+      </section>
+    </section>
+
+    <div class="layout">
+      <section class="map-panel">
+        <div class="map-main has-itinerary" id="mapMain">
+          <section id="itineraryBrowser" class="selection-panel">
+            <div class="itinerary-sticky-header">
+              <div class="selection-head">
+                <h3 id="itineraryTitle" class="selection-title"></h3>
+              </div>
+              <p id="itineraryCopy" class="itinerary-copy"></p>
+              <div class="browser-toolbar">
+                <div class="filter-control browser-category-control">
+                  <label for="browserCategorySelect">Category</label>
+                  <select id="browserCategorySelect" class="filter-select">
+                    <option value="destinations">Destinations (0)</option>
+                    <option value="itineraries">Itineraries (0)</option>
+                  </select>
+                </div>
+                <div class="filter-controls" id="filterControls">
+                  <div class="filter-control">
+                    <label for="sailToFilter">Sail To</label>
+                    <select id="sailToFilter" class="filter-select">
+                      <option value="">All Destinations</option>
+                      <optgroup label="Americas">
+                        <option value="alaska">Alaska</option>
+                        <option value="bahamas">The Bahamas</option>
+                        <option value="bermuda">Bermuda</option>
+                        <option value="canada-new-england">Canada &amp; New England</option>
+                        <option value="caribbean">Caribbean</option>
+                        <option value="greenland-canada">Greenland &amp; Canada</option>
+                        <option value="hawaii">Hawaii</option>
+                        <option value="mexico">Mexico</option>
+                        <option value="panama-canal">Panama Canal</option>
+                        <option value="south-america">South America</option>
+                      </optgroup>
+                      <optgroup label="Australia &amp; South Pacific">
+                        <option value="australia">Australia</option>
+                        <option value="new-zealand">New Zealand</option>
+                        <option value="south-pacific">South Pacific</option>
+                      </optgroup>
+                      <optgroup label="Europe &amp; Asia">
+                        <option value="asia">Asia</option>
+                        <option value="europe">Europe</option>
+                        <option value="transatlantic">Transatlantic</option>
+                        <option value="transpacific">Transpacific</option>
+                      </optgroup>
+                      <optgroup label="Featured Destinations">
+                        <option value="amber-cove">Amber Cove</option>
+                        <option value="celebration-key">Celebration Key</option>
+                        <option value="grand-turk">Grand Turk</option>
+                        <option value="mahogany-bay-roatan">Mahogany Bay, Roatan</option>
+                        <option value="princess-cays">Princess Cays</option>
+                        <option value="half-moon-cay">Half Moon Cay</option>
+                      </optgroup>
+                    </select>
+                  </div>
+                  <div class="filter-control">
+                    <label for="departurePortFilterSelect">Sail From</label>
+                    <select id="departurePortFilterSelect" class="filter-select">
+                      <option value="">All Sail From Ports</option>
+                    </select>
+                  </div>
+                  <div class="filter-control date-filter-control">
+                    <label for="dateFilterButton">Dates</label>
+                    <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="dateFilterPanel">
+                      <span id="dateFilterButtonText">All Dates</span>
+                      <span class="date-filter-icon" id="dateFilterButtonIcon">▼</span>
+                    </button>
+                    <div id="dateFilterPanel" class="date-filter-panel" hidden>
+                      <div class="date-filter-tabs">
+                        <div class="date-filter-tab-bar">
+                          <button id="dateFilterTabMonths" class="date-filter-tab is-active" type="button" data-date-filter-tab="months">Months</button>
+                          <button id="dateFilterTabRanges" class="date-filter-tab" type="button" data-date-filter-tab="ranges">Date Range</button>
+                        </div>
+                      </div>
+                      <div id="dateFilterMonthsPane" class="date-filter-pane">
+                        <div id="dateFilterYears" class="date-filter-years"></div>
+                      </div>
+                      <div id="dateFilterRangesPane" class="date-filter-pane" hidden>
+                        <div id="dateRangeCalendar" class="date-range-calendar"></div>
+                      </div>
+                      <div class="date-filter-actions">
+                        <button id="dateFilterClearButton" class="reset-button" type="button">All Dates</button>
+                        <button id="dateFilterApplyButton" class="reset-button" type="button">Update Results</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="filter-control date-filter-control">
+                    <label for="durationFilterButton">Duration</label>
+                    <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="durationFilterPanel">
+                      <span id="durationFilterButtonText">All Durations</span>
+                      <span class="date-filter-icon">▼</span>
+                    </button>
+                    <div id="durationFilterPanel" class="date-filter-panel" hidden>
+                      <div id="durationFilterOptions" class="duration-filter-options">
+                        <button class="duration-filter-option" type="button" data-draft-duration-filter="2-5">2-5 Days</button>
+                        <button class="duration-filter-option" type="button" data-draft-duration-filter="6-9">6-9 Days</button>
+                        <button class="duration-filter-option" type="button" data-draft-duration-filter="10+">10+ Days</button>
+                      </div>
+                      <div class="date-filter-actions">
+                        <button id="durationFilterApplyButton" class="reset-button" type="button">Update Results</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="filter-control">
+                    <label for="destinationSettingFilter">Setting</label>
+                    <select id="destinationSettingFilter" class="filter-select">
+                      <option value="">Setting</option>
+                    </select>
+                  </div>
+                  <div class="filter-control">
+                    <label for="destinationBestTimeFilter">Best Time to Visit</label>
+                    <select id="destinationBestTimeFilter" class="filter-select">
+                      <option value="">Best Time to Visit</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="searchFeedback" class="search-feedback" hidden aria-live="polite" aria-busy="true">
+              <div class="search-feedback-card">
+                <div class="search-feedback-spinner" aria-hidden="true"></div>
+                <div class="search-feedback-text" id="searchFeedbackText">Searching...</div>
+              </div>
+            </div>
+            <div id="browserDestinationsPane">
+              <p class="destination-status" id="destinationStatus">Loading destinations...</p>
+              <div class="destination-grid" id="destinationGrid"></div>
+            </div>
+            <div id="browserItinerariesPane" hidden>
+              <ul id="itineraryList" class="itinerary-list"></ul>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="destination-modal" id="destinationModal" aria-hidden="true">
+    <div class="destination-modal-panel" role="dialog" aria-modal="true" aria-labelledby="destinationModalTitle">
+      <div class="destination-modal-head">
+        <div>
+          <h2 class="destination-modal-title" id="destinationModalTitle"></h2>
+          <p class="destination-modal-subtitle" id="destinationModalSubtitle"></p>
+        </div>
+        <button class="destination-modal-close" id="destinationModalClose" type="button" aria-label="Close destination details">×</button>
+      </div>
+      <div class="destination-tabs" id="destinationTabs"></div>
+      <div class="destination-modal-hero" id="destinationModalHero" hidden>
+        <div class="destination-modal-hero-image">
+          <img id="destinationModalHeroImage" alt="" loading="lazy" decoding="async">
+        </div>
+      </div>
+      <div class="destination-modal-body" id="destinationModalBody"></div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datamaps@0.5.9/dist/datamaps.all.min.js"></script>
+  <script>
+    const COUNTRY_CODE_LOOKUP = {
+      USA: "USA",
+      "United States": "USA",
+      Spain: "ESP",
+      Argentina: "ARG",
+      Italy: "ITA",
+      Portugal: "PRT",
+      England: "GBR",
+      "United Kingdom": "GBR",
+      Chile: "CHL",
+      Japan: "JPN",
+      Singapore: "SGP",
+      "Hong Kong": "CHN",
+      China: "CHN"
+    };
+
+    const COUNTRY_NAME_LOOKUP = {
+      ABW: "Aruba",
+      ARG: "Argentina",
+      ATG: "Antigua and Barbuda",
+      AUS: "Australia",
+      BHS: "Bahamas",
+      BEL: "Belgium",
+      BES: "Bonaire, Sint Eustatius and Saba",
+      BLZ: "Belize",
+      BMU: "Bermuda",
+      BRA: "Brazil",
+      BRB: "Barbados",
+      CAN: "Canada",
+      CHL: "Chile",
+      COL: "Colombia",
+      CRI: "Costa Rica",
+      CUW: "Curacao",
+      CYM: "Cayman Islands",
+      DEU: "Germany",
+      DMA: "Dominica",
+      DNK: "Denmark",
+      DOM: "Dominican Republic",
+      ECU: "Ecuador",
+      EST: "Estonia",
+      USA: "United States",
+      ESP: "Spain",
+      FIN: "Finland",
+      FRA: "France",
+      GBR: "United Kingdom",
+      GGY: "Guernsey",
+      GIB: "Gibraltar",
+      GLP: "Guadeloupe",
+      GRC: "Greece",
+      GRD: "Grenada",
+      GRL: "Greenland",
+      HND: "Honduras",
+      HRV: "Croatia",
+      IDN: "Indonesia",
+      IRL: "Ireland",
+      ISL: "Iceland",
+      ITA: "Italy",
+      JAM: "Jamaica",
+      JPN: "Japan",
+      KNA: "Saint Kitts and Nevis",
+      KOR: "South Korea",
+      LCA: "Saint Lucia",
+      MAR: "Morocco",
+      MEX: "Mexico",
+      MLT: "Malta",
+      MNE: "Montenegro",
+      MTQ: "Martinique",
+      NLD: "Netherlands",
+      NZL: "New Zealand",
+      PAN: "Panama",
+      PER: "Peru",
+      PRI: "Puerto Rico",
+      PRT: "Portugal",
+      SWE: "Sweden",
+      SGP: "Singapore",
+      SXM: "Sint Maarten",
+      TCA: "Turks and Caicos Islands",
+      TUN: "Tunisia",
+      TUR: "Turkey",
+      TWN: "Taiwan",
+      URY: "Uruguay",
+      VCT: "Saint Vincent and the Grenadines",
+      VGB: "British Virgin Islands",
+      VIR: "U.S. Virgin Islands",
+      VNM: "Vietnam",
+      CHN: "China"
+    };
+
+    const US_DESTINATION_STATE_LOOKUP = {
+      "Catalina Island": "CA",
+      "Cruise Endicott Arm Fjord": "AK",
+      "Cruise Tracy Arm Fjord": "AK",
+      "Hilo, Hawaii": "HI",
+      "Honolulu, Oahu": "HI",
+      "Icy Strait Point": "AK",
+      "Juneau": "AK",
+      "Kahului, Maui": "HI",
+      "Ketchikan": "AK",
+      "Ketchikan (Ward Cove), Alaska": "AK",
+      "Key West": "FL",
+      "Kona, Hawaii": "HI",
+      "Nawiliwili, Kauai": "HI",
+      "Portland": "ME",
+      "Sitka": "AK",
+      "Skagway": "AK"
+    };
+
+    const STATE_NAME_LOOKUP = {
+      AL: "Alabama",
+      AK: "Alaska",
+      AZ: "Arizona",
+      AR: "Arkansas",
+      CA: "California",
+      CO: "Colorado",
+      CT: "Connecticut",
+      DE: "Delaware",
+      FL: "Florida",
+      GA: "Georgia",
+      HI: "Hawaii",
+      ID: "Idaho",
+      IL: "Illinois",
+      IN: "Indiana",
+      IA: "Iowa",
+      KS: "Kansas",
+      KY: "Kentucky",
+      LA: "Louisiana",
+      ME: "Maine",
+      MD: "Maryland",
+      MA: "Massachusetts",
+      MI: "Michigan",
+      MN: "Minnesota",
+      MS: "Mississippi",
+      MO: "Missouri",
+      MT: "Montana",
+      NE: "Nebraska",
+      NV: "Nevada",
+      NH: "New Hampshire",
+      NJ: "New Jersey",
+      NM: "New Mexico",
+      NY: "New York",
+      NC: "North Carolina",
+      ND: "North Dakota",
+      OH: "Ohio",
+      OK: "Oklahoma",
+      OR: "Oregon",
+      PA: "Pennsylvania",
+      RI: "Rhode Island",
+      SC: "South Carolina",
+      SD: "South Dakota",
+      TN: "Tennessee",
+      TX: "Texas",
+      UT: "Utah",
+      VT: "Vermont",
+      VA: "Virginia",
+      WA: "Washington",
+      WV: "West Virginia",
+      WI: "Wisconsin",
+      WY: "Wyoming",
+      DC: "District of Columbia"
+    };
+
+    const MAP_FILLS = {
+      active: "#2f6fae",
+      inactive: "#d7e6f6",
+      defaultFill: "#eef3f8"
+    };
+
+    const COUNTRY_ZOOM_OVERRIDES = {
+      BMU: {
+        longitude: -64.7505,
+        latitude: 32.3078,
+        scale: 60
+      }
+    };
+
+    const CATEGORY_ZOOM_OVERRIDES = {
+      alaska: {
+        longitude: -150.0,
+        latitude: 63.0,
+        scale: 4.2
+      },
+      hawaii: {
+        longitude: -157.5,
+        latitude: 20.8,
+        scale: 5.2
+      }
+    };
+
+    const DRILLDOWN_COUNTRY_CONFIG = {
+      ABW: { scope: "abw" },
+      ARG: { scope: "arg" },
+      BHS: { scope: "bhs" },
+      BLZ: { scope: "blz" },
+      BMU: { scope: "bmu" },
+      CAN: { scope: "can" },
+      CHL: { scope: "chl" },
+      CRI: { scope: "cri" },
+      CUW: { scope: "cuw" },
+      CYM: { scope: "cym" },
+      DOM: { scope: "dom" },
+      ESP: { scope: "esp" },
+      FRA: { scope: "fra" },
+      GBR: { scope: "gbr" },
+      HND: { scope: "hnd" },
+      ITA: { scope: "ita" },
+      JAM: { scope: "jam" },
+      JPN: { scope: "jpn" },
+      MEX: { scope: "mex" },
+      PAN: { scope: "pan" },
+      PRI: { scope: "pri" },
+      PRT: { scope: "prt" },
+      SXM: { scope: "sxm" },
+      TCA: { scope: "tca" },
+      USA: { scope: "usa" },
+      VIR: { scope: "vir" }
+    };
+
+    const CATEGORY_ZOOM_CODES = {
+      alaska: ["USA"],
+      bahamas: ["BHS"],
+      bermuda: ["BMU"],
+      "canada-new-england": ["CAN", "USA"],
+      caribbean: ["ABW", "ATG", "BES", "BHS", "BLZ", "BMU", "CUW", "CYM", "DMA", "DOM", "GRD", "HND", "JAM", "KNA", "LCA", "MTQ", "PRI", "SXM", "TCA", "VCT", "VGB", "VIR"],
+      "greenland-canada": ["GRL", "CAN"],
+      hawaii: ["USA"],
+      mexico: ["MEX"],
+      "panama-canal": ["PAN"],
+      "south-america": ["ARG", "BRA", "CHL", "COL", "ECU", "PER", "URY"],
+      australia: ["AUS"],
+      "new-zealand": ["NZL"],
+      "south-pacific": ["AUS", "NZL"],
+      asia: ["CHN", "IDN", "JPN", "KOR", "SGP", "TWN", "VNM"],
+      europe: ["BEL", "DEU", "DNK", "ESP", "EST", "FIN", "FRA", "GBR", "GGY", "GIB", "GRC", "HRV", "IRL", "ISL", "ITA", "MLT", "MNE", "NLD", "PRT", "SWE"],
+      transatlantic: ["USA", "CAN", "GBR", "IRL", "ISL", "ESP", "PRT", "FRA", "NLD", "BEL"],
+      transpacific: ["USA", "AUS", "CHN", "IDN", "JPN", "KOR", "NZL", "SGP", "TWN", "VNM"],
+      "amber-cove": ["DOM"],
+      "celebration-key": ["BHS"],
+      "grand-turk": ["TCA"],
+      "mahogany-bay-roatan": ["HND"],
+      "princess-cays": ["BHS"],
+      "half-moon-cay": ["BHS"]
+    };
+
+    const CATEGORY_DEFINITIONS = {
+      alaska: { group: "americas", portNames: ["Cruise Endicott Arm Fjord", "Cruise Tracy Arm Fjord", "Icy Strait Point", "Juneau", "Ketchikan", "Ketchikan (Ward Cove), Alaska", "Sitka", "Skagway"] },
+      bahamas: { group: "americas", countryCodes: ["BHS"] },
+      bermuda: { group: "americas", countryCodes: ["BMU"] },
+      "canada-new-england": { group: "americas", countryCodes: ["CAN"], portNames: ["Portland"] },
+      caribbean: { group: "americas", countryCodes: ["ABW", "ATG", "BES", "BHS", "BLZ", "BMU", "CUW", "CYM", "DMA", "DOM", "GRD", "HND", "JAM", "KNA", "LCA", "MTQ", "PRI", "SXM", "TCA", "VCT", "VGB", "VIR"] },
+      "greenland-canada": { group: "americas", countryCodes: ["GRL", "CAN"] },
+      hawaii: { group: "americas", portNames: ["Hilo, Hawaii", "Honolulu, Oahu", "Kahului, Maui", "Kona, Hawaii", "Nawiliwili, Kauai"] },
+      mexico: { group: "americas", countryCodes: ["MEX"] },
+      "panama-canal": { group: "americas", countryCodes: ["PAN"], portNames: ["Panama Canal Transit", "Colón (Panama Canal)"] },
+      "south-america": { group: "americas", countryCodes: ["ARG", "BRA", "CHL", "COL", "ECU", "PER", "URY"] },
+      australia: { group: "australia-south-pacific", countryCodes: ["AUS"] },
+      "new-zealand": { group: "australia-south-pacific", countryCodes: ["NZL"] },
+      "south-pacific": { group: "australia-south-pacific", countryCodes: ["AUS", "NZL"] },
+      asia: { group: "europe-asia", countryCodes: ["CHN", "IDN", "JPN", "KOR", "SGP", "TWN", "VNM"] },
+      europe: { group: "europe-asia", countryCodes: ["BEL", "DEU", "DNK", "ESP", "EST", "FIN", "FRA", "GBR", "GGY", "GIB", "GRC", "HRV", "IRL", "ISL", "ITA", "MLT", "MNE", "NLD", "PRT", "SWE", "TUN", "TUR"] },
+      transatlantic: { group: "europe-asia", titlePattern: /transatlantic/i, regionPattern: /transatlantic/i },
+      transpacific: { group: "europe-asia", titlePattern: /transpacific/i, regionPattern: /transpacific/i },
+      "amber-cove": { group: "featured-destinations", portNames: ["Amber Cove"] },
+      "celebration-key": { group: "featured-destinations", portNames: ["Celebration Key™"] },
+      "grand-turk": { group: "featured-destinations", portNames: ["Grand Turk"] },
+      "mahogany-bay-roatan": { group: "featured-destinations", portNames: ["Mahogany Bay, Roatan"] },
+      "princess-cays": { group: "featured-destinations", portNames: ["Princess Cays"] },
+      "half-moon-cay": { group: "featured-destinations", portNames: ["Half Moon Cay", "RelaxAway, Half Moon Cay™"] }
+    };
+
+    const CATEGORY_LABELS = {
+      alaska: "Alaska",
+      bahamas: "The Bahamas",
+      bermuda: "Bermuda",
+      "canada-new-england": "Canada & New England",
+      caribbean: "Caribbean",
+      "greenland-canada": "Greenland & Canada",
+      hawaii: "Hawaii",
+      mexico: "Mexico",
+      "panama-canal": "Panama Canal",
+      "south-america": "South America",
+      australia: "Australia",
+      "new-zealand": "New Zealand",
+      "south-pacific": "South Pacific",
+      asia: "Asia",
+      europe: "Europe",
+      transatlantic: "Transatlantic",
+      transpacific: "Transpacific",
+      "amber-cove": "Amber Cove",
+      "celebration-key": "Celebration Key",
+      "grand-turk": "Grand Turk",
+      "mahogany-bay-roatan": "Mahogany Bay, Roatan",
+      "princess-cays": "Princess Cays",
+      "half-moon-cay": "Half Moon Cay"
+    };
+
+    const SEASONAL_RECOMMENDATIONS = {
+      spring: new Set([
+        "bahamas",
+        "bermuda",
+        "caribbean",
+        "hawaii",
+        "mexico",
+        "panama-canal",
+        "south-america",
+        "australia",
+        "new-zealand",
+        "south-pacific",
+        "asia",
+        "europe",
+        "transatlantic",
+        "transpacific",
+        "amber-cove",
+        "celebration-key",
+        "grand-turk",
+        "mahogany-bay-roatan",
+        "princess-cays",
+        "half-moon-cay"
+      ]),
+      summer: new Set([
+        "alaska",
+        "bermuda",
+        "greenland-canada",
+        "south-pacific",
+        "europe",
+        "transpacific"
+      ]),
+      fall: new Set([
+        "canada-new-england",
+        "hawaii",
+        "mexico",
+        "south-america",
+        "australia",
+        "new-zealand",
+        "south-pacific",
+        "asia",
+        "europe",
+        "transatlantic",
+        "transpacific"
+      ]),
+      winter: new Set([
+        "bahamas",
+        "caribbean",
+        "mexico",
+        "panama-canal",
+        "south-america",
+        "new-zealand",
+        "asia",
+        "amber-cove",
+        "celebration-key",
+        "grand-turk",
+        "mahogany-bay-roatan",
+        "princess-cays",
+        "half-moon-cay"
+      ])
+    };
+
+    const BASE_DATAMAP_CONSTRUCTOR = window.Datamap;
+
+    let mapInstance = null;
+    let currentSelectionId = null;
+    let currentSelectionIds = [];
+    let currentActiveCategoryKey = null;
+    let currentCategoryStats = { categoryStats: {}, groupStats: {}, allStats: null };
+    let currentItineraryMonth = null;
+    let currentDateFilter = null;
+    let currentDateRangeEnd = null;
+    let currentDateRangeBaseMonth = null;
+    let currentDurationFilters = [];
+    let currentDeparturePortFilter = null;
+    let currentDateFilterTab = "months";
+    let draftItineraryMonth = null;
+    let draftDateFilter = null;
+    let draftDateRangeEnd = null;
+    let draftDateRangeBaseMonth = null;
+    let draftDateFilterTab = "months";
+    let isDateFilterPanelOpen = false;
+    let draftDurationFilters = [];
+    let isDurationFilterPanelOpen = false;
+    let currentItineraryBrowserOpen = false;
+    let currentPortsByCountry = {};
+    let currentDrilldownCode = null;
+    let currentView = "world";
+    let currentPayload = null;
+    let currentMapProjection = null;
+    let currentMapTransform = { x: 0, y: 0, scale: 1 };
+    let mapPanState = { dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+    let currentDestinationSettingFilter = "";
+    let currentDestinationBestTimeFilter = "";
+    let currentDestinationCruiseIdSet = null;
+    let currentItineraryResultsCount = 0;
+    let currentDestinationResultsCount = 0;
+    let rerenderDestinationGrid = null;
+    let currentBrowserTab = "destinations";
+    let destinationMatchedCruiseIdsCache = new Map();
+    let isBootstrappingBrowserView = false;
+
+    const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const DURATION_FILTER_OPTIONS = [
+      { key: "2-5", label: "2-5 Days" },
+      { key: "6-9", label: "6-9 Days" },
+      { key: "10+", label: "10+ Days" }
+    ];
+    const DESTINATION_SETTING_ORDER = ["Beach", "City", "Countryside", "Desert"];
+    const DESTINATION_BEST_TIME_ORDER = ["Spring", "Winter", "Summer", "Fall"];
+
+    const DESTINATION_LOOKUP = {
+      "Aarhus": "DNK",
+      "Acapulco": "MEX",
+      "Airlie Beach": "AUS",
+      "Ajaccio, Corsica": "FRA",
+      "Akureyri": "ISL",
+      "Alicante": "ESP",
+      "Amber Cove": "DOM",
+      "Amsterdam": "NLD",
+      "Antigua": "ATG",
+      "Aomori": "JPN",
+      "Aruba": "ABW",
+      "Bar": "MNE",
+      "Barbados": "BRB",
+      "Barcelona": "ESP",
+      "Bari": "ITA",
+      "Belfast": "GBR",
+      "Belize": "BLZ",
+      "Benoa (Denpasar)": "IDN",
+      "Bermuda": "BMU",
+      "Bilbao": "ESP",
+      "Bimini": "BHS",
+      "Bonaire": "BES",
+      "Brisbane": "AUS",
+      "Buenos Aires": "ARG",
+      "Busan (Pusan), South Korea": "KOR",
+      "Cabo San Lucas": "MEX",
+      "Cairns": "AUS",
+      "Callao (Lima)": "PER",
+      "Cartagena": "COL",
+      "Catalina Island": "USA",
+      "Catania, Sicily": "ITA",
+      "Celebration Key™": "BHS",
+      "Charlottetown, PE": "CAN",
+      "Civitavecchia (Rome)": "ITA",
+      "Cobh (Cork)": "IRL",
+      "Colón (Panama Canal)": "PAN",
+      "Copenhagen": "DNK",
+      "Coquimbo (La Serena)": "CHL",
+      "Corfu": "GRC",
+      "Corner Brook, NL": "CAN",
+      "Costa Maya": "MEX",
+      "Cozumel": "MEX",
+      "Cruise Amalia Glacier": "CHL",
+      "Cruise Cape Horn": "CHL",
+      "Cruise Chilean Fjords": "CHL",
+      "Cruise Darwin Channel": "CHL",
+      "Cruise Endicott Arm Fjord": "USA",
+      "Cruise Strait of Magellan": "CHL",
+      "Cruise Tracy Arm Fjord": "USA",
+      "Curaçao": "CUW",
+      "Cádiz (Seville)": "ESP",
+      "Darwin": "AUS",
+      "Djupivogur": "ISL",
+      "Dominica": "DMA",
+      "Dover (London)": "GBR",
+      "Dubrovnik": "HRV",
+      "Dun Laoghaire (Dublin)": "IRL",
+      "Ensenada": "MEX",
+      "Fukuoka (Hakata)": "JPN",
+      "Funchal, Madeira": "PRT",
+      "Genoa": "ITA",
+      "Gibraltar": "GIB",
+      "Gothenburg": "SWE",
+      "Grand Cayman": "CYM",
+      "Grand Turk": "TCA",
+      "Greenock (Glasgow)": "GBR",
+      "Grenada": "GRD",
+      "Grundarfjordur": "ISL",
+      "Guadeloupe": "GLP",
+      "Half Moon Cay": "BHS",
+      "Halifax, NS": "CAN",
+      "Helsinki": "FIN",
+      "Hilo, Hawaii": "USA",
+      "Holyhead, Wales": "GBR",
+      "Hong Kong": "CHN",
+      "Honolulu, Oahu": "USA",
+      "Huatulco": "MEX",
+      "Icy Strait Point": "USA",
+      "Isla Tropicale, Roatan": "HND",
+      "Istanbul": "TUR",
+      "Izmir (Ephesus)": "TUR",
+      "Juneau": "USA",
+      "Kahului, Maui": "USA",
+      "Katakolon (Olympia)": "GRC",
+      "Kavala (Neapolis)": "GRC",
+      "Keelung (Taipei)": "TWN",
+      "Ketchikan": "USA",
+      "Ketchikan (Ward Cove), Alaska": "USA",
+      "Key West": "USA",
+      "Kiel (Hamburg)": "DEU",
+      "Kingstown, St. Vincent": "VCT",
+      "Kirkwall, Orkney Islands": "GBR",
+      "Kobe (Kyoto)": "JPN",
+      "Kona, Hawaii": "USA",
+      "Kotor": "MNE",
+      "Kusadasi (Ephesus), Turkey": "TUR",
+      "La Coruña": "ESP",
+      "La Goulette (Tunis)": "TUN",
+      "La Paz": "MEX",
+      "Le Havre (Paris)": "FRA",
+      "Le Verdon (Bordeaux)": "FRA",
+      "Leixões (Porto)": "PRT",
+      "Lembar (Lombok)": "IDN",
+      "Limón": "CRI",
+      "Lisbon": "PRT",
+      "Liverpool": "GBR",
+      "Livorno (Florence & Pisa)": "ITA",
+      "Maceio": "BRA",
+      "Mahogany Bay, Roatan": "HND",
+      "Malta": "MLT",
+      "Manta": "ECU",
+      "Manzanillo": "MEX",
+      "Marseille (Provence)": "FRA",
+      "Martinique": "MTQ",
+      "Mazatlán": "MEX",
+      "Montego Bay": "JAM",
+      "Montevideo": "URY",
+      "Mykonos": "GRC",
+      "Málaga": "ESP",
+      "Nanortalik": "GRL",
+      "Napier": "NZL",
+      "Naples (Amalfi/Pompeii)": "ITA",
+      "Nassau": "BHS",
+      "Nawiliwili, Kauai": "USA",
+      "Ocho Rios": "JAM",
+      "Otaru (Sapporo)": "JPN",
+      "Palermo, Sicily": "ITA",
+      "Palma de Mallorca": "ESP",
+      "Panama Canal Transit": "PAN",
+      "Phu My (Ho Chi Minh)": "VNM",
+      "Piraeus (Athens)": "GRC",
+      "Ponta Delgada": "PRT",
+      "Portland": "USA",
+      "Prince Rupert, BC": "CAN",
+      "Princess Cays": "BHS",
+      "Progreso, Yucatán": "MEX",
+      "Puerto Madryn": "ARG",
+      "Puerto Vallarta": "MEX",
+      "Puntarenas": "CRI",
+      "Qaqortoq": "GRL",
+      "RelaxAway, Half Moon Cay™": "BHS",
+      "Reykjavik": "ISL",
+      "Ringaskiddy (Cork)": "IRL",
+      "Rio de Janeiro": "BRA",
+      "Saint John, NB": "CAN",
+      "Salerno (Amalfi/Pompeii)": "ITA",
+      "San Juan": "PRI",
+      "Santa Marta": "COL",
+      "Santorini": "GRC",
+      "Seogwipo (Jeju)": "KOR",
+      "Ship Meetups": null,
+      "Sitka": "USA",
+      "Skagway": "USA",
+      "Solar Eclipse Scenic Cruising": null,
+      "Souda (Chania), Crete": "GRC",
+      "Split": "HRV",
+      "St. Anthony, NL": "CAN",
+      "St. Croix": "VIR",
+      "St. Kitts": "KNA",
+      "St. Lucia": "LCA",
+      "St. Maarten": "SXM",
+      "St. Peter Port": "GGY",
+      "St. Thomas": "VIR",
+      "Stornoway": "GBR",
+      "Sydney, NS": "CAN",
+      "Tallinn": "EST",
+      "Tauranga": "NZL",
+      "Tangier": "MAR",
+      "Tortola": "VGB",
+      "Auckland": "NZL",
+      "Bay of Islands": "NZL",
+      "Wellington": "NZL",
+      "Lyttelton (Christchurch)": "NZL",
+      "Port Chalmers (Dunedin)": "NZL",
+      "Cruise Fiordland National Park": "NZL",
+      "Ushuaia, Argentina": "ARG",
+      "Victoria": "CAN",
+      "Vigo": "ESP",
+      "Warnemünde (Berlin)": "DEU",
+      "Zeebrugge (Brussels)": "BEL",
+      "Zihuatanejo (Ixtapa)": "MEX"
+    };
+
+    function normalizeStopName(stop) {
+      return String(stop || "")
+        .replace(/^Overnight\s+/i, "")
+        .replace(/^\d+\s+days?\s+at\s+/i, "")
+        .trim();
+    }
+
+    function getDestinationCode(stop) {
+      const normalized = normalizeStopName(stop);
+
+      if (!normalized || normalized === "Fun Day at Sea") {
+        return null;
+      }
+      if (normalized === "Cross International Date Line" || normalized === "Crossing The Equator") {
+        return null;
+      }
+
+      return Object.prototype.hasOwnProperty.call(DESTINATION_LOOKUP, normalized)
+        ? DESTINATION_LOOKUP[normalized]
+        : null;
+    }
+
+    function collectDestinationData(cruises) {
+      const portsByCountry = {};
+
+      cruises.forEach((cruise) => {
+        // Exclude embarkation and disembarkation by ignoring the first and last itinerary stops.
+        const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1) : [];
+
+        stops.forEach((stop) => {
+          const countryCode = getDestinationCode(stop);
+          if (countryCode) {
+            const normalized = normalizeStopName(stop);
+            portsByCountry[countryCode] = portsByCountry[countryCode] || {};
+            portsByCountry[countryCode][normalized] = (portsByCountry[countryCode][normalized] || 0) + 1;
+          }
+        });
+      });
+
+      const counts = Object.keys(portsByCountry).reduce(function(acc, countryCode) {
+        acc[countryCode] = Object.keys(portsByCountry[countryCode] || {}).length;
+        return acc;
+      }, {});
+
+      return { counts, portsByCountry };
+    }
+
+    function collectUsDestinationStateData(cruises) {
+      const portsByState = {};
+
+      cruises.forEach(function(cruise) {
+        const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1) : [];
+
+        stops.forEach(function(stop) {
+          const normalized = normalizeStopName(stop);
+          const stateCode = US_DESTINATION_STATE_LOOKUP[normalized];
+
+          if (!stateCode) {
+            return;
+          }
+
+          portsByState[stateCode] = portsByState[stateCode] || {};
+          portsByState[stateCode][normalized] = (portsByState[stateCode][normalized] || 0) + 1;
+        });
+      });
+
+      const counts = Object.keys(portsByState).reduce(function(acc, stateCode) {
+        acc[stateCode] = Object.keys(portsByState[stateCode] || {}).length;
+        return acc;
+      }, {});
+
+      return { counts: counts, portsByState: portsByState };
+    }
+
+    function resolveUnitedStatesHoverState(event) {
+      if (!event || !event.target || typeof event.target.getBBox !== "function") {
+        return "USA";
+      }
+
+      const pathNode = event.target;
+      const bbox = pathNode.getBBox();
+      if (!bbox.width || !bbox.height) {
+        return "USA";
+      }
+
+      const svg = pathNode.ownerSVGElement;
+      if (!svg || typeof svg.createSVGPoint !== "function" || typeof pathNode.getScreenCTM !== "function") {
+        return "USA";
+      }
+
+      const point = svg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+
+      const matrix = pathNode.getScreenCTM();
+      if (!matrix) {
+        return "USA";
+      }
+
+      const localPoint = point.matrixTransform(matrix.inverse());
+      const relX = (localPoint.x - bbox.x) / bbox.width;
+      const relY = (localPoint.y - bbox.y) / bbox.height;
+
+      if (relX < 0.22) {
+        return "AK";
+      }
+
+      if (relX < 0.5 && relY > 0.78) {
+        return "HI";
+      }
+
+      return "USA";
+    }
+
+    function resolveHoverLocation(geo, data, event, usStateData) {
+      if (geo && geo.id === "USA") {
+        const stateCode = resolveUnitedStatesHoverState(event);
+        if (stateCode !== "USA") {
+          return {
+            displayName: STATE_NAME_LOOKUP[stateCode] || stateCode,
+            portCount: usStateData && usStateData.counts && typeof usStateData.counts[stateCode] === "number"
+              ? usStateData.counts[stateCode]
+              : 0
+          };
+        }
+      }
+
+      return {
+        displayName: (geo && geo.properties && geo.properties.name) || (data && data.label) || COUNTRY_NAME_LOOKUP[geo.id] || geo.id,
+        portCount: data && typeof data.portCount === "number" ? data.portCount : 0
+      };
+    }
+
+    function getCategoryMatchedPorts(cruise, definition) {
+      const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1) : [];
+      const matched = new Set();
+      const portNames = new Set(definition.portNames || []);
+      const countryCodes = new Set(definition.countryCodes || []);
+
+      stops.forEach(function(stop) {
+        const normalized = normalizeStopName(stop);
+        const countryCode = getDestinationCode(stop);
+
+        if (portNames.has(normalized)) {
+          matched.add(normalized);
+          return;
+        }
+
+        if (countryCodes.size && countryCode && countryCodes.has(countryCode)) {
+          matched.add(normalized);
+        }
+      });
+
+      return matched;
+    }
+
+    function cruiseMatchesCategory(cruise, definition) {
+      const matchedPorts = getCategoryMatchedPorts(cruise, definition);
+      if (matchedPorts.size) {
+        return matchedPorts;
+      }
+
+      if (definition.titlePattern && definition.titlePattern.test(String(cruise.itineraryTitle || ""))) {
+        return new Set(Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1).map(normalizeStopName).filter(Boolean) : []);
+      }
+
+      if (definition.regionPattern && definition.regionPattern.test(String(cruise.regionName || ""))) {
+        return new Set(Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1).map(normalizeStopName).filter(Boolean) : []);
+      }
+
+      return new Set();
+    }
+
+    function getAllCruiseDestinationPorts(cruise) {
+      const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.slice(1, -1) : [];
+      const matched = new Set();
+
+      stops.forEach(function(stop) {
+        const normalized = normalizeStopName(stop);
+        if (normalized && getDestinationCode(stop)) {
+          matched.add(normalized);
+        }
+      });
+
+      return matched;
+    }
+
+    function getCruiseIdentity(cruise) {
+      return String(
+        cruise.sailingId ||
+        [
+          cruise.departureDate || "",
+          cruise.arrivalDate || "",
+          cruise.shipName || "",
+          cruise.itineraryTitle || "",
+          cruise.departurePortName || ""
+        ].join("|")
+      );
+    }
+
+    function buildCruiseSummary(cruise, matchedPorts) {
+      return {
+        sailingId: cruise.sailingId || "",
+        departureDate: cruise.departureDate || "",
+        arrivalDate: cruise.arrivalDate || "",
+        duration: Number(cruise.duration) || 0,
+        shipName: cruise.shipName || "",
+        itineraryTitle: cruise.itineraryTitle || "",
+        itineraryRoute: cruise.itineraryRoute || "",
+        regionName: cruise.regionName || "",
+        departurePortName: cruise.departurePortName || "",
+        itinerary: Array.isArray(cruise.itinerary) ? cruise.itinerary.slice() : [],
+        itineraryPorts: Array.from(getAllCruiseDestinationPorts(cruise)).sort(function(a, b) { return a.localeCompare(b); }),
+        matchedPorts: Array.from(matchedPorts || getAllCruiseDestinationPorts(cruise)).sort(function(a, b) { return a.localeCompare(b); })
+      };
+    }
+
+    function expandTrailingStateCode(text) {
+      const value = String(text || "");
+      return value.replace(/, ([A-Z]{2})$/g, function(match, stateCode) {
+        return STATE_NAME_LOOKUP[stateCode] ? ", " + STATE_NAME_LOOKUP[stateCode] : match;
+      });
+    }
+
+    function stripTrailingRegion(text) {
+      return String(text || "").replace(/, [^,]+$/, "");
+    }
+
+    function formatNaturalList(items) {
+      const values = (items || []).filter(Boolean);
+      if (!values.length) {
+        return "";
+      }
+      if (values.length === 1) {
+        return values[0];
+      }
+      if (values.length === 2) {
+        return values[0] + " and " + values[1];
+      }
+      return values.slice(0, -1).join(", ") + ", and " + values[values.length - 1];
+    }
+
+    function buildItineraryNarrative(cruise) {
+      const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.map(normalizeStopName).filter(Boolean) : [];
+      if (stops.length < 2) {
+        return "The itinerary details are currently unavailable.";
+      }
+
+      const embarkation = stripTrailingRegion(expandTrailingStateCode(stops[0]));
+      const disembarkation = stripTrailingRegion(expandTrailingStateCode(stops[stops.length - 1]));
+      const middleStops = stops.slice(1, -1).filter(function(stop) {
+        return !!getDestinationCode(stop);
+      }).map(function(stop) {
+        return stripTrailingRegion(expandTrailingStateCode(stop));
+      }).filter(Boolean);
+
+      if (!middleStops.length) {
+        if (embarkation === disembarkation) {
+          return "The itinerary begins in " + embarkation + " and returns to " + disembarkation + ".";
+        }
+        return "The itinerary begins in " + embarkation + " and ends in " + disembarkation + ".";
+      }
+
+      if (embarkation === disembarkation) {
+        return "The itinerary begins in " + embarkation + ", then sails to " + formatNaturalList(middleStops) + ", before returning to " + disembarkation + ".";
+      }
+
+      return "The itinerary begins in " + embarkation + ", then sails to " + formatNaturalList(middleStops) + ", before ending in " + disembarkation + ".";
+    }
+
+    function buildFullRouteDisplay(cruise) {
+      const stops = Array.isArray(cruise.itinerary) ? cruise.itinerary.map(normalizeStopName).filter(Boolean) : [];
+      if (stops.length < 2) {
+        return cruise.itineraryRoute || "No route available";
+      }
+
+      const firstStop = stops[0];
+      const lastStop = stops[stops.length - 1];
+      const middleStops = stops.slice(1, -1);
+
+      return "Start: " + firstStop +
+        (middleStops.length ? " > " + middleStops.join(" > ") : "") +
+        " > End: " + lastStop;
+    }
+
+    function buildOfferCountSentence(eligibleOfferCount) {
+      if (eligibleOfferCount === 1) {
+        return "there is currently 1 available offer for this sailing.";
+      }
+      if (eligibleOfferCount === 0) {
+        return "there are currently no available offer for this sailing.";
+      }
+      return "there are currently " + eligibleOfferCount + " available offers for this sailing.";
+    }
+
+    function buildCruiseNarrative(cruise, finalPaymentDueLabel, depositLabel, eligibleOfferCount, isRecommended) {
+      const cruiseTitleBase = expandTrailingStateCode(cruise.itineraryTitle || "Cruise itinerary");
+      const cruiseTitle = / cruise /i.test(cruiseTitleBase)
+        ? cruiseTitleBase
+        : cruiseTitleBase.replace(/ from /i, " cruise from ");
+      const shipName = cruise.shipName || "Carnival ship";
+      const startDate = formatCruiseDateLong(cruise.departureDate);
+      const endDate = formatCruiseDateLong(cruise.arrivalDate);
+      const finalPaymentSentence = finalPaymentDueLabel === "Final Payment Due Now"
+        ? "Final payment is due now"
+        : "Final payment is due " + finalPaymentDueLabel;
+      const depositSentence = finalPaymentDueLabel === "Final Payment Due Now" || !depositLabel
+        ? ""
+        : ", deposit is " + depositLabel;
+
+      return "Here's " +
+        (isRecommended ? "a recommended " : "a ") +
+        cruiseTitle +
+        ", aboard " + shipName +
+        ", sailing " + startDate + " through " + endDate + ". " +
+        buildItineraryNarrative(cruise) + " " +
+        finalPaymentSentence + depositSentence + ", and " +
+        buildOfferCountSentence(eligibleOfferCount);
+    }
+
+    function computeCategoryStats(cruises) {
+      const categoryStats = {};
+      const groupPortSets = {
+        americas: new Set(),
+        "australia-south-pacific": new Set(),
+        "europe-asia": new Set(),
+        "featured-destinations": new Set()
+      };
+      const groupCruises = {
+        americas: [],
+        "australia-south-pacific": [],
+        "europe-asia": [],
+        "featured-destinations": []
+      };
+      const groupCruiseKeys = {
+        americas: new Set(),
+        "australia-south-pacific": new Set(),
+        "europe-asia": new Set(),
+        "featured-destinations": new Set()
+      };
+      const groupMonthCounts = {
+        americas: {},
+        "australia-south-pacific": {},
+        "europe-asia": {},
+        "featured-destinations": {}
+      };
+      const allPortSet = new Set();
+      const allCruises = [];
+      const allMonthCounts = {};
+
+      Object.keys(CATEGORY_DEFINITIONS).forEach(function(key) {
+        const definition = CATEGORY_DEFINITIONS[key];
+        const portSet = new Set();
+        let itineraryCount = 0;
+        const cruisesForCategory = [];
+        const monthCounts = {};
+
+        cruises.forEach(function(cruise) {
+          const matchedPorts = cruiseMatchesCategory(cruise, definition);
+          if (!matchedPorts.size) {
+            return;
+          }
+
+          itineraryCount += 1;
+          const yearMonth = String(cruise.departureDate || "").slice(0, 7);
+          if (yearMonth) {
+            monthCounts[yearMonth] = (monthCounts[yearMonth] || 0) + 1;
+          }
+          cruisesForCategory.push(buildCruiseSummary(cruise, matchedPorts));
+          matchedPorts.forEach(function(port) {
+            portSet.add(port);
+            groupPortSets[definition.group].add(port);
+          });
+
+          const cruiseKey = getCruiseIdentity(cruise);
+          if (!groupCruiseKeys[definition.group].has(cruiseKey)) {
+            groupCruiseKeys[definition.group].add(cruiseKey);
+            groupCruises[definition.group].push(buildCruiseSummary(cruise, matchedPorts));
+            if (yearMonth) {
+              groupMonthCounts[definition.group][yearMonth] = (groupMonthCounts[definition.group][yearMonth] || 0) + 1;
+            }
+          }
+        });
+
+        categoryStats[key] = {
+          group: definition.group,
+          portSet: portSet,
+          portCount: portSet.size,
+          itineraryCount: itineraryCount,
+          cruises: cruisesForCategory.sort(function(a, b) {
+            return String(a.departureDate).localeCompare(String(b.departureDate));
+          }),
+          monthCounts: monthCounts
+        };
+      });
+
+      const groupStats = Object.keys(groupPortSets).reduce(function(acc, groupKey) {
+        acc[groupKey] = {
+          portSet: groupPortSets[groupKey],
+          portCount: groupPortSets[groupKey].size,
+          itineraryCount: groupCruises[groupKey].length,
+          cruises: groupCruises[groupKey].sort(function(a, b) {
+            return String(a.departureDate).localeCompare(String(b.departureDate));
+          }),
+          monthCounts: groupMonthCounts[groupKey]
+        };
+        return acc;
+      }, {});
+
+      cruises.forEach(function(cruise) {
+        const matchedPorts = getAllCruiseDestinationPorts(cruise);
+        const yearMonth = String(cruise.departureDate || "").slice(0, 7);
+
+        if (yearMonth) {
+          allMonthCounts[yearMonth] = (allMonthCounts[yearMonth] || 0) + 1;
+        }
+
+        matchedPorts.forEach(function(port) {
+          allPortSet.add(port);
+        });
+
+        allCruises.push(buildCruiseSummary(cruise, matchedPorts));
+      });
+
+      const allStats = {
+        portSet: allPortSet,
+        portCount: allPortSet.size,
+        itineraryCount: allCruises.length,
+        cruises: allCruises.sort(function(a, b) {
+          return String(a.departureDate).localeCompare(String(b.departureDate));
+        }),
+        monthCounts: allMonthCounts
+      };
+
+      return { categoryStats, groupStats, allStats };
+    }
+
+    function updateCategoryCounts() {
+    }
+
+    function applyCategoryGroupFilter() {
+    }
+
+    function formatCruiseDate(dateString) {
+      if (!dateString) {
+        return "";
+      }
+      const date = new Date(dateString + "T00:00:00");
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function formatCruiseDateLong(dateString) {
+      if (!dateString) {
+        return "";
+      }
+      const date = new Date(dateString + "T00:00:00");
+      return date.toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" });
+    }
+
+    function getCruiseDateFilterKey(cruise) {
+      if (!cruise || !cruise.departureDate || !cruise.arrivalDate) {
+        return "";
+      }
+      return cruise.departureDate + "|" + cruise.arrivalDate;
+    }
+
+    function formatCruiseDateFilterLabel(cruise) {
+      if (!cruise) {
+        return "";
+      }
+      return formatCruiseDate(cruise.departureDate) + " to " + formatCruiseDate(cruise.arrivalDate);
+    }
+
+    function formatYearMonthLabel(yearMonth) {
+      if (!yearMonth || !/^\d{4}-\d{2}$/.test(yearMonth)) {
+        return "";
+      }
+      const year = yearMonth.slice(0, 4);
+      const monthIndex = Number(yearMonth.slice(5, 7)) - 1;
+      return MONTH_LABELS[monthIndex] + " " + year;
+    }
+
+    function getYearMonthFromDate(date) {
+      return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0");
+    }
+
+    function parseYearMonth(yearMonth) {
+      if (!yearMonth || !/^\d{4}-\d{2}$/.test(yearMonth)) {
+        return null;
+      }
+      return new Date(Number(yearMonth.slice(0, 4)), Number(yearMonth.slice(5, 7)) - 1, 1, 12, 0, 0, 0);
+    }
+
+    function shiftYearMonth(yearMonth, deltaMonths) {
+      const date = parseYearMonth(yearMonth);
+      if (!date) {
+        return null;
+      }
+      date.setMonth(date.getMonth() + deltaMonths);
+      return getYearMonthFromDate(date);
+    }
+
+    function getNormalizedSelectedDateRange() {
+      if (!currentDateFilter) {
+        return null;
+      }
+      const start = currentDateFilter;
+      const end = currentDateRangeEnd || currentDateFilter;
+      return start <= end ? { start: start, end: end } : { start: end, end: start };
+    }
+
+    function getNormalizedDraftDateRange() {
+      if (!draftDateFilter) {
+        return null;
+      }
+      const start = draftDateFilter;
+      const end = draftDateRangeEnd || draftDateFilter;
+      return start <= end ? { start: start, end: end } : { start: end, end: start };
+    }
+
+    function syncDateDraftFromApplied() {
+      draftItineraryMonth = currentItineraryMonth;
+      draftDateFilter = currentDateFilter;
+      draftDateRangeEnd = currentDateRangeEnd;
+      draftDateRangeBaseMonth = currentDateRangeBaseMonth || (currentDateFilter ? String(currentDateFilter).slice(0, 7) : currentItineraryMonth);
+      draftDateFilterTab = currentDateFilter ? "ranges" : "months";
+    }
+
+    function applyDraftDateSelection() {
+      currentItineraryMonth = draftItineraryMonth;
+      currentDateFilter = draftDateFilter;
+      currentDateRangeEnd = draftDateRangeEnd;
+      currentDateRangeBaseMonth = draftDateRangeBaseMonth;
+      currentDateFilterTab = draftDateFilterTab;
+      isDateFilterPanelOpen = false;
+    }
+
+    function buildDateRangeMonthCalendar(yearMonth, availableDepartureDates, selectedRange) {
+      const firstOfMonth = parseYearMonth(yearMonth);
+      if (!firstOfMonth) {
+        return "";
+      }
+
+      const year = firstOfMonth.getFullYear();
+      const monthIndex = firstOfMonth.getMonth();
+      const firstWeekday = new Date(year, monthIndex, 1).getDay();
+      const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+      const weekdayLabels = ["S", "M", "T", "W", "T", "F", "S"];
+      const dayCells = [];
+
+      for (let i = 0; i < firstWeekday; i += 1) {
+        dayCells.push('<span class="date-range-day is-empty">.</span>');
+      }
+
+      for (let day = 1; day <= daysInMonth; day += 1) {
+        const dateValue = yearMonth + "-" + String(day).padStart(2, "0");
+        const isAvailable = availableDepartureDates.has(dateValue);
+        const isSelected = selectedRange && dateValue >= selectedRange.start && dateValue <= selectedRange.end;
+        const isRangeStart = Boolean(isSelected && selectedRange && dateValue === selectedRange.start);
+        const isRangeEnd = Boolean(isSelected && selectedRange && dateValue === selectedRange.end);
+        const isRangeSingle = Boolean(isRangeStart && isRangeEnd);
+        const classes = [
+          "date-range-day",
+          isAvailable ? "is-available" : "",
+          isSelected ? "is-selected" : "",
+          isRangeSingle ? "range-single" : "",
+          isRangeStart && !isRangeSingle ? "range-start" : "",
+          isRangeEnd && !isRangeSingle ? "range-end" : ""
+        ].filter(Boolean).join(" ");
+        const dataAttr = ' data-date-value="' + dateValue + '"';
+        const typeAttr = ' type="button"';
+        dayCells.push('<button class="' + classes + '"' + typeAttr + dataAttr + ">" + day + "</button>");
+      }
+
+      return '<section class="date-range-month">' +
+        '<h4 class="date-range-month-title">' + formatYearMonthLabel(yearMonth) + "</h4>" +
+        '<div class="date-range-weekdays">' + weekdayLabels.map(function(label) {
+          return "<span>" + label + "</span>";
+        }).join("") + "</div>" +
+        '<div class="date-range-days">' + dayCells.join("") + "</div>" +
+      "</section>";
+    }
+
+    function getShiftedCruiseDate(dateString, monthsDelta) {
+      if (!dateString) {
+        return null;
+      }
+      const date = new Date(dateString + "T12:00:00");
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+      date.setMonth(date.getMonth() + monthsDelta);
+      return date;
+    }
+
+    function formatDateObject(date) {
+      if (!date || Number.isNaN(date.getTime())) {
+        return "";
+      }
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function getTodayDateObject() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return today;
+    }
+
+    function matchesDurationFilters(duration, filters) {
+      const activeFilters = Array.isArray(filters) ? filters : [];
+      if (!activeFilters.length) {
+        return true;
+      }
+
+      return activeFilters.some(function(filterKey) {
+        if (filterKey === "2-5") {
+          return duration >= 2 && duration <= 5;
+        }
+        if (filterKey === "6-9") {
+          return duration >= 6 && duration <= 9;
+        }
+        if (filterKey === "10+") {
+          return duration >= 10;
+        }
+        return false;
+      });
+    }
+
+    function formatDurationFilterButtonText(filters) {
+      const activeFilters = Array.isArray(filters) ? filters : [];
+      if (!activeFilters.length) {
+        return "All Durations";
+      }
+
+      const labels = DURATION_FILTER_OPTIONS.filter(function(option) {
+        return activeFilters.indexOf(option.key) !== -1;
+      }).map(function(option) {
+        return option.label;
+      });
+
+      if (labels.length <= 2) {
+        return labels.join(", ");
+      }
+
+      return labels.length + " Durations";
+    }
+
+    function formatDurationCopy(filters) {
+      const activeFilters = Array.isArray(filters) ? filters : [];
+      if (!activeFilters.length) {
+        return "";
+      }
+
+      const labels = DURATION_FILTER_OPTIONS.filter(function(option) {
+        return activeFilters.indexOf(option.key) !== -1;
+      }).map(function(option) {
+        return option.label;
+      });
+
+      return " for " + labels.join(", ") + " cruises";
+    }
+
+    function syncDurationDraftFromApplied() {
+      draftDurationFilters = currentDurationFilters.slice();
+    }
+
+    function applyDraftDurationSelection() {
+      currentDurationFilters = draftDurationFilters.slice();
+      isDurationFilterPanelOpen = false;
+    }
+
+    function getSeasonalRecommendationKeys(date) {
+      const targetDate = date instanceof Date ? new Date(date.getTime()) : getTodayDateObject();
+      targetDate.setHours(0, 0, 0, 0);
+      const monthDay = (targetDate.getMonth() + 1) * 100 + targetDate.getDate();
+
+      if (monthDay >= 301 && monthDay <= 531) {
+        return SEASONAL_RECOMMENDATIONS.spring;
+      }
+
+      if (monthDay >= 601 && monthDay <= 831) {
+        return SEASONAL_RECOMMENDATIONS.summer;
+      }
+
+      if (monthDay >= 901 && monthDay <= 1130) {
+        return SEASONAL_RECOMMENDATIONS.fall;
+      }
+
+      return SEASONAL_RECOMMENDATIONS.winter;
+    }
+
+    function getRecommendedCategoryKeysForCruise(cruise, date) {
+      const seasonalKeys = getSeasonalRecommendationKeys(date);
+
+      return Object.keys(CATEGORY_DEFINITIONS).filter(function(categoryKey) {
+        if (!seasonalKeys.has(categoryKey)) {
+          return false;
+        }
+
+        return cruiseMatchesCategory(cruise, CATEGORY_DEFINITIONS[categoryKey]).size > 0;
+      });
+    }
+
+    function getShiftedCruiseDateByDays(dateString, daysDelta) {
+      if (!dateString) {
+        return null;
+      }
+      const date = new Date(dateString + "T12:00:00");
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+      date.setDate(date.getDate() + daysDelta);
+      return date;
+    }
+
+    function getFinalPaymentDueDate(cruise) {
+      const duration = Number(cruise.duration) || 0;
+      const dueDays = duration >= 2 && duration <= 5 ? 76 : duration >= 6 ? 91 : 0;
+      if (!dueDays) {
+        return null;
+      }
+      return getShiftedCruiseDateByDays(cruise.departureDate, -dueDays);
+    }
+
+    function getFinalPaymentDueLabel(cruise) {
+      const dueDate = getFinalPaymentDueDate(cruise);
+      if (!dueDate) {
+        return "Unavailable";
+      }
+
+      const today = getTodayDateObject();
+      dueDate.setHours(0, 0, 0, 0);
+
+      return dueDate.getTime() <= today.getTime()
+        ? "Final Payment Due Now"
+        : formatDateObject(dueDate);
+    }
+
+    function getDepositLabels(cruise) {
+      const duration = Number(cruise.duration) || 0;
+      const finalPaymentDueLabel = getFinalPaymentDueLabel(cruise);
+
+      if (finalPaymentDueLabel === "Final Payment Due Now") {
+        return {
+          deposit: "Final Payment Due Now",
+          singleOccupancy: "Final Payment Due Now"
+        };
+      }
+
+      if (duration >= 2 && duration <= 3) {
+        return {
+          deposit: "$100 USD per person",
+          singleOccupancy: "$200 USD"
+        };
+      }
+
+      if (duration >= 4 && duration <= 5) {
+        return {
+          deposit: "$150 USD per person",
+          singleOccupancy: "$300 USD"
+        };
+      }
+
+      if (duration >= 6 && duration <= 9) {
+        return {
+          deposit: "$250 USD per person",
+          singleOccupancy: "$500 USD"
+        };
+      }
+
+      if (duration >= 10) {
+        return {
+          deposit: "$400 USD per person",
+          singleOccupancy: "$800 USD"
+        };
+      }
+
+      return {
+        deposit: "Unavailable",
+        singleOccupancy: "Unavailable"
+      };
+    }
+
+    function getEarlySaverOfferCopy(cruise) {
+      const duration = Number(cruise.duration) || 0;
+      const closesMonths = duration > 0 && duration <= 5 ? 3 : 5;
+      const closeDate = getShiftedCruiseDate(cruise.departureDate, -closesMonths);
+      const sailDate = getShiftedCruiseDateByDays(cruise.departureDate, 0);
+      const closeLabel = formatDateObject(closeDate);
+      const sailLabel = formatDateObject(sailDate);
+      const today = getTodayDateObject();
+      const isExpired = closeDate ? closeDate.getTime() < today.getTime() : false;
+
+      return {
+        title: "Early Saver: PPB",
+        status: isExpired ? "Not Eligible" : "Eligible",
+        detail: closeLabel
+          ? (isExpired ? (closeLabel + " to " + sailLabel) : (formatDateObject(today) + " to " + closeLabel))
+          : "Close date unavailable"
+      };
+    }
+
+    function getFunSelectOfferCopy(cruise) {
+      const dueDate = getFinalPaymentDueDate(cruise);
+      if (!dueDate) {
+        return {
+          title: "Fun Select: PNS",
+          status: "Not Eligible",
+          detail: "Close date unavailable"
+        };
+      }
+
+      const dueLabel = formatDateObject(dueDate);
+      const sailDate = getShiftedCruiseDateByDays(cruise.departureDate, 0);
+      const sailLabel = formatDateObject(sailDate);
+      const today = getTodayDateObject();
+      dueDate.setHours(0, 0, 0, 0);
+
+      return {
+        title: "Fun Select: PNS",
+        status: dueDate.getTime() <= today.getTime() ? "Not Eligible" : "Eligible",
+        detail: dueDate.getTime() <= today.getTime()
+          ? (dueLabel + " to " + sailLabel)
+          : (formatDateObject(today) + " to " + dueLabel)
+      };
+    }
+
+    function getSuperSaverOfferCopy(cruise) {
+      const dueDate = getFinalPaymentDueDate(cruise);
+      const superSaverStartDate = dueDate ? new Date(dueDate.getTime()) : null;
+      const superSaverEndDate = getShiftedCruiseDateByDays(cruise.departureDate, -1);
+      if (!dueDate || !superSaverStartDate || !superSaverEndDate) {
+        return {
+          title: "Super Saver: PSV",
+          status: "Not Eligible",
+          detail: "Eligibility window unavailable"
+        };
+      }
+
+      superSaverStartDate.setDate(superSaverStartDate.getDate() + 1);
+
+      const today = getTodayDateObject();
+      const originalStartLabel = formatDateObject(superSaverStartDate);
+      const endLabel = formatDateObject(superSaverEndDate);
+      superSaverEndDate.setHours(0, 0, 0, 0);
+      const isEligible = superSaverStartDate.getTime() <= today.getTime() && superSaverEndDate.getTime() >= today.getTime();
+
+      return {
+        title: "Super Saver: PSV",
+        status: isEligible ? "Eligible" : "Not Eligible",
+        detail: originalStartLabel + " to " + endLabel
+      };
+    }
+
+    function syncItineraryPanelLayout() {
+      const mapMain = document.getElementById("mapMain");
+      const panel = document.getElementById("itineraryBrowser");
+      if (!mapMain || !panel) {
+        return;
+      }
+
+      mapMain.classList.toggle("has-itinerary", !panel.hidden);
+    }
+
+    function hideItineraryBrowser() {
+      document.getElementById("itineraryBrowser").hidden = false;
+      currentItineraryMonth = null;
+      currentDeparturePortFilter = null;
+      currentItineraryBrowserOpen = false;
+      syncItineraryPanelLayout();
+      renderItineraryBrowser();
+    }
+
+    function renderItineraryBrowser() {
+      const panel = document.getElementById("itineraryBrowser");
+      const listEl = document.getElementById("itineraryList");
+      const titleEl = document.getElementById("itineraryTitle");
+      const copyEl = document.getElementById("itineraryCopy");
+      const sailToSelect = document.getElementById("sailToFilter");
+      const sailFromSelect = document.getElementById("departurePortFilterSelect");
+      const dateFilterButton = document.getElementById("dateFilterButton");
+      const dateFilterButtonText = document.getElementById("dateFilterButtonText");
+      const durationFilterButton = document.getElementById("durationFilterButton");
+      const durationFilterButtonText = document.getElementById("durationFilterButtonText");
+      const durationFilterPanel = document.getElementById("durationFilterPanel");
+      const durationFilterOptions = document.getElementById("durationFilterOptions");
+      const dateFilterTabMonths = document.getElementById("dateFilterTabMonths");
+      const dateFilterTabRanges = document.getElementById("dateFilterTabRanges");
+      const dateFilterYears = document.getElementById("dateFilterYears");
+      const dateFilterPanel = document.getElementById("dateFilterPanel");
+      const dateRangeCalendar = document.getElementById("dateRangeCalendar");
+      const dateMonthsPane = document.getElementById("dateFilterMonthsPane");
+      const dateRangesPane = document.getElementById("dateFilterRangesPane");
+      const baseStats = currentActiveCategoryKey
+        ? currentCategoryStats.categoryStats[currentActiveCategoryKey]
+        : currentCategoryStats.allStats;
+      const categoryLabel = currentActiveCategoryKey
+        ? (CATEGORY_LABELS[currentActiveCategoryKey] || "Selected Destination")
+        : "All Cruises";
+      const allStats = currentCategoryStats.allStats;
+      const filteredAllCruises = filterCruisesByDestinationSelections(allStats ? allStats.cruises : []).filter(function(cruise) {
+        return matchesCurrentBestTimeFilter(cruise);
+      });
+      const filteredStatsCruises = filterCruisesByDestinationSelections(baseStats ? baseStats.cruises : []);
+      const stats = baseStats
+        ? { cruises: filteredStatsCruises }
+        : null;
+      const destinationFilterCopy = formatActiveDestinationFilterCopy();
+      const years = filteredAllCruises.length
+        ? [...new Set(filteredAllCruises.map(function(cruise) {
+            return String(cruise.departureDate || "").slice(0, 4);
+          }).filter(Boolean))].sort()
+        : [];
+
+      if (!baseStats) {
+        panel.hidden = false;
+        listEl.innerHTML = "";
+        titleEl.textContent = "";
+        copyEl.textContent = "";
+        currentItineraryResultsCount = 0;
+        updateBrowserTabCounts();
+        autoSwitchBrowserTabIfNeeded();
+        if (durationFilterButtonText) {
+          durationFilterButtonText.textContent = "All Durations";
+        }
+        syncItineraryPanelLayout();
+        return;
+      }
+
+      panel.hidden = false;
+      syncItineraryPanelLayout();
+      titleEl.textContent = "";
+
+      if (sailToSelect) {
+        sailToSelect.value = currentActiveCategoryKey || "";
+      }
+
+      if (!filteredStatsCruises.length) {
+        titleEl.textContent = "";
+        copyEl.textContent = "No itineraries match the current filters" + destinationFilterCopy + ".";
+        listEl.innerHTML = '<li><p class="itinerary-summary">No itineraries match the current filters.</p></li>';
+        currentItineraryResultsCount = 0;
+        updateBrowserTabCounts();
+        autoSwitchBrowserTabIfNeeded();
+        if (sailFromSelect) {
+          sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>';
+          sailFromSelect.value = "";
+        }
+        if (dateFilterButtonText) {
+          dateFilterButtonText.textContent = "All Dates";
+        }
+        if (durationFilterButtonText) {
+          durationFilterButtonText.textContent = formatDurationFilterButtonText(currentDurationFilters);
+        }
+        return;
+      }
+
+      if (!years.length) {
+        titleEl.textContent = "";
+        copyEl.textContent = "";
+        listEl.innerHTML = "";
+        if (sailFromSelect) {
+          sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>';
+        }
+        if (dateFilterButtonText) {
+          dateFilterButtonText.textContent = "All Dates";
+        }
+        if (durationFilterButtonText) {
+          durationFilterButtonText.textContent = "All Durations";
+        }
+        if (dateFilterYears) {
+          dateFilterYears.innerHTML = "";
+        }
+        if (dateRangeCalendar) {
+          dateRangeCalendar.innerHTML = "";
+        }
+        if (dateFilterPanel) {
+          dateFilterPanel.hidden = true;
+        }
+        if (dateFilterButton) {
+          dateFilterButton.classList.remove("is-open");
+          dateFilterButton.setAttribute("aria-expanded", "false");
+        }
+        if (durationFilterPanel) {
+          durationFilterPanel.hidden = true;
+        }
+        if (durationFilterButton) {
+          durationFilterButton.classList.remove("is-open");
+          durationFilterButton.setAttribute("aria-expanded", "false");
+        }
+        syncItineraryPanelLayout();
+        return;
+      }
+
+      const cruisesForDropdowns = filteredStatsCruises.filter(function(cruise) {
+        const duration = Number(cruise.duration) || 0;
+        if (!matchesDurationFilters(duration, currentDurationFilters)) {
+          return false;
+        }
+        if (!matchesCurrentBestTimeFilter(cruise)) {
+          return false;
+        }
+        return true;
+      });
+
+      const departurePorts = [...new Set(cruisesForDropdowns.map(function(cruise) {
+        return cruise.departurePortName || "";
+      }).filter(Boolean))].sort(function(a, b) {
+        return a.localeCompare(b);
+      });
+
+      if (currentDeparturePortFilter && departurePorts.indexOf(currentDeparturePortFilter) === -1) {
+        currentDeparturePortFilter = null;
+      }
+
+      if (sailFromSelect) {
+        sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>' + departurePorts.map(function(portName) {
+          return '<option value="' + portName.replace(/"/g, "&quot;") + '">' + portName + '</option>';
+        }).join("");
+        sailFromSelect.value = currentDeparturePortFilter || "";
+      }
+
+      const dateRangeCruises = cruisesForDropdowns.filter(function(cruise) {
+        if (currentDeparturePortFilter && cruise.departurePortName !== currentDeparturePortFilter) {
+          return false;
+        }
+        return true;
+      });
+
+      const dateOptions = Array.from(dateRangeCruises.reduce(function(map, cruise) {
+        const key = cruise.departureDate || "";
+        if (key && !map.has(key)) {
+          map.set(key, {
+            value: key,
+            label: formatCruiseDate(cruise.departureDate),
+            departureDate: cruise.departureDate || ""
+          });
+        }
+        return map;
+      }, new Map()).values()).sort(function(a, b) {
+        return String(a.departureDate).localeCompare(String(b.departureDate));
+      });
+
+      const availableDepartureDates = new Set(dateOptions.map(function(option) {
+        return option.value;
+      }));
+      const availableYearMonths = new Set(dateOptions.map(function(option) {
+        return String(option.value || "").slice(0, 7);
+      }).filter(Boolean));
+
+      if (currentItineraryMonth && !availableYearMonths.has(currentItineraryMonth)) {
+        currentItineraryMonth = null;
+      }
+      if (draftItineraryMonth && !availableYearMonths.has(draftItineraryMonth)) {
+        draftItineraryMonth = null;
+      }
+
+      const selectedDateRange = getNormalizedSelectedDateRange();
+      if (selectedDateRange) {
+        const hasSelectedDates = dateOptions.some(function(option) {
+          return option.value >= selectedDateRange.start && option.value <= selectedDateRange.end;
+        });
+        if (!hasSelectedDates) {
+          currentDateFilter = null;
+          currentDateRangeEnd = null;
+        }
+      }
+
+      const draftSelectedDateRange = getNormalizedDraftDateRange();
+      if (draftSelectedDateRange) {
+        const hasDraftDates = dateOptions.some(function(option) {
+          return option.value >= draftSelectedDateRange.start && option.value <= draftSelectedDateRange.end;
+        });
+        if (!hasDraftDates) {
+          draftDateFilter = null;
+          draftDateRangeEnd = null;
+        }
+      }
+
+      if (!draftDateRangeBaseMonth) {
+        draftDateRangeBaseMonth = draftDateFilter
+          ? String(draftDateFilter).slice(0, 7)
+          : (draftItineraryMonth || (dateOptions[0] ? String(dateOptions[0].value).slice(0, 7) : getYearMonthFromDate(getTodayDateObject())));
+      }
+
+      if (draftDateRangeBaseMonth && !availableYearMonths.has(draftDateRangeBaseMonth)) {
+        draftDateRangeBaseMonth = dateOptions[0] ? String(dateOptions[0].value).slice(0, 7) : getYearMonthFromDate(getTodayDateObject());
+      }
+
+      const activeDurationLabel = formatDurationCopy(currentDurationFilters);
+      const monthCopy = currentItineraryMonth
+        ? " in " + MONTH_LABELS[Number(currentItineraryMonth.slice(5, 7)) - 1] + " " + currentItineraryMonth.slice(0, 4)
+        : "";
+      const dateCopy = selectedDateRange
+        ? (selectedDateRange.start === selectedDateRange.end
+          ? " on " + formatCruiseDate(selectedDateRange.start)
+          : " from " + formatCruiseDate(selectedDateRange.start) + " to " + formatCruiseDate(selectedDateRange.end))
+        : "";
+      const durationCopy = activeDurationLabel || "";
+      const portCopy = currentDeparturePortFilter ? " sailing from " + currentDeparturePortFilter : "";
+      copyEl.textContent = "";
+
+      if (dateFilterYears) {
+        dateFilterYears.innerHTML = years.map(function(year) {
+          const cruisesForMonthCounts = filteredStatsCruises.filter(function(cruise) {
+            if (currentDeparturePortFilter && cruise.departurePortName !== currentDeparturePortFilter) {
+              return false;
+            }
+            const duration = Number(cruise.duration) || 0;
+            if (!matchesDurationFilters(duration, currentDurationFilters)) {
+              return false;
+            }
+            return matchesCurrentBestTimeFilter(cruise);
+          });
+          const filteredMonthCounts = cruisesForMonthCounts.reduce(function(acc, cruise) {
+            const yearMonth = String(cruise.departureDate || "").slice(0, 7);
+            if (yearMonth) {
+              acc[yearMonth] = (acc[yearMonth] || 0) + 1;
+            }
+            return acc;
+          }, {});
+          const buttons = MONTH_LABELS.map(function(monthLabel, index) {
+            const monthNumber = String(index + 1).padStart(2, "0");
+            const yearMonth = year + "-" + monthNumber;
+            const count = filteredMonthCounts[yearMonth] || 0;
+            const activeClass = draftItineraryMonth === yearMonth ? " is-active" : "";
+            const disabledAttr = count ? "" : " disabled";
+            return '<button class="month-button' + activeClass + '" type="button" data-draft-itinerary-month="' + yearMonth + '"' + disabledAttr + '>' + monthLabel + '</button>';
+          }).join("");
+
+          return '<section class="year-section"><h4 class="year-title">' + year + '</h4><div class="month-grid">' + buttons + "</div></section>";
+        }).join("");
+      }
+      if (dateFilterButtonText) {
+        dateFilterButtonText.textContent = selectedDateRange
+          ? (selectedDateRange.start === selectedDateRange.end
+            ? formatCruiseDate(selectedDateRange.start)
+            : formatCruiseDate(selectedDateRange.start) + " to " + formatCruiseDate(selectedDateRange.end))
+          : (currentItineraryMonth ? formatYearMonthLabel(currentItineraryMonth) : "All Dates");
+      }
+      if (durationFilterButtonText) {
+        durationFilterButtonText.textContent = formatDurationFilterButtonText(currentDurationFilters);
+      }
+      if (dateRangeCalendar) {
+        const nextMonth = shiftYearMonth(draftDateRangeBaseMonth, 1);
+        dateRangeCalendar.innerHTML =
+          '<button class="date-range-nav" type="button" id="dateRangePrevButton" aria-label="Previous month">&#8249;</button>' +
+          buildDateRangeMonthCalendar(draftDateRangeBaseMonth, availableDepartureDates, draftSelectedDateRange) +
+          buildDateRangeMonthCalendar(nextMonth, availableDepartureDates, draftSelectedDateRange) +
+          '<button class="date-range-nav" type="button" id="dateRangeNextButton" aria-label="Next month">&#8250;</button>';
+      }
+      if (dateMonthsPane && dateRangesPane) {
+        dateMonthsPane.hidden = draftDateFilterTab !== "months";
+        dateRangesPane.hidden = draftDateFilterTab !== "ranges";
+      }
+      if (dateFilterTabMonths && dateFilterTabRanges) {
+        dateFilterTabMonths.classList.toggle("is-active", draftDateFilterTab === "months");
+        dateFilterTabRanges.classList.toggle("is-active", draftDateFilterTab === "ranges");
+      }
+      if (dateFilterPanel && dateFilterButton) {
+        dateFilterPanel.hidden = !isDateFilterPanelOpen;
+        dateFilterButton.classList.toggle("is-open", isDateFilterPanelOpen);
+        dateFilterButton.setAttribute("aria-expanded", isDateFilterPanelOpen ? "true" : "false");
+      }
+      if (durationFilterPanel && durationFilterButton) {
+        durationFilterPanel.hidden = !isDurationFilterPanelOpen;
+        durationFilterButton.classList.toggle("is-open", isDurationFilterPanelOpen);
+        durationFilterButton.setAttribute("aria-expanded", isDurationFilterPanelOpen ? "true" : "false");
+      }
+      if (durationFilterOptions) {
+        durationFilterOptions.querySelectorAll("[data-draft-duration-filter]").forEach(function(button) {
+          const filterKey = button.getAttribute("data-draft-duration-filter");
+          button.classList.toggle("is-active", draftDurationFilters.indexOf(filterKey) !== -1);
+        });
+      }
+
+      [dateFilterYears].filter(Boolean).forEach(function(root) {
+        root.querySelectorAll("[data-draft-itinerary-month]").forEach(function(button) {
+          button.addEventListener("click", function(event) {
+            event.stopPropagation();
+            const yearMonth = button.getAttribute("data-draft-itinerary-month");
+            if (!yearMonth) {
+              return;
+            }
+            draftItineraryMonth = yearMonth;
+            draftDateFilter = null;
+            draftDateRangeEnd = null;
+            draftDateFilterTab = "months";
+            renderItineraryBrowser();
+          });
+        });
+      });
+
+      if (dateRangeCalendar) {
+        dateRangeCalendar.querySelectorAll("[data-date-value]").forEach(function(button) {
+          button.addEventListener("click", function(event) {
+            event.stopPropagation();
+            const filterValue = button.getAttribute("data-date-value");
+            if (!filterValue) {
+              return;
+            }
+            if (!draftDateFilter || draftDateRangeEnd) {
+              draftDateFilter = filterValue;
+              draftDateRangeEnd = null;
+              draftItineraryMonth = null;
+              draftDateRangeBaseMonth = filterValue.slice(0, 7);
+              draftDateFilterTab = "ranges";
+              renderItineraryBrowser();
+              return;
+            }
+            draftDateRangeEnd = filterValue;
+            draftItineraryMonth = null;
+            draftDateFilterTab = "ranges";
+            renderItineraryBrowser();
+          });
+        });
+
+        const prevButton = document.getElementById("dateRangePrevButton");
+        const nextButton = document.getElementById("dateRangeNextButton");
+        if (prevButton) {
+          prevButton.addEventListener("click", function(event) {
+            event.stopPropagation();
+            draftDateRangeBaseMonth = shiftYearMonth(draftDateRangeBaseMonth, -1);
+            renderItineraryBrowser();
+          });
+        }
+        if (nextButton) {
+          nextButton.addEventListener("click", function(event) {
+            event.stopPropagation();
+            draftDateRangeBaseMonth = shiftYearMonth(draftDateRangeBaseMonth, 1);
+            renderItineraryBrowser();
+          });
+        }
+      }
+
+      const filteredCruises = filterCruisesByCurrentControls(filteredStatsCruises);
+
+      currentItineraryResultsCount = filteredCruises.length;
+      updateBrowserTabCounts();
+      autoSwitchBrowserTabIfNeeded();
+
+      listEl.innerHTML = filteredCruises.length ? filteredCruises.map(function(cruise, index) {
+        const itineraryRoute = buildFullRouteDisplay(cruise);
+        const finalPaymentDueLabel = getFinalPaymentDueLabel(cruise);
+        const depositLabels = getDepositLabels(cruise);
+        const showDepositPill = depositLabels.deposit !== finalPaymentDueLabel;
+        const finalPaymentPillLabel = finalPaymentDueLabel === "Final Payment Due Now"
+          ? finalPaymentDueLabel
+          : "Final Payment Due: " + finalPaymentDueLabel;
+        const isRecommended = getRecommendedCategoryKeysForCruise(cruise, getTodayDateObject()).length > 0;
+        const offers = [
+          getEarlySaverOfferCopy(cruise),
+          getFunSelectOfferCopy(cruise),
+          getSuperSaverOfferCopy(cruise)
+        ];
+        const eligibleOfferCount = offers.filter(function(offer) {
+          return offer.status === "Eligible";
+        }).length;
+        const offersButtonLabel = eligibleOfferCount + " " + (eligibleOfferCount === 1 ? "Offer Found!" : "Offers Found!");
+        const itineraryNarrative = buildCruiseNarrative(cruise, finalPaymentDueLabel, depositLabels.deposit, eligibleOfferCount, isRecommended);
+        const offerId = "itinerary-offer-" + index;
+        return '<li><strong>' + cruise.itineraryTitle + '</strong>' +
+          '<div class="itinerary-pill-stack">' +
+            (isRecommended ? '<div class="itinerary-pill">Recommended</div>' : '') +
+            (showDepositPill ? '<div class="itinerary-pill">' + depositLabels.deposit + '</div>' : '') +
+            '<div class="itinerary-pill is-final-payment' + (finalPaymentDueLabel === "Final Payment Due Now" ? ' is-due-now' : '') + '">' + finalPaymentPillLabel + '</div>' +
+          '</div>' +
+          '<div class="itinerary-meta">' + formatCruiseDate(cruise.departureDate) + ' to ' + formatCruiseDate(cruise.arrivalDate) + "</div>" +
+          '<div class="itinerary-meta">' + cruise.shipName + "</div>" +
+          '<p class="itinerary-summary">' + itineraryNarrative + '</p>' +
+          '<div class="itinerary-footer">' +
+            '<button class="itinerary-offers-link" type="button" data-offer-target="' + offerId + '" aria-expanded="false">' + offersButtonLabel + '</button>' +
+            '<div class="itinerary-meta itinerary-route">Route: ' + itineraryRoute + '</div>' +
+            '<div class="itinerary-footer-spacer" aria-hidden="true"></div>' +
+          '</div>' +
+          '<div class="itinerary-offer-details" id="' + offerId + '" hidden>' +
+            offers.map(function(offer) {
+              const statusClass = offer.status === "Eligible" ? " is-eligible" : " is-not-eligible";
+              return '<div class="itinerary-offer-item"><div class="itinerary-offer-title">' + offer.title + '</div>' +
+                (offer.status ? '<div class="itinerary-offer-status' + statusClass + '">' + offer.status + '</div>' : '') +
+                '<div class="itinerary-meta">' + offer.detail + '</div></div>';
+            }).join("") +
+          "</div></li>";
+      }).join("") : '<li><p class="itinerary-summary">No itineraries match the current filters.</p></li>';
+
+      listEl.querySelectorAll("[data-offer-target]").forEach(function(button) {
+        button.addEventListener("click", function() {
+          const targetId = button.getAttribute("data-offer-target");
+          if (!targetId) {
+            return;
+          }
+          const target = document.getElementById(targetId);
+          if (!target) {
+            return;
+          }
+          target.hidden = !target.hidden;
+          button.setAttribute("aria-expanded", target.hidden ? "false" : "true");
+        });
+      });
+    }
+
+    function buildMapData(counts) {
+      return Object.keys(counts).reduce((acc, countryCode) => {
+        const portCount = counts[countryCode] || 0;
+        acc[countryCode] = {
+          fillKey: portCount ? "active" : "defaultFill",
+          portCount
+        };
+        return acc;
+      }, {});
+    }
+
+    function updateSidebar(payload, counts, options) {
+      document.getElementById("heroTitle").textContent = options.heroTitle;
+      document.getElementById("heroCopy").innerHTML = options.heroCopy;
+    }
+
+    function updateDrilldownSidebar(payload, countryCode, portsByCountry) {
+      const countryName = COUNTRY_NAME_LOOKUP[countryCode] || countryCode;
+
+      document.getElementById("heroTitle").textContent = countryName + " Destination Drilldown";
+    }
+
+    function cloneTopo(topo) {
+      return JSON.parse(JSON.stringify(topo));
+    }
+
+    function loadDrilldownTopo(countryCode) {
+      const config = DRILLDOWN_COUNTRY_CONFIG[countryCode];
+
+      if (!config || config.scope === "usa") {
+        return Promise.resolve(null);
+      }
+
+      const topo = BASE_DATAMAP_CONSTRUCTOR && BASE_DATAMAP_CONSTRUCTOR.prototype
+        ? BASE_DATAMAP_CONSTRUCTOR.prototype[config.scope + "Topo"]
+        : null;
+
+      if (!topo || typeof topo === "string") {
+        return Promise.reject(new Error("Drilldown topo was not available for " + countryCode));
+      }
+
+      return Promise.resolve(cloneTopo(topo));
+    }
+
+    function buildFittedProjection(element, topo, scope, paddingFactor) {
+      const width = element.offsetWidth || element.clientWidth || 960;
+      const height = element.offsetHeight || element.clientHeight || 600;
+      const sourceCollection = topojson.feature(topo, topo.objects[scope]);
+      const featureCollection = scope === "world" && Array.isArray(sourceCollection.features)
+        ? {
+            type: "FeatureCollection",
+            features: sourceCollection.features.filter(function(feature) {
+              return feature && feature.id !== "ATA";
+            })
+          }
+        : sourceCollection;
+      const projection = d3.geo.mercator().scale(1).translate([0, 0]);
+      const path = d3.geo.path().projection(projection);
+      const bounds = path.bounds(featureCollection);
+      const boundsWidth = bounds[1][0] - bounds[0][0];
+      const boundsHeight = bounds[1][1] - bounds[0][1];
+      const scale = (paddingFactor || 0.92) / Math.max(boundsWidth / width, boundsHeight / height);
+      const translate = [
+        (width - scale * (bounds[1][0] + bounds[0][0])) / 2,
+        (height - scale * (bounds[1][1] + bounds[0][1])) / 2
+      ];
+
+      projection.scale(scale).translate(translate);
+
+      return {
+        path: d3.geo.path().projection(projection),
+        projection: projection
+      };
+    }
+
+    function buildProjectionWithState(element, topo, scope, paddingFactor) {
+      const result = buildFittedProjection(element, topo, scope, paddingFactor);
+      currentMapProjection = result.projection;
+      return result;
+    }
+
+    function getWorldTopo() {
+      const topo = BASE_DATAMAP_CONSTRUCTOR && BASE_DATAMAP_CONSTRUCTOR.prototype
+        ? BASE_DATAMAP_CONSTRUCTOR.prototype.worldTopo
+        : null;
+
+      if (!topo || typeof topo === "string") {
+        return null;
+      }
+
+      return cloneTopo(topo);
+    }
+
+    function ensureMapOverlayShell() {
+      const mapEl = document.getElementById("map");
+      if (!mapEl || document.getElementById("mapOverlay")) {
+        return;
+      }
+
+      const overlayEl = document.createElement("div");
+      overlayEl.id = "mapOverlay";
+      overlayEl.className = "map-overlay";
+      overlayEl.hidden = true;
+      overlayEl.innerHTML =
+        '<h3 id="mapOverlayTitle" class="map-overlay-title"></h3>' +
+        '<ul id="mapOverlayList" class="map-overlay-list"></ul>';
+      mapEl.appendChild(overlayEl);
+    }
+
+    function renderMapOverlay(selectionIds, lookup, portsLookup, noun) {
+      const overlayEl = document.getElementById("mapOverlay");
+      const titleEl = document.getElementById("mapOverlayTitle");
+      const listEl = document.getElementById("mapOverlayList");
+
+      if (!overlayEl || !titleEl || !listEl) {
+        return;
+      }
+
+      if (!selectionIds || !selectionIds.length) {
+        overlayEl.hidden = true;
+        titleEl.textContent = "";
+        listEl.innerHTML = "";
+        return;
+      }
+
+      const selectionId = currentSelectionId || selectionIds[selectionIds.length - 1];
+      const placeName = lookup[selectionId] || selectionId;
+      const ports = Object.keys(portsLookup[selectionId] || {}).sort(function(a, b) {
+        return a.localeCompare(b);
+      });
+
+      titleEl.textContent = placeName + (noun === "State" ? " Embarkation Ports" : " Ports of Call");
+      listEl.innerHTML = ports
+        .map(function(port) {
+          return "<li>" + port + "</li>";
+        })
+        .join("");
+      overlayEl.hidden = ports.length === 0;
+    }
+
+    function renderSelectedPlace(selectionIds, lookup, portsLookup, noun) {
+      if (!selectionIds || !selectionIds.length) {
+        renderMapOverlay([], lookup, portsLookup, noun);
+        return;
+      }
+
+      renderMapOverlay(selectionIds, lookup, portsLookup, noun);
+    }
+
+    function toggleCountrySelection(countryCode, portsByCountry) {
+      const existingIndex = currentSelectionIds.indexOf(countryCode);
+      if (existingIndex !== -1) {
+        currentSelectionIds.splice(existingIndex, 1);
+      } else {
+        currentSelectionIds.push(countryCode);
+      }
+
+      currentActiveCategoryKey = null;
+      currentSelectionId = currentSelectionIds.length ? currentSelectionIds[currentSelectionIds.length - 1] : null;
+      renderSelectedPlace(currentSelectionIds, COUNTRY_NAME_LOOKUP, portsByCountry, "Country");
+      applyCountrySelectionStyles(portsByCountry);
+      syncCountryZoom();
+      updateCategoryCounts();
+      hideItineraryBrowser();
+    }
+
+    function resetMapZoom() {
+      currentSelectionId = null;
+      if (currentView === "country" && currentPayload) {
+        currentDrilldownCode = null;
+        renderWorldMap(currentPayload);
+        return;
+      }
+      if (mapInstance) {
+        applyMapTransform(null, 250);
+      }
+    }
+
+    function recenterMapView() {
+      if (currentActiveCategoryKey && applyCoordinateZoom(CATEGORY_ZOOM_OVERRIDES[currentActiveCategoryKey])) {
+        return;
+      }
+
+      if (currentSelectionIds.length) {
+        syncCountryZoom();
+        return;
+      }
+
+      if (currentView === "country" && currentDrilldownCode && currentPayload) {
+        renderCountryDrilldown(currentDrilldownCode, currentPayload);
+        return;
+      }
+
+      resetMapZoom();
+    }
+
+    function getMapRootLayers() {
+      if (!mapInstance || !mapInstance.svg) {
+        return d3.selectAll([]);
+      }
+
+      const svgNode = typeof mapInstance.svg.node === "function"
+        ? mapInstance.svg.node()
+        : mapInstance.svg[0][0];
+      const layers = Array.prototype.filter.call(svgNode.children || [], function(child) {
+        return child.tagName && child.tagName.toLowerCase() === "g";
+      });
+
+      return d3.selectAll(layers);
+    }
+
+    function getMapViewportSize() {
+      const mapEl = document.getElementById("map");
+      if (mapEl) {
+        return {
+          width: mapEl.clientWidth || mapEl.offsetWidth || 960,
+          height: mapEl.clientHeight || mapEl.offsetHeight || 600
+        };
+      }
+
+      return { width: 960, height: 600 };
+    }
+
+    function normalizeMapTransform(transform) {
+      if (!transform) {
+        return { x: 0, y: 0, scale: 1 };
+      }
+
+      if (typeof transform === "object") {
+        return {
+          x: Number(transform.x) || 0,
+          y: Number(transform.y) || 0,
+          scale: Number(transform.scale) || 1
+        };
+      }
+
+      const match = String(transform).match(/translate\(([-\d.]+),([-\d.]+)\)\s*scale\(([-\d.]+)\)/);
+      if (!match) {
+        return { x: 0, y: 0, scale: 1 };
+      }
+
+      return {
+        x: Number(match[1]) || 0,
+        y: Number(match[2]) || 0,
+        scale: Number(match[3]) || 1
+      };
+    }
+
+    function formatMapTransform(transform) {
+      const normalized = normalizeMapTransform(transform);
+      if (normalized.scale === 1 && normalized.x === 0 && normalized.y === 0) {
+        return null;
+      }
+
+      return "translate(" + normalized.x + "," + normalized.y + ") scale(" + normalized.scale + ")";
+    }
+
+    function updateMapPanState() {
+      const mapEl = document.getElementById("map");
+      if (!mapEl) {
+        return;
+      }
+
+      mapEl.classList.toggle("is-pannable", currentMapTransform.scale > 1);
+      mapEl.classList.toggle("is-dragging", !!mapPanState.dragging);
+    }
+
+    function applyMapTransform(transform, duration) {
+      currentMapTransform = normalizeMapTransform(transform);
+      updateMapPanState();
+
+      const layers = getMapRootLayers();
+      const transformValue = formatMapTransform(currentMapTransform);
+
+      if (duration) {
+        layers
+          .transition()
+          .duration(duration)
+          .attr("transform", transformValue);
+        return;
+      }
+
+      layers.interrupt().attr("transform", transformValue);
+    }
+
+    function bindMapPanControls() {
+      const mapEl = document.getElementById("map");
+      if (!mapEl || mapEl.dataset.panBound === "true") {
+        updateMapPanState();
+        return;
+      }
+
+      mapEl.dataset.panBound = "true";
+
+      mapEl.addEventListener("mousedown", function(event) {
+        if (currentMapTransform.scale <= 1 || event.button !== 0 || event.target.closest(".map-overlay")) {
+          return;
+        }
+
+        mapPanState.dragging = true;
+        mapPanState.startX = event.clientX;
+        mapPanState.startY = event.clientY;
+        mapPanState.originX = currentMapTransform.x;
+        mapPanState.originY = currentMapTransform.y;
+        updateMapPanState();
+        event.preventDefault();
+      });
+
+      window.addEventListener("mousemove", function(event) {
+        if (!mapPanState.dragging) {
+          return;
+        }
+
+        applyMapTransform({
+          x: mapPanState.originX + (event.clientX - mapPanState.startX),
+          y: mapPanState.originY + (event.clientY - mapPanState.startY),
+          scale: currentMapTransform.scale
+        }, 0);
+      });
+
+      window.addEventListener("mouseup", function() {
+        if (!mapPanState.dragging) {
+          return;
+        }
+
+        mapPanState.dragging = false;
+        updateMapPanState();
+      });
+
+      mapEl.addEventListener("wheel", function(event) {
+        if (currentMapTransform.scale <= 1 || event.target.closest(".map-overlay")) {
+          return;
+        }
+
+        event.preventDefault();
+        applyMapTransform({
+          x: currentMapTransform.x - event.deltaX,
+          y: currentMapTransform.y - event.deltaY,
+          scale: currentMapTransform.scale
+        }, 0);
+      }, { passive: false });
+
+      updateMapPanState();
+    }
+
+    function bindMapViewControls() {
+      const recenterButton = document.getElementById("recenterMapButton");
+      if (!recenterButton || recenterButton.dataset.bound === "true") {
+        return;
+      }
+
+      recenterButton.dataset.bound = "true";
+      recenterButton.addEventListener("click", function() {
+        recenterMapView();
+      });
+    }
+
+    function applyCoordinateZoom(override) {
+      if (!override || !currentMapProjection || !mapInstance || !mapInstance.svg) {
+        return false;
+      }
+
+      const point = currentMapProjection([override.longitude, override.latitude]);
+      if (!point || point.length < 2) {
+        return false;
+      }
+
+      const viewport = getMapViewportSize();
+      const svgWidth = viewport.width;
+      const svgHeight = viewport.height;
+      const scale = override.scale || 18;
+      const translateX = svgWidth / 2 - scale * point[0];
+      const translateY = svgHeight / 2 - scale * point[1];
+      const transform = "translate(" + translateX + "," + translateY + ") scale(" + scale + ")";
+
+      applyMapTransform(transform, 300);
+      return true;
+    }
+
+    function zoomToOverride(countryCode) {
+      return applyCoordinateZoom(COUNTRY_ZOOM_OVERRIDES[countryCode]);
+    }
+
+    function zoomToCountry(node) {
+      if (!mapInstance || !node) {
+        return;
+      }
+
+      const bbox = node.getBBox();
+      if (!bbox.width || !bbox.height) {
+        return;
+      }
+
+      const viewport = getMapViewportSize();
+      const svgWidth = viewport.width;
+      const svgHeight = viewport.height;
+      const relativeSize = Math.max(bbox.width / svgWidth, bbox.height / svgHeight);
+      const maxScale = relativeSize < 0.04 ? 12 : 5;
+      const scale = Math.max(1, Math.min(maxScale, 0.42 / relativeSize));
+      const translateX = svgWidth / 2 - scale * (bbox.x + bbox.width / 2);
+      const translateY = svgHeight / 2 - scale * (bbox.y + bbox.height / 2);
+      const transform = "translate(" + translateX + "," + translateY + ") scale(" + scale + ")";
+
+      applyMapTransform(transform, 300);
+    }
+
+    function findCountryNode(countryCode) {
+      if (!mapInstance || !mapInstance.svg || !countryCode) {
+        return null;
+      }
+
+      let match = null;
+      mapInstance.svg.selectAll(".datamaps-subunit").each(function(d) {
+        if (!match && d && d.id === countryCode) {
+          match = this;
+        }
+      });
+
+      return match;
+    }
+
+    function zoomToCountryCodes(countryCodes) {
+      if (!mapInstance || !mapInstance.svg || !countryCodes || !countryCodes.length) {
+        return;
+      }
+
+      if (countryCodes.length === 1 && zoomToOverride(countryCodes[0])) {
+        return;
+      }
+
+      const nodes = countryCodes
+        .map(findCountryNode)
+        .filter(Boolean);
+
+      if (!nodes.length) {
+        return;
+      }
+
+      if (nodes.length === 1) {
+        zoomToCountry(nodes[0]);
+        return;
+      }
+
+      let minX = Infinity;
+      let minY = Infinity;
+      let maxX = -Infinity;
+      let maxY = -Infinity;
+
+      nodes.forEach(function(node) {
+        const bbox = node.getBBox();
+        if (!bbox.width || !bbox.height) {
+          return;
+        }
+        minX = Math.min(minX, bbox.x);
+        minY = Math.min(minY, bbox.y);
+        maxX = Math.max(maxX, bbox.x + bbox.width);
+        maxY = Math.max(maxY, bbox.y + bbox.height);
+      });
+
+      if (!isFinite(minX) || !isFinite(minY) || !isFinite(maxX) || !isFinite(maxY)) {
+        return;
+      }
+
+      const bbox = {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY
+      };
+
+      const viewport = getMapViewportSize();
+      const svgWidth = viewport.width;
+      const svgHeight = viewport.height;
+      const relativeSize = Math.max(bbox.width / svgWidth, bbox.height / svgHeight);
+      const maxScale = relativeSize < 0.04 ? 12 : 5;
+      const scale = Math.max(1, Math.min(maxScale, 0.42 / relativeSize));
+      const translateX = svgWidth / 2 - scale * (bbox.x + bbox.width / 2);
+      const translateY = svgHeight / 2 - scale * (bbox.y + bbox.height / 2);
+      const transform = "translate(" + translateX + "," + translateY + ") scale(" + scale + ")";
+
+      applyMapTransform(transform, 300);
+    }
+
+    function applySailToSelection(key) {
+      if (!key) {
+        currentSelectionId = null;
+        currentSelectionIds = [];
+        currentActiveCategoryKey = null;
+        currentDateFilter = null;
+        currentDateRangeEnd = null;
+        currentDateRangeBaseMonth = null;
+        draftItineraryMonth = null;
+        draftDateFilter = null;
+        draftDateRangeEnd = null;
+        draftDateRangeBaseMonth = null;
+        draftDateFilterTab = "months";
+        isDateFilterPanelOpen = false;
+        isDurationFilterPanelOpen = false;
+        renderSelectedPlace([], COUNTRY_NAME_LOOKUP, currentPortsByCountry, "Country");
+        applyCountrySelectionStyles(currentPortsByCountry);
+        syncCountryZoom();
+        updateCategoryCounts();
+        renderItineraryBrowser();
+        return;
+      }
+
+      const countryCodes = (CATEGORY_ZOOM_CODES[key] || []).filter(function(code) {
+        return !!currentPortsByCountry[code];
+      });
+
+      currentActiveCategoryKey = key;
+      currentItineraryMonth = null;
+      currentDateFilter = null;
+      currentDateRangeEnd = null;
+      currentDateRangeBaseMonth = null;
+      draftItineraryMonth = null;
+      draftDateFilter = null;
+      draftDateRangeEnd = null;
+      draftDateRangeBaseMonth = null;
+      draftDateFilterTab = "months";
+      isDateFilterPanelOpen = false;
+      isDurationFilterPanelOpen = false;
+      currentDeparturePortFilter = null;
+      currentSelectionIds = countryCodes.slice();
+      currentSelectionId = currentSelectionIds.length ? currentSelectionIds[currentSelectionIds.length - 1] : null;
+      renderSelectedPlace(currentSelectionIds, COUNTRY_NAME_LOOKUP, currentPortsByCountry, "Country");
+      applyCountrySelectionStyles(currentPortsByCountry);
+      updateCategoryCounts();
+      renderItineraryBrowser();
+
+      if (!countryCodes.length) {
+        syncCountryZoom();
+        return;
+      }
+      if (applyCoordinateZoom(CATEGORY_ZOOM_OVERRIDES[key])) {
+        return;
+      }
+      zoomToCountryCodes(countryCodes);
+    }
+
+    function wireDropdownFilters() {
+      const sailToSelect = document.getElementById("sailToFilter");
+      const sailFromSelect = document.getElementById("departurePortFilterSelect");
+      const dateFilterButton = document.getElementById("dateFilterButton");
+      const dateFilterPanel = document.getElementById("dateFilterPanel");
+      const dateFilterClearButton = document.getElementById("dateFilterClearButton");
+      const dateFilterApplyButton = document.getElementById("dateFilterApplyButton");
+      const durationFilterButton = document.getElementById("durationFilterButton");
+      const durationFilterPanel = document.getElementById("durationFilterPanel");
+      const durationFilterOptions = document.getElementById("durationFilterOptions");
+      const durationFilterApplyButton = document.getElementById("durationFilterApplyButton");
+
+      if (sailToSelect) {
+        sailToSelect.addEventListener("change", function() {
+          runSearchFeedback(function() {
+            applySailToSelection(sailToSelect.value || "");
+            refreshDestinationGridIfAvailable();
+            refreshDestinationModalIfOpen();
+          }, "Searching itineraries...");
+        });
+      }
+
+      if (sailFromSelect) {
+        sailFromSelect.addEventListener("change", function() {
+          runSearchFeedback(function() {
+            currentDeparturePortFilter = sailFromSelect.value || null;
+            currentItineraryMonth = null;
+            currentDateFilter = null;
+            currentDateRangeEnd = null;
+            currentDateRangeBaseMonth = null;
+            draftItineraryMonth = null;
+            draftDateFilter = null;
+            draftDateRangeEnd = null;
+            draftDateRangeBaseMonth = null;
+            draftDateFilterTab = "months";
+            isDateFilterPanelOpen = false;
+            isDurationFilterPanelOpen = false;
+            renderItineraryBrowser();
+            refreshDestinationGridIfAvailable();
+            refreshDestinationModalIfOpen();
+          }, "Searching itineraries...");
+        });
+      }
+
+      if (dateFilterButton && dateFilterPanel) {
+        dateFilterButton.addEventListener("click", function(event) {
+          event.stopPropagation();
+          const willOpen = !isDateFilterPanelOpen;
+          if (willOpen) {
+            syncDateDraftFromApplied();
+            isDurationFilterPanelOpen = false;
+          }
+          isDateFilterPanelOpen = willOpen;
+          renderItineraryBrowser();
+        });
+
+        document.querySelectorAll("[data-date-filter-tab]").forEach(function(tabButton) {
+          tabButton.addEventListener("click", function(event) {
+            event.stopPropagation();
+            const tabKey = tabButton.getAttribute("data-date-filter-tab");
+            if (!tabKey) {
+              return;
+            }
+            draftDateFilterTab = tabKey;
+            isDateFilterPanelOpen = true;
+            renderItineraryBrowser();
+          });
+        });
+
+        document.addEventListener("click", function(event) {
+          if (isDateFilterPanelOpen && !dateFilterPanel.contains(event.target) && !dateFilterButton.contains(event.target)) {
+            isDateFilterPanelOpen = false;
+            renderItineraryBrowser();
+          }
+          if (durationFilterPanel && durationFilterButton && isDurationFilterPanelOpen && !durationFilterPanel.contains(event.target) && !durationFilterButton.contains(event.target)) {
+            isDurationFilterPanelOpen = false;
+            renderItineraryBrowser();
+          }
+        });
+      }
+
+      if (dateFilterApplyButton) {
+        dateFilterApplyButton.addEventListener("click", function(event) {
+          event.stopPropagation();
+          runSearchFeedback(function() {
+            applyDraftDateSelection();
+            renderItineraryBrowser();
+            refreshDestinationGridIfAvailable();
+            refreshDestinationModalIfOpen();
+          }, "Searching itineraries...");
+        });
+      }
+
+      if (dateFilterClearButton) {
+        dateFilterClearButton.addEventListener("click", function(event) {
+          event.stopPropagation();
+          runSearchFeedback(function() {
+            resetItineraryDateSelectionState();
+            renderItineraryBrowser();
+            refreshDestinationGridIfAvailable();
+            refreshDestinationModalIfOpen();
+          }, "Searching itineraries...");
+        });
+      }
+
+      if (durationFilterButton && durationFilterPanel) {
+        durationFilterButton.addEventListener("click", function(event) {
+          event.stopPropagation();
+          const willOpen = !isDurationFilterPanelOpen;
+          if (willOpen) {
+            syncDurationDraftFromApplied();
+            isDateFilterPanelOpen = false;
+          }
+          isDurationFilterPanelOpen = willOpen;
+          renderItineraryBrowser();
+        });
+      }
+
+      if (durationFilterOptions) {
+        durationFilterOptions.addEventListener("click", function(event) {
+          const button = event.target.closest("[data-draft-duration-filter]");
+          if (!button) {
+            return;
+          }
+          event.stopPropagation();
+          const filterKey = button.getAttribute("data-draft-duration-filter");
+          if (!filterKey) {
+            return;
+          }
+          if (draftDurationFilters.indexOf(filterKey) === -1) {
+            draftDurationFilters = draftDurationFilters.concat(filterKey);
+          } else {
+            draftDurationFilters = draftDurationFilters.filter(function(key) {
+              return key !== filterKey;
+            });
+          }
+          renderItineraryBrowser();
+        });
+      }
+
+      if (durationFilterApplyButton) {
+        durationFilterApplyButton.addEventListener("click", function(event) {
+          event.stopPropagation();
+          runSearchFeedback(function() {
+            applyDraftDurationSelection();
+            renderItineraryBrowser();
+            refreshDestinationGridIfAvailable();
+            refreshDestinationModalIfOpen();
+          }, "Searching itineraries...");
+        });
+      }
+    }
+
+    function wireItineraryCountButtons() {
+    }
+
+    function syncCountryZoom() {
+      if (!currentSelectionIds.length) {
+        applyMapTransform(null, 300);
+        return;
+      }
+
+      const targetId = currentSelectionId || currentSelectionIds[currentSelectionIds.length - 1];
+      if (zoomToOverride(targetId)) {
+        return;
+      }
+      const targetNode = findCountryNode(targetId);
+      if (targetNode) {
+        zoomToCountry(targetNode);
+      }
+    }
+
+    function applyCountrySelectionStyles(portsByCountry) {
+      if (!mapInstance || !mapInstance.svg) {
+        return;
+      }
+
+      mapInstance.svg.selectAll(".datamaps-subunit")
+        .style("fill", function(d) {
+          if (!portsByCountry[d.id]) {
+            return MAP_FILLS.defaultFill;
+          }
+          if (!currentSelectionIds.length) {
+            return MAP_FILLS.active;
+          }
+          return currentSelectionIds.indexOf(d.id) !== -1 ? MAP_FILLS.active : MAP_FILLS.inactive;
+        })
+        .style("opacity", 1);
+    }
+
+    function wireCountryClicks(portsByCountry) {
+      mapInstance.svg.selectAll(".datamaps-subunit")
+        .style("cursor", function(d) {
+          return portsByCountry[d.id] ? "pointer" : "default";
+        })
+        .on("click", function(d) {
+          if (!portsByCountry[d.id]) {
+            return;
+          }
+          toggleCountrySelection(d.id, portsByCountry);
+        });
+    }
+
+    function wireCountryDrilldownReset(countryCode, portsByCountry) {
+      mapInstance.svg.selectAll(".datamaps-subunit")
+        .style("cursor", "default")
+        .on("click", null);
+
+      renderSelectedPlace([countryCode], COUNTRY_NAME_LOOKUP, portsByCountry, "Country");
+    }
+
+    function renderWorldMap(payload) {
+      currentView = "world";
+      currentDrilldownCode = null;
+      const destinationData = collectDestinationData(payload.cruises || []);
+      const counts = destinationData.counts;
+      const portsByCountry = destinationData.portsByCountry;
+      currentCategoryStats = computeCategoryStats(payload.cruises || []);
+      currentPortsByCountry = portsByCountry;
+      const mapEl = document.getElementById("map");
+
+      if (!mapEl) {
+        mapInstance = null;
+        currentSelectionIds = [];
+        currentSelectionId = null;
+        currentActiveCategoryKey = null;
+        renderItineraryBrowser();
+        updateSidebar(payload, counts, {
+          lookup: COUNTRY_NAME_LOOKUP,
+          heroTitle: "Explore Destinations",
+          heroCopy: "",
+          selectionLabel: ""
+        });
+        return;
+      }
+
+      const usStateData = collectUsDestinationStateData(payload.cruises || []);
+      const mapData = buildMapData(counts);
+
+      if (mapInstance) {
+        mapEl.innerHTML = "";
+      }
+      ensureMapOverlayShell();
+      const worldTopo = getWorldTopo();
+
+      mapInstance = new Datamap({
+        element: mapEl,
+        scope: "world",
+        responsive: true,
+        fills: MAP_FILLS,
+        data: mapData,
+        setProjection: worldTopo ? function(element) {
+          return buildProjectionWithState(element, worldTopo, "world", 0.82);
+        } : undefined,
+        geographyConfig: {
+          borderColor: "#ffffff",
+          highlightOnHover: false,
+          popupTemplate: function(geo, data) {
+            const hoverInfo = resolveHoverLocation(geo, data, d3.event, usStateData);
+            return "<div class='hoverinfo'><strong>" + hoverInfo.displayName + "</strong>" +
+              "<div>" + hoverInfo.portCount + (hoverInfo.portCount === 1 ? " port of call" : " ports of call") + "</div></div>";
+          }
+        }
+      });
+      bindMapPanControls();
+      wireCountryClicks(portsByCountry);
+      currentSelectionIds = currentSelectionIds.filter(function(selectionId) {
+        return !!portsByCountry[selectionId];
+      });
+      if (currentActiveCategoryKey && !currentCategoryStats.categoryStats[currentActiveCategoryKey]) {
+        currentActiveCategoryKey = null;
+      }
+      renderItineraryBrowser();
+      currentSelectionId = currentSelectionIds.length ? currentSelectionIds[currentSelectionIds.length - 1] : null;
+      renderSelectedPlace(currentSelectionIds, COUNTRY_NAME_LOOKUP, portsByCountry, "Country");
+      applyCountrySelectionStyles(portsByCountry);
+      syncCountryZoom();
+      updateCategoryCounts();
+      applyCategoryGroupFilter();
+      updateSidebar(payload, counts, {
+        lookup: COUNTRY_NAME_LOOKUP,
+        heroTitle: "Explore Destinations",
+        heroCopy: "",
+        selectionLabel: currentSelectionId && COUNTRY_NAME_LOOKUP[currentSelectionId]
+          ? COUNTRY_NAME_LOOKUP[currentSelectionId]
+          : ""
+      });
+    }
+
+    async function renderCountryDrilldown(countryCode, payload) {
+      const config = DRILLDOWN_COUNTRY_CONFIG[countryCode];
+      const destinationData = collectDestinationData(payload.cruises || []);
+      const portsByCountry = destinationData.portsByCountry;
+      const mapEl = document.getElementById("map");
+
+      if (!mapEl) {
+        renderWorldMap(payload);
+        return;
+      }
+
+      if (!config || !config.scope || config.scope === "usa") {
+        return;
+      }
+
+      currentView = "country";
+      currentSelectionId = countryCode;
+      currentDrilldownCode = countryCode;
+
+      try {
+        const topo = await loadDrilldownTopo(countryCode);
+        const features = topojson.feature(topo, topo.objects[config.scope]).features;
+        const mapData = features.reduce(function(acc, feature) {
+          if (feature.id && feature.id !== "-99") {
+            acc[feature.id] = {
+              fillKey: "active",
+              label: feature.properties && feature.properties.name ? feature.properties.name : feature.id
+            };
+          }
+          return acc;
+        }, {});
+
+        if (mapInstance) {
+          mapEl.innerHTML = "";
+        }
+        ensureMapOverlayShell();
+
+        mapInstance = new BASE_DATAMAP_CONSTRUCTOR({
+          element: mapEl,
+          scope: config.scope,
+          responsive: true,
+          fills: MAP_FILLS,
+          data: mapData,
+          setProjection: function(element) {
+            return buildProjectionWithState(element, topo, config.scope);
+          },
+          geographyConfig: {
+            dataJson: topo,
+            borderColor: "#ffffff",
+            highlightOnHover: false,
+            popupTemplate: function(geo) {
+              const regionName = geo && geo.properties && geo.properties.name ? geo.properties.name : geo.id;
+              return "<div class='hoverinfo'><strong>" + regionName + "</strong><div>Region</div></div>";
+            }
+          }
+        });
+
+        bindMapPanControls();
+        wireCountryDrilldownReset(countryCode, portsByCountry);
+        updateDrilldownSidebar(payload, countryCode, portsByCountry);
+      } catch (error) {
+        currentView = "world";
+        currentDrilldownCode = null;
+        renderWorldMap(payload);
+      }
+    }
+
+    let currentMergedPayload = null;
+    let destinationGalleryData = [];
+    let currentDestinationDetail = null;
+    let currentDestinationTab = "overview";
+    let refreshInFlight = false;
+    let searchFeedbackHideTimer = null;
+
+    function formatRefreshTimestamp(value) {
+      if (!value) {
+        return "Unknown";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return new Intl.DateTimeFormat(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }).format(date);
+    }
+
+    async function configureRefreshControls() {
+      const controlsEl = document.getElementById("refreshControls");
+      if (!controlsEl) {
+        return;
+      }
+
+      controlsEl.hidden = true;
+
+      try {
+        const response = await fetch("./healthz", { cache: "no-store" });
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = await response.json().catch(function() {
+          return {};
+        });
+
+        if (!payload || !payload.ok) {
+          return;
+        }
+
+        const destinationsResponse = await fetch("./destinations.json", { cache: "no-store" });
+        if (!destinationsResponse.ok) {
+          return;
+        }
+
+        const destinationsPayload = await destinationsResponse.json().catch(function() {
+          return {};
+        });
+        const metadata = destinationsPayload && destinationsPayload.__cruises_metadata
+          ? destinationsPayload.__cruises_metadata
+          : {};
+
+        controlsEl.hidden = !isQuarterlyRefreshDue(metadata.merged_at);
+      } catch (error) {
+      }
+    }
+
+    function getQuarterStartForDate(value) {
+      const date = value instanceof Date ? new Date(value.getTime()) : new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+
+      const month = date.getMonth();
+      const quarterStartMonth = month < 3 ? 0 : (month < 6 ? 3 : (month < 9 ? 6 : 9));
+      return new Date(date.getFullYear(), quarterStartMonth, 1);
+    }
+
+    function isQuarterlyRefreshDue(mergedAtValue) {
+      const now = new Date();
+      const currentQuarterStart = getQuarterStartForDate(now);
+      const mergedAt = mergedAtValue ? new Date(mergedAtValue) : null;
+
+      if (!currentQuarterStart) {
+        return false;
+      }
+
+      if (!mergedAt || Number.isNaN(mergedAt.getTime())) {
+        return true;
+      }
+
+      return mergedAt.getTime() < currentQuarterStart.getTime();
+    }
+
+    function setRefreshStatus(message, state) {
+      const statusEl = document.getElementById("refreshMergedStatus");
+      if (!statusEl) {
+        return;
+      }
+
+      statusEl.textContent = message;
+      if (state) {
+        statusEl.setAttribute("data-state", state);
+      } else {
+        statusEl.removeAttribute("data-state");
+      }
+    }
+
+    function updateRefreshStatusFromPayload(mergedPayload) {
+      const metadata = mergedPayload && mergedPayload.__cruises_metadata ? mergedPayload.__cruises_metadata : {};
+      const mergedAt = metadata.merged_at ? formatRefreshTimestamp(metadata.merged_at) : "Unknown";
+      const cruisesAt = metadata.cruises_generated_at ? formatRefreshTimestamp(metadata.cruises_generated_at) : "";
+      const sailingCount = typeof metadata.total_cruise_sailings === "number" ? metadata.total_cruise_sailings : null;
+      const cruisePart = cruisesAt ? " Cruise data: " + cruisesAt + "." : "";
+      const sailingPart = sailingCount !== null ? " " + sailingCount + " sailings merged." : "";
+      setRefreshStatus("Merged: " + mergedAt + "." + cruisePart + sailingPart, "success");
+    }
+
+    async function handleRefreshMergedData() {
+      if (refreshInFlight) {
+        return;
+      }
+
+      const button = document.getElementById("refreshMergedButton");
+      refreshInFlight = true;
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Updating...";
+      }
+      setRefreshStatus("Refreshing destinations.json from Carnival...", "");
+
+      try {
+        const response = await fetch("./refresh-destinations", {
+          method: "POST",
+          cache: "no-store"
+        });
+        const result = await response.json().catch(function() {
+          return {};
+        });
+
+        if (!response.ok) {
+          throw new Error(result.error || "Refresh failed. Serve this page with destinations-manager.js to enable the update button.");
+        }
+
+        await loadMap();
+        await configureRefreshControls();
+
+        if (result && result.metadata) {
+          const mergedAt = formatRefreshTimestamp(result.metadata.merged_at);
+          const cruisesAt = result.metadata.cruises_generated_at ? formatRefreshTimestamp(result.metadata.cruises_generated_at) : "";
+          setRefreshStatus("Updated merged data at " + mergedAt + "." + (cruisesAt ? " Cruise data: " + cruisesAt + "." : ""), "success");
+        } else {
+          setRefreshStatus("Updated merged data successfully.", "success");
+        }
+      } catch (error) {
+        setRefreshStatus(error && error.message ? error.message : "Refresh failed.", "error");
+      } finally {
+        refreshInFlight = false;
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Update Latest Data";
+        }
+      }
+    }
+
+    function wireRefreshMergedButton() {
+      const button = document.getElementById("refreshMergedButton");
+      if (!button) {
+        return;
+      }
+
+      button.addEventListener("click", handleRefreshMergedData);
+    }
+
+    function setSearchFeedbackVisible(visible, message) {
+      const overlayEl = document.getElementById("searchFeedback");
+      const textEl = document.getElementById("searchFeedbackText");
+      if (!overlayEl) {
+        return;
+      }
+
+      if (searchFeedbackHideTimer) {
+        clearTimeout(searchFeedbackHideTimer);
+        searchFeedbackHideTimer = null;
+      }
+
+      if (textEl && message) {
+        textEl.textContent = message;
+      }
+
+      overlayEl.hidden = !visible;
+    }
+
+    function runSearchFeedback(action, message) {
+      const start = Date.now();
+      setSearchFeedbackVisible(true, message || "Searching...");
+
+      requestAnimationFrame(function() {
+        setTimeout(function() {
+          try {
+            action();
+          } finally {
+            const remaining = Math.max(0, 220 - (Date.now() - start));
+            searchFeedbackHideTimer = setTimeout(function() {
+              setSearchFeedbackVisible(false);
+            }, remaining);
+          }
+        }, 0);
+      });
+    }
+
+    function updateBrowserTabCounts() {
+      const categorySelect = document.getElementById("browserCategorySelect");
+      if (!categorySelect) {
+        return;
+      }
+
+      Array.from(categorySelect.options).forEach(function(option) {
+        if (option.value === "itineraries") {
+          option.textContent = "Itineraries (" + currentItineraryResultsCount + ")";
+          return;
+        }
+        if (option.value === "destinations") {
+          option.textContent = "Destinations (" + currentDestinationResultsCount + ")";
+        }
+      });
+    }
+
+    function setBrowserTab(tabKey) {
+      const categorySelect = document.getElementById("browserCategorySelect");
+      const itinerariesPane = document.getElementById("browserItinerariesPane");
+      const destinationsPane = document.getElementById("browserDestinationsPane");
+      if (!categorySelect || !itinerariesPane || !destinationsPane) {
+        return;
+      }
+
+      currentBrowserTab = tabKey === "itineraries" ? "itineraries" : "destinations";
+      categorySelect.value = currentBrowserTab;
+      itinerariesPane.hidden = currentBrowserTab !== "itineraries";
+      destinationsPane.hidden = currentBrowserTab !== "destinations";
+    }
+
+    function autoSwitchBrowserTabIfNeeded() {
+      if (isBootstrappingBrowserView) {
+        return;
+      }
+      if (currentBrowserTab === "destinations" && currentDestinationResultsCount === 0 && currentItineraryResultsCount > 0) {
+        setBrowserTab("itineraries");
+        return;
+      }
+      if (currentBrowserTab === "itineraries" && currentItineraryResultsCount === 0 && currentDestinationResultsCount > 0) {
+        setBrowserTab("destinations");
+      }
+    }
+
+    function refreshDestinationGridIfAvailable() {
+      if (typeof rerenderDestinationGrid === "function") {
+        rerenderDestinationGrid();
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function normalizeDestinationKey(name, country) {
+      return String(name + "||" + country)
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9|]+/g, " ")
+        .trim();
+    }
+
+    function fillDestinationSelect(select, values, allLabel) {
+      select.innerHTML = '<option value="">' + allLabel + '</option>' + values.map(function(value) {
+        return '<option value="' + escapeHtml(value) + '">' + escapeHtml(value) + '</option>';
+      }).join("");
+    }
+
+    function orderValuesByPreferred(values, preferredOrder) {
+      const valueSet = new Set((values || []).filter(Boolean));
+      const ordered = (preferredOrder || []).filter(function(value) {
+        return valueSet.has(value);
+      });
+      const remaining = Array.from(valueSet).filter(function(value) {
+        return preferredOrder.indexOf(value) === -1;
+      }).sort(function(a, b) {
+        return a.localeCompare(b);
+      });
+      return ordered.concat(remaining);
+    }
+
+    function refreshDestinationCruiseIdSet() {
+      if (!currentDestinationSettingFilter) {
+        currentDestinationCruiseIdSet = null;
+        return;
+      }
+
+      currentDestinationCruiseIdSet = new Set(
+        destinationGalleryData
+          .filter(function(item) {
+            return item.setting === currentDestinationSettingFilter;
+          })
+          .flatMap(function(item) {
+            return getDestinationMatchedCruiseIds(item);
+          })
+          .map(function(cruiseId) {
+            return String(cruiseId || "");
+          })
+          .filter(Boolean)
+      );
+    }
+
+    function filterCruisesByDestinationSelections(cruises) {
+      if (!currentDestinationCruiseIdSet) {
+        return Array.isArray(cruises) ? cruises.slice() : [];
+      }
+
+      return (Array.isArray(cruises) ? cruises : []).filter(function(cruise) {
+        return currentDestinationCruiseIdSet.has(String(cruise && cruise.sailingId || ""));
+      });
+    }
+
+    function formatActiveDestinationFilterCopy() {
+      const parts = [];
+      if (currentDestinationSettingFilter) {
+        parts.push("setting " + currentDestinationSettingFilter);
+      }
+      if (currentDestinationBestTimeFilter) {
+        parts.push("best time " + currentDestinationBestTimeFilter);
+      }
+      return parts.length ? " matching " + parts.join(" and ") : "";
+    }
+
+    function resetItineraryDateSelectionState() {
+      currentItineraryMonth = null;
+      currentDateFilter = null;
+      currentDateRangeEnd = null;
+      currentDateRangeBaseMonth = null;
+      draftItineraryMonth = null;
+      draftDateFilter = null;
+      draftDateRangeEnd = null;
+      draftDateRangeBaseMonth = null;
+      draftDateFilterTab = "months";
+      isDateFilterPanelOpen = false;
+    }
+
+    function getSeasonLabelForDepartureDate(dateString) {
+      if (!dateString) {
+        return "";
+      }
+
+      const date = new Date(dateString + "T12:00:00");
+      if (Number.isNaN(date.getTime())) {
+        return "";
+      }
+
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const monthDay = month * 100 + day;
+
+      if (monthDay >= 301 && monthDay <= 531) {
+        return "Spring";
+      }
+      if (monthDay >= 601 && monthDay <= 831) {
+        return "Summer";
+      }
+      if (monthDay >= 901 && monthDay <= 1130) {
+        return "Fall";
+      }
+      return "Winter";
+    }
+
+    function matchesCurrentBestTimeFilter(cruise) {
+      if (!currentDestinationBestTimeFilter) {
+        return true;
+      }
+      return getSeasonLabelForDepartureDate(cruise && cruise.departureDate) === currentDestinationBestTimeFilter;
+    }
+
+    function filterCruisesByCurrentControls(cruises) {
+      return (Array.isArray(cruises) ? cruises : []).filter(function(cruise) {
+        if (currentDeparturePortFilter && cruise.departurePortName !== currentDeparturePortFilter) {
+          return false;
+        }
+        if (!matchesCurrentBestTimeFilter(cruise)) {
+          return false;
+        }
+        const duration = Number(cruise.duration) || 0;
+        if (!matchesDurationFilters(duration, currentDurationFilters)) {
+          return false;
+        }
+        if (currentItineraryMonth && String(cruise.departureDate || "").slice(0, 7) !== currentItineraryMonth) {
+          return false;
+        }
+        if (currentDateFilter) {
+          const selectedRange = getNormalizedSelectedDateRange();
+          if (!selectedRange || cruise.departureDate < selectedRange.start || cruise.departureDate > selectedRange.end) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    function getCurrentBaseCruises() {
+      const baseStats = currentActiveCategoryKey
+        ? currentCategoryStats.categoryStats[currentActiveCategoryKey]
+        : currentCategoryStats.allStats;
+      return filterCruisesByDestinationSelections(baseStats ? baseStats.cruises : []);
+    }
+
+    function getCurrentFilteredCruiseIdSet() {
+      return new Set(
+        filterCruisesByCurrentControls(getCurrentBaseCruises()).map(function(cruise) {
+          return String(cruise && cruise.sailingId || "");
+        }).filter(Boolean)
+      );
+    }
+
+    function hasActiveCruiseFilters() {
+      return Boolean(
+        currentActiveCategoryKey ||
+        currentDeparturePortFilter ||
+        currentItineraryMonth ||
+        currentDateFilter ||
+        (Array.isArray(currentDurationFilters) && currentDurationFilters.length) ||
+        currentDestinationBestTimeFilter
+      );
+    }
+
+    function renderDestinationOverview(detail) {
+      if (!detail) {
+        return '<div class="destination-block"><div class="destination-rich"><p>No destination detail content is available.</p></div></div>';
+      }
+
+      return (detail.overview_intro && detail.overview_intro.html
+        ? '<section class="destination-block"><div class="destination-rich">' + detail.overview_intro.html + '</div></section>'
+        : '') +
+        (detail.overview_sections || []).map(function(section) {
+          return '<section class="destination-block">' +
+            '<h3>' + escapeHtml(section.title || "") + '</h3>' +
+            (section.image_url ? '<div class="destination-section-image"><img src="' + escapeHtml(section.image_url) + '" alt="' + escapeHtml(section.title || "") + '" loading="lazy" decoding="async"></div>' : '') +
+            '<div class="destination-rich">' + (section.html || "") + '</div>' +
+          '</section>';
+        }).join("");
+    }
+
+    function renderDestinationGettingThere(detail) {
+      if (!detail || !detail.getting_there) {
+        return '<div class="destination-block"><div class="destination-rich"><p>No getting there content is available.</p></div></div>';
+      }
+
+      return (detail.getting_there.intro && detail.getting_there.intro.html
+        ? '<section class="destination-block"><h3>' + escapeHtml(detail.getting_there.intro.title || "Getting There") + '</h3><div class="destination-rich">' + detail.getting_there.intro.html + '</div></section>'
+        : '') +
+        (detail.getting_there.sections || []).map(function(section) {
+          return '<section class="destination-block"><div class="destination-section-item">' +
+            (section.image_url ? '<div class="destination-section-image"><img src="' + escapeHtml(section.image_url) + '" alt="' + escapeHtml(section.title || "") + '" loading="lazy" decoding="async"></div>' : '<div></div>') +
+            '<div><h3>' + escapeHtml(section.title || "") + '</h3><div class="destination-rich">' + (section.html || "") + '</div></div>' +
+          '</div></section>';
+        }).join("");
+    }
+
+    function renderDestinationThingsToDo(detail) {
+      if (!detail || !Array.isArray(detail.things_to_do) || !detail.things_to_do.length) {
+        return '<div class="destination-block"><div class="destination-rich"><p>No things to do content is available.</p></div></div>';
+      }
+
+      return detail.things_to_do.map(function(category) {
+        return '<section class="destination-block">' +
+          '<h3>' + escapeHtml(category.title || "") + '</h3>' +
+          (category.intro_html ? '<div class="destination-rich">' + category.intro_html + '</div>' : '') +
+          (category.items || []).map(function(item) {
+            return '<div class="destination-section-item">' +
+              (item.image_url ? '<div class="destination-section-image"><img src="' + escapeHtml(item.image_url) + '" alt="' + escapeHtml(item.title || "") + '" loading="lazy" decoding="async"></div>' : '<div></div>') +
+              '<div><h4>' + escapeHtml(item.title || "") + '</h4><div class="destination-rich">' + (item.html || "") + '</div></div>' +
+            '</div>';
+          }).join("") +
+        '</section>';
+      }).join("");
+    }
+
+    function normalizeDestinationRouteValue(value) {
+      return String(value || "")
+        .normalize("NFKD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[™®]/g, "")
+        .replace(/\([^)]*\)/g, " ")
+        .replace(/\bsaint\b/gi, "st")
+        .replace(/\bst\.\b/gi, "st")
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/gi, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function mapMergedCruiseToBrowserShape(rawCruise) {
+      return {
+        departureDate: rawCruise.departure_date || "",
+        arrivalDate: rawCruise.arrival_date || "",
+        departureTime: rawCruise.departure_time || "",
+        returnTime: rawCruise.return_time || "",
+        shipName: rawCruise.ship_name || "",
+        itineraryTitle: rawCruise.itinerary_title || "",
+        itineraryRoute: rawCruise.itinerary_route || "",
+        itinerary: Array.isArray(rawCruise.itinerary) ? rawCruise.itinerary.slice() : [],
+        itineraryUrl: rawCruise.itinerary_url || "",
+        departurePortName: rawCruise.departure_port_name || "",
+        regionName: rawCruise.region_name || "",
+        duration: Number(rawCruise.duration) || 0,
+        portsToDisplay: Array.isArray(rawCruise.ports_to_display) ? rawCruise.ports_to_display.slice() : [],
+        sailingId: rawCruise.sailing_id || rawCruise.cruise_id || "",
+        departurePortCode: rawCruise.departure_port_code || "",
+        regionCode: rawCruise.region_code || ""
+      };
+    }
+
+    function getDestinationRouteAliases(destination) {
+      const aliases = new Set();
+      const country = destination.country || "";
+      const name = destination.name || "";
+
+      aliases.add(normalizeDestinationRouteValue(name));
+      if (/\|/.test(name)) {
+        aliases.add(normalizeDestinationRouteValue(name.split("|")[0]));
+      }
+      if (/ province$/i.test(name)) {
+        aliases.add(normalizeDestinationRouteValue(name.replace(/ province$/i, "")));
+      }
+      if (/ harbour$/i.test(name)) {
+        aliases.add(normalizeDestinationRouteValue(name.replace(/ harbour$/i, "")));
+      }
+      if (/ town hall$/i.test(name)) {
+        aliases.add(normalizeDestinationRouteValue(name.replace(/ town hall$/i, "")));
+      }
+
+      const exactAliases = {
+        "Mexico||San Miguel de Cozumel": ["Cozumel"],
+        "Mexico||Costa Maya | Cruise Port": ["Costa Maya"],
+        "Puerto Rico||Viejo San Juan": ["San Juan"],
+        "Turks and Caicos Islands||Cockburn Town": ["Grand Turk"],
+        "U.S. Virgin Islands||Saint Thomas": ["St. Thomas"],
+        "U.S. Virgin Islands||Frederiksted": ["St. Croix"],
+        "Sint Maarten||Philipsburg": ["St. Maarten"],
+        "Caribbean Netherlands||Kralendijk": ["Bonaire"],
+        "Cayman Islands||George Town": ["Grand Cayman"],
+        "Saint Michael Barbados||Bridgetown": ["Barbados"],
+        "Belize||Belize City": ["Belize"],
+        "Honduras||Coxen Hole": ["Mahogany Bay, Roatan", "Isla Tropicale, Roatan"],
+        "Costa Rica||Limón Province": ["Limón"],
+        "Costa Rica||Puntarenas Province": ["Puntarenas"],
+        "Panama||Colón": ["Colón (Panama Canal)", "Colón"],
+        "Aruba||Oranjestad": ["Aruba"],
+        "Curaçao||Willemstad": ["Curaçao", "Curacao"],
+        "The Bahamas||Lucayan Knoll": ["Celebration Key™", "Half Moon Cay", "RelaxAway, Half Moon Cay™", "Princess Cays", "Nassau", "Bimini"]
+      };
+
+      (exactAliases[country + "||" + name] || []).forEach(function(alias) {
+        aliases.add(normalizeDestinationRouteValue(alias));
+      });
+
+      return Array.from(aliases).filter(Boolean);
+    }
+
+    function getDestinationMatchedCruises(destination) {
+      const cruiseIndex = (currentMergedPayload && currentMergedPayload.__cruises_index) || {};
+      const matched = new Map();
+      const aliasSet = new Set(getDestinationRouteAliases(destination));
+
+      (destination.cruiseIds || []).forEach(function(cruiseId) {
+        const rawCruise = cruiseIndex[cruiseId];
+        if (rawCruise) {
+          matched.set(cruiseId, mapMergedCruiseToBrowserShape(rawCruise));
+        }
+      });
+
+      Object.keys(cruiseIndex).forEach(function(cruiseId) {
+        if (matched.has(cruiseId)) {
+          return;
+        }
+        const rawCruise = cruiseIndex[cruiseId];
+        const routePoints = []
+          .concat(Array.isArray(rawCruise.itinerary) ? rawCruise.itinerary : [])
+          .concat(rawCruise.departure_port_name || "")
+          .concat(rawCruise.ports_to_display || []);
+        const isMatch = routePoints.some(function(stop) {
+          return aliasSet.has(normalizeDestinationRouteValue(normalizeStopName(stop)));
+        });
+        if (isMatch) {
+          matched.set(cruiseId, mapMergedCruiseToBrowserShape(rawCruise));
+        }
+      });
+
+      return Array.from(matched.values()).sort(function(a, b) {
+        return String(a.departureDate || "").localeCompare(String(b.departureDate || "")) ||
+          String(a.itineraryTitle || "").localeCompare(String(b.itineraryTitle || ""));
+      });
+    }
+
+    function getDestinationMatchedCruiseIds(destination) {
+      const cacheKey = destination && destination.key ? destination.key : "";
+      if (!cacheKey) {
+        return [];
+      }
+
+      if (destinationMatchedCruiseIdsCache.has(cacheKey)) {
+        return destinationMatchedCruiseIdsCache.get(cacheKey);
+      }
+
+      const matchedCruiseIds = getDestinationMatchedCruises(destination).map(function(cruise) {
+        return String(cruise && cruise.sailingId || "");
+      }).filter(Boolean);
+
+      destinationMatchedCruiseIdsCache.set(cacheKey, matchedCruiseIds);
+      return matchedCruiseIds;
+    }
+
+    function renderDestinationCruises(destination) {
+      const cruises = filterCruisesByCurrentControls(getDestinationMatchedCruises(destination));
+
+      if (!cruises.length) {
+        return '<div class="destination-block"><div class="destination-rich"><p>No itineraries match the current filters for this destination.</p></div></div>';
+      }
+
+      return '<section class="destination-block"><h3>Applicable Itineraries</h3><div class="destination-rich"><p>' +
+        escapeHtml(destination.name) + ' appears in ' + escapeHtml(String(cruises.length)) + ' itinerary result' + (cruises.length === 1 ? '' : 's') + ' based on route matching.</p></div></section>' +
+        '<ul class="itinerary-list">' + cruises.map(function(cruise, index) {
+          const itineraryRoute = buildFullRouteDisplay(cruise);
+          const finalPaymentDueLabel = getFinalPaymentDueLabel(cruise);
+          const depositLabels = getDepositLabels(cruise);
+          const showDepositPill = depositLabels.deposit !== finalPaymentDueLabel;
+          const finalPaymentPillLabel = finalPaymentDueLabel === "Final Payment Due Now"
+            ? finalPaymentDueLabel
+            : "Final Payment Due: " + finalPaymentDueLabel;
+          const offers = [
+            getEarlySaverOfferCopy(cruise),
+            getFunSelectOfferCopy(cruise),
+            getSuperSaverOfferCopy(cruise)
+          ];
+          const eligibleOfferCount = offers.filter(function(offer) {
+            return offer.status === "Eligible";
+          }).length;
+          const offersButtonLabel = eligibleOfferCount + " " + (eligibleOfferCount === 1 ? "Offer Found!" : "Offers Found!");
+          const itineraryNarrative = buildCruiseNarrative(cruise, finalPaymentDueLabel, depositLabels.deposit, eligibleOfferCount, false);
+          const offerId = "destination-itinerary-offer-" + escapeHtml(destination.key) + "-" + index;
+
+          return '<li><strong>' + escapeHtml(cruise.itineraryTitle) + '</strong>' +
+            '<div class="itinerary-pill-stack">' +
+              (showDepositPill ? '<div class="itinerary-pill">' + escapeHtml(depositLabels.deposit) + '</div>' : '') +
+              '<div class="itinerary-pill is-final-payment' + (finalPaymentDueLabel === "Final Payment Due Now" ? ' is-due-now' : '') + '">' + escapeHtml(finalPaymentPillLabel) + '</div>' +
+            '</div>' +
+            '<div class="itinerary-meta">' + escapeHtml(formatCruiseDate(cruise.departureDate)) + ' to ' + escapeHtml(formatCruiseDate(cruise.arrivalDate)) + '</div>' +
+            '<div class="itinerary-meta">' + escapeHtml(cruise.shipName) + '</div>' +
+            '<p class="itinerary-summary">' + escapeHtml(itineraryNarrative) + '</p>' +
+            '<div class="itinerary-footer">' +
+              '<button class="itinerary-offers-link" type="button" data-offer-target="' + offerId + '" aria-expanded="false">' + offersButtonLabel + '</button>' +
+              '<div class="itinerary-meta itinerary-route">Route: ' + escapeHtml(itineraryRoute) + '</div>' +
+              '<div class="itinerary-footer-spacer" aria-hidden="true"></div>' +
+            '</div>' +
+            '<div class="itinerary-offer-details" id="' + offerId + '" hidden>' +
+              offers.map(function(offer) {
+                const statusClass = offer.status === "Eligible" ? " is-eligible" : " is-not-eligible";
+                return '<div class="itinerary-offer-item"><div class="itinerary-offer-title">' + escapeHtml(offer.title) + '</div>' +
+                  (offer.status ? '<div class="itinerary-offer-status' + statusClass + '">' + escapeHtml(offer.status) + '</div>' : '') +
+                  '<div class="itinerary-meta">' + escapeHtml(offer.detail) + '</div></div>';
+              }).join("") +
+            '</div></li>';
+        }).join("") + '</ul>';
+    }
+
+    function renderDestinationModalTab() {
+      const tabsEl = document.getElementById("destinationTabs");
+      const bodyEl = document.getElementById("destinationModalBody");
+      const heroEl = document.getElementById("destinationModalHero");
+      if (!currentDestinationDetail) {
+        tabsEl.innerHTML = "";
+        bodyEl.innerHTML = '<div class="destination-block"><div class="destination-rich"><p>No destination selected.</p></div></div>';
+        heroEl.hidden = true;
+        return;
+      }
+
+      const tabs = [
+        { key: "overview", label: "Overview" },
+        { key: "getting-there", label: "Getting There" },
+        { key: "things-to-do", label: "Things To Do" },
+        { key: "cruises", label: "Itineraries" }
+      ];
+
+      tabsEl.innerHTML = tabs.map(function(tab) {
+        return '<button class="destination-tab' + (tab.key === currentDestinationTab ? ' is-active' : '') + '" type="button" data-destination-tab="' + tab.key + '">' + tab.label + '</button>';
+      }).join("");
+
+      heroEl.hidden = true;
+
+      if (currentDestinationTab === "overview") {
+        bodyEl.innerHTML = renderDestinationOverview(currentDestinationDetail.detail);
+      } else if (currentDestinationTab === "getting-there") {
+        bodyEl.innerHTML = renderDestinationGettingThere(currentDestinationDetail.detail);
+      } else if (currentDestinationTab === "things-to-do") {
+        bodyEl.innerHTML = renderDestinationThingsToDo(currentDestinationDetail.detail);
+      } else {
+        bodyEl.innerHTML = renderDestinationCruises(currentDestinationDetail);
+      }
+    }
+
+    function openDestinationModal(destination) {
+      currentDestinationDetail = destination;
+      currentDestinationTab = "overview";
+      document.getElementById("destinationModalTitle").textContent = destination.name;
+      document.getElementById("destinationModalSubtitle").textContent = destination.country;
+      document.getElementById("destinationModalHero").hidden = true;
+      document.getElementById("destinationModalHeroImage").removeAttribute("src");
+      document.getElementById("destinationModalHeroImage").alt = "";
+      renderDestinationModalTab();
+      document.getElementById("destinationModal").classList.add("is-open");
+      document.getElementById("destinationModal").setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeDestinationModal() {
+      document.getElementById("destinationModal").classList.remove("is-open");
+      document.getElementById("destinationModal").setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function refreshDestinationModalIfOpen() {
+      const modalEl = document.getElementById("destinationModal");
+      if (!modalEl || !modalEl.classList.contains("is-open") || !currentDestinationDetail) {
+        return;
+      }
+
+      renderDestinationModalTab();
+    }
+
+    function renderDestinationGallery(mergedPayload) {
+      currentMergedPayload = mergedPayload;
+      destinationMatchedCruiseIdsCache = new Map();
+      const settingFilter = document.getElementById("destinationSettingFilter");
+      const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
+      const statusEl = document.getElementById("destinationStatus");
+      const gridEl = document.getElementById("destinationGrid");
+      const modalEl = document.getElementById("destinationModal");
+      const modalCloseEl = document.getElementById("destinationModalClose");
+      const tabsEl = document.getElementById("destinationTabs");
+
+      const countryEntries = Object.entries(mergedPayload)
+        .filter(function(entry) { return entry[0].indexOf("__") !== 0; })
+        .map(function(entry) { return entry[1]; });
+
+      destinationGalleryData = countryEntries.flatMap(function(country) {
+        return (country.destinations || []).map(function(destination) {
+          return {
+            key: normalizeDestinationKey(destination.name || "", country.label || ""),
+            country: country.label || "",
+            name: destination.name || "",
+            imageUrl: destination.image_url || "",
+            region: destination.region && destination.region.label ? destination.region.label : "",
+            setting: destination.setting && destination.setting.label ? destination.setting.label : "",
+            bestTime: destination.best_time_to_visit && destination.best_time_to_visit.label ? destination.best_time_to_visit.label : "",
+            detail: destination.explore || null,
+            cruiseIds: Array.isArray(destination.cruise_ids) ? destination.cruise_ids.slice() : [],
+            countryCruiseIds: Array.isArray(country.cruise_ids) ? country.cruise_ids.slice() : []
+          };
+        });
+      }).sort(function(a, b) {
+        return a.name.localeCompare(b.name) || a.country.localeCompare(b.country);
+      });
+
+      fillDestinationSelect(
+        settingFilter,
+        orderValuesByPreferred(
+          Array.from(new Set(destinationGalleryData.map(function(item) { return item.setting; }).filter(Boolean))),
+          DESTINATION_SETTING_ORDER
+        ),
+        "Setting"
+      );
+      fillDestinationSelect(
+        bestTimeFilter,
+        orderValuesByPreferred(
+          Array.from(new Set(destinationGalleryData.map(function(item) { return item.bestTime; }).filter(Boolean))),
+          DESTINATION_BEST_TIME_ORDER
+        ),
+        "Best Time to Visit"
+      );
+
+      if (currentDestinationSettingFilter && Array.from(settingFilter.options).every(function(option) { return option.value !== currentDestinationSettingFilter; })) {
+        currentDestinationSettingFilter = "";
+      }
+      if (currentDestinationBestTimeFilter && Array.from(bestTimeFilter.options).every(function(option) { return option.value !== currentDestinationBestTimeFilter; })) {
+        currentDestinationBestTimeFilter = "";
+      }
+
+      settingFilter.value = currentDestinationSettingFilter;
+      bestTimeFilter.value = currentDestinationBestTimeFilter;
+      refreshDestinationCruiseIdSet();
+
+      function renderGrid() {
+        const filteredCruiseIdSet = getCurrentFilteredCruiseIdSet();
+        const applyCruiseFiltersToDestinations = hasActiveCruiseFilters();
+        const filtered = destinationGalleryData.filter(function(item) {
+          if (currentDestinationSettingFilter && item.setting !== currentDestinationSettingFilter) {
+            return false;
+          }
+          if (!applyCruiseFiltersToDestinations) {
+            return true;
+          }
+          return getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
+            return filteredCruiseIdSet.has(String(cruiseId || ""));
+          });
+        });
+
+        currentDestinationResultsCount = filtered.length;
+        updateBrowserTabCounts();
+        autoSwitchBrowserTabIfNeeded();
+        statusEl.textContent = filtered.length + " destinations";
+        gridEl.innerHTML = filtered.length ? filtered.map(function(item) {
+          return '<article class="destination-card">' +
+            '<div class="destination-card-image">' +
+              (item.imageUrl ? '<img src="' + escapeHtml(item.imageUrl) + '" alt="' + escapeHtml(item.name + " " + item.country) + '" loading="lazy" decoding="async">' : '') +
+              '<button class="destination-card-explore" type="button" data-destination-key="' + escapeHtml(item.key) + '">Explore</button>' +
+            '</div>' +
+            '<div class="destination-card-copy">' +
+              '<span class="destination-card-name">' + escapeHtml(item.name) + '</span>' +
+              '<span class="destination-card-country">' + escapeHtml(item.country) + '</span>' +
+            '</div>' +
+          '</article>';
+        }).join("") : '<div class="destination-empty">No destinations match the current filters.</div>';
+      }
+
+      rerenderDestinationGrid = renderGrid;
+
+      function handleSingleDestinationFilter(changedSelect) {
+        runSearchFeedback(function() {
+          currentDestinationSettingFilter = changedSelect === settingFilter ? (settingFilter.value || "") : "";
+          currentDestinationBestTimeFilter = changedSelect === bestTimeFilter ? (bestTimeFilter.value || "") : "";
+          settingFilter.value = currentDestinationSettingFilter;
+          bestTimeFilter.value = currentDestinationBestTimeFilter;
+          resetItineraryDateSelectionState();
+          currentDeparturePortFilter = null;
+          refreshDestinationCruiseIdSet();
+          renderGrid();
+          renderItineraryBrowser();
+          refreshDestinationModalIfOpen();
+        }, "Searching destinations...");
+      }
+
+      settingFilter.onchange = function() { handleSingleDestinationFilter(settingFilter); };
+      bestTimeFilter.onchange = function() { handleSingleDestinationFilter(bestTimeFilter); };
+      gridEl.onclick = function(event) {
+        const button = event.target.closest("[data-destination-key]");
+        const destination = button ? destinationGalleryData.find(function(item) { return item.key === button.getAttribute("data-destination-key"); }) : null;
+        if (destination) {
+          openDestinationModal(destination);
+        }
+      };
+      modalCloseEl.onclick = closeDestinationModal;
+      modalEl.onclick = function(event) {
+        if (event.target === modalEl) {
+          closeDestinationModal();
+        }
+      };
+      document.getElementById("destinationModalBody").onclick = function(event) {
+        const button = event.target.closest("[data-offer-target]");
+        if (!button) {
+          return;
+        }
+        const targetId = button.getAttribute("data-offer-target");
+        const target = targetId ? document.getElementById(targetId) : null;
+        if (!target) {
+          return;
+        }
+        target.hidden = !target.hidden;
+        button.setAttribute("aria-expanded", target.hidden ? "false" : "true");
+      };
+      tabsEl.onclick = function(event) {
+        const button = event.target.closest("[data-destination-tab]");
+        if (!button) {
+          return;
+        }
+        currentDestinationTab = button.getAttribute("data-destination-tab");
+        renderDestinationModalTab();
+      };
+
+      renderGrid();
+    }
+
+    function wireBrowserTabs() {
+      const categorySelect = document.getElementById("browserCategorySelect");
+      const itinerariesPane = document.getElementById("browserItinerariesPane");
+      const destinationsPane = document.getElementById("browserDestinationsPane");
+
+      if (!categorySelect || !itinerariesPane || !destinationsPane) {
+        return;
+      }
+
+      categorySelect.addEventListener("change", function() {
+        setBrowserTab(categorySelect.value || "destinations");
+      });
+
+      setBrowserTab(currentBrowserTab);
+    }
+
+    async function loadMap() {
+      try {
+        isBootstrappingBrowserView = true;
+        currentBrowserTab = "destinations";
+        setBrowserTab("destinations");
+        const mergedResponse = await fetch("./destinations.json", { cache: "no-store" });
+
+        if (!mergedResponse.ok) {
+          throw new Error("Failed to load destinations.json");
+        }
+
+        const mergedPayload = await mergedResponse.json();
+        const cruises = Object.values(mergedPayload.__cruises_index || {}).map(function(cruise) {
+          return mapMergedCruiseToBrowserShape(cruise);
+        });
+
+        const payload = {
+          generatedAt: mergedPayload.__cruises_metadata && mergedPayload.__cruises_metadata.cruises_generated_at
+            ? mergedPayload.__cruises_metadata.cruises_generated_at
+            : "",
+          source: mergedPayload.__cruises_metadata && mergedPayload.__cruises_metadata.cruises_source
+            ? mergedPayload.__cruises_metadata.cruises_source
+            : "",
+          totalItineraries: mergedPayload.__cruises_metadata && typeof mergedPayload.__cruises_metadata.total_cruise_itineraries === "number"
+            ? mergedPayload.__cruises_metadata.total_cruise_itineraries
+            : cruises.length,
+          totalSailings: mergedPayload.__cruises_metadata && typeof mergedPayload.__cruises_metadata.total_cruise_sailings === "number"
+            ? mergedPayload.__cruises_metadata.total_cruise_sailings
+            : cruises.length,
+          cruises: cruises
+        };
+
+        currentPayload = payload;
+        renderWorldMap(payload);
+        renderDestinationGallery(mergedPayload);
+        currentBrowserTab = "destinations";
+        setBrowserTab("destinations");
+        updateRefreshStatusFromPayload(mergedPayload);
+      } catch (error) {
+        document.getElementById("heroCopy").textContent = error.message;
+        document.getElementById("destinationStatus").textContent = error.message;
+        setRefreshStatus(error.message, "error");
+      } finally {
+        isBootstrappingBrowserView = false;
+      }
+    }
+
+    let resizeTimer = null;
+    window.addEventListener("resize", function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        if (!currentPayload) {
+          loadMap();
+          return;
+        }
+        if (currentView === "country" && currentDrilldownCode) {
+          renderCountryDrilldown(currentDrilldownCode, currentPayload);
+          return;
+        }
+        renderWorldMap(currentPayload);
+      }, 150);
+    });
+
+    currentPayload = { cruises: [] };
+    renderWorldMap(currentPayload);
+    loadMap();
+    configureRefreshControls();
+    bindMapViewControls();
+    wireDropdownFilters();
+    wireBrowserTabs();
+    wireItineraryCountButtons();
+    wireRefreshMergedButton();
+  </script>
+</body>
+</html>
