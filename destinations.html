@@ -6,14 +6,14 @@
   <title>Datamaps World Choropleth</title>
   <style>
     :root {
-      --page-bg: #f4f7fb;
+      --page-bg: #ffffff;
       --panel-bg: #ffffff;
-      --ink: #16324f;
-      --muted: #5b7083;
-      --border: #d8e2ec;
-      --accent-0: #eef3f8;
-      --accent-1: #d7e6f6;
-      --accent-2: #2f6fae;
+      --ink: #111111;
+      --muted: #4c4c4c;
+      --border: #d7d7d7;
+      --accent-0: #f1f1f1;
+      --accent-1: #e3e3e3;
+      --accent-2: #111111;
     }
 
     * {
@@ -25,9 +25,7 @@
       min-height: 100vh;
       font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at top left, rgba(111, 164, 216, 0.18), transparent 28%),
-        linear-gradient(180deg, #f8fbfe 0%, var(--page-bg) 100%);
+      background: var(--page-bg);
     }
 
     body.is-embedded {
@@ -35,34 +33,36 @@
     }
 
     .page {
-      width: calc(100% - 16px);
-      margin: 0 auto;
-      padding: 24px 0 0;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     .hero,
     .map-panel,
     .categories-panel {
-      background: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: 0 16px 40px rgba(22, 50, 79, 0.08);
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
     }
 
     .hero {
       position: sticky;
       top: 0;
       z-index: 35;
-      padding: 24px 28px;
+      padding: 12px 18px 10px;
       margin-bottom: 0;
-      border-bottom: 0;
-      border-radius: 20px 20px 0 0;
-      box-shadow: 0 18px 36px rgba(22, 50, 79, 0.14);
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+      box-shadow: none;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(10px);
     }
 
     .hero.is-compact {
-      padding-top: 18px;
-      padding-bottom: 18px;
+      padding-top: 10px;
+      padding-bottom: 10px;
       margin-bottom: 0;
     }
 
@@ -70,7 +70,7 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 18px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -102,14 +102,14 @@
     }
 
     .hero .filter-controls {
-      width: min(1100px, 100%);
-      margin: 18px auto 0;
+      width: 100%;
+      margin: 8px 0 0;
     }
 
     .hero .categories-panel {
-      margin: 8px auto 0;
+      margin: 8px 0 0;
       padding: 0;
-      width: min(1100px, 100%);
+      width: 100%;
       background: transparent;
       border: 0;
       border-radius: 0;
@@ -141,7 +141,7 @@
       font-weight: 700;
       padding: 11px 16px;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(47, 111, 174, 0.18);
+      box-shadow: 0 10px 24px rgba(17, 17, 17, 0.18);
     }
 
     .refresh-button[disabled] {
@@ -159,11 +159,11 @@
     }
 
     .refresh-status[data-state="success"] {
-      color: #196944;
+      color: var(--ink);
     }
 
     .refresh-status[data-state="error"] {
-      color: #9b2d30;
+      color: var(--ink);
     }
 
     .layout {
@@ -171,9 +171,9 @@
     }
 
     .map-panel {
-      padding: 0 18px 0;
+      padding: 0 18px 18px;
       border-top: 0;
-      border-radius: 0 0 20px 20px;
+      border-radius: 0;
     }
 
     .map-main,
@@ -197,7 +197,7 @@
       height: min(72vh, 860px);
       min-height: 560px;
       border-radius: 16px;
-      background: #eef3f8;
+      background: #f2f2f2;
       overflow: hidden;
     }
 
@@ -228,7 +228,7 @@
       font-weight: 700;
       padding: 8px 12px;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(22, 50, 79, 0.12);
+      box-shadow: 0 8px 24px rgba(17, 17, 17, 0.12);
     }
 
     .map-overlay {
@@ -243,7 +243,7 @@
       border: 1px solid var(--border);
       border-radius: 14px;
       background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 14px 32px rgba(22, 50, 79, 0.12);
+      box-shadow: 0 14px 32px rgba(17, 17, 17, 0.12);
       backdrop-filter: blur(8px);
     }
 
@@ -306,7 +306,7 @@
       padding: 10px 12px;
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: #fbfdff;
+      background: #ffffff;
     }
 
     .top-states strong {
@@ -338,17 +338,182 @@
       text-transform: uppercase;
     }
 
+    .filter-control--placeholder-only label {
+      display: none;
+    }
+
     .filter-select {
+      appearance: none;
+      -webkit-appearance: none;
+      color-scheme: light;
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
-      color: var(--muted);
+      background: #ffffff;
+      background-image: linear-gradient(45deg, transparent 50%, #111111 50%), linear-gradient(135deg, #111111 50%, transparent 50%);
+      background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      color: var(--ink);
       font: inherit;
       font-size: 13px;
       font-weight: 700;
       line-height: 1.3;
-      padding: 10px 12px;
+      padding: 10px 34px 10px 12px;
       width: 100%;
+      cursor: pointer;
+    }
+
+    .filter-select-shell {
+      position: relative;
+      width: 100%;
+    }
+
+    .filter-select.is-customized {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      pointer-events: none;
+      margin: 0;
+    }
+
+    .filter-select-button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      padding: 10px 34px 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .filter-select-shell.is-open .filter-select-button {
+      border-color: var(--accent-2);
+      background: var(--accent-0);
+    }
+
+    .filter-select-shell.is-disabled .filter-select-button {
+      cursor: default;
+      opacity: 0.65;
+    }
+
+    .filter-select-button-text {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .filter-select-button-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 8px;
+      background-image: linear-gradient(45deg, transparent 50%, #111111 50%), linear-gradient(135deg, #111111 50%, transparent 50%);
+      background-position: 0 2px, 6px 2px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      pointer-events: none;
+    }
+
+    .filter-select-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      z-index: 80;
+      max-height: 320px;
+      overflow: auto;
+      border: 1px solid #111111;
+      background: #ffffff;
+      color: #111111;
+      box-shadow: 0 16px 40px rgba(17, 17, 17, 0.22);
+      scrollbar-color: #111111 #ffffff;
+    }
+
+    .filter-select-menu[hidden] {
+      display: none;
+    }
+
+    .filter-select-menu::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .filter-select-menu::-webkit-scrollbar-track {
+      background: #ffffff;
+    }
+
+    .filter-select-menu::-webkit-scrollbar-thumb {
+      background: #111111;
+      border: 2px solid #ffffff;
+    }
+
+    .filter-select-group-label {
+      padding: 10px 12px 6px;
+      color: rgba(17, 17, 17, 0.65);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .filter-select-option {
+      width: 100%;
+      border: 0;
+      border-top: 1px solid rgba(17, 17, 17, 0.08);
+      background: #ffffff;
+      color: #111111;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+      padding: 11px 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .filter-select-option:first-child {
+      border-top: 0;
+    }
+
+    .filter-select-option:hover,
+    .filter-select-option:focus-visible,
+    .filter-select-option.is-active {
+      background: #111111;
+      color: #ffffff;
+      outline: none;
+    }
+
+    .filter-select option {
+      background: #111111;
+      color: #ffffff;
+      -webkit-text-fill-color: #ffffff;
+    }
+
+    .filter-select optgroup {
+      background: #111111;
+      color: #d6d6d6;
+      -webkit-text-fill-color: #d6d6d6;
+    }
+
+    .filter-select option:checked,
+    .filter-select option:hover,
+    .filter-select option:focus,
+    .filter-select option:active {
+      background: linear-gradient(#111111, #111111);
+      background-color: #111111 !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff;
+      box-shadow: 0 0 0 9999px #111111 inset;
     }
 
     .date-filter-control {
@@ -357,21 +522,22 @@
 
     .date-filter-trigger {
       width: 100%;
+      appearance: none;
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
-      color: var(--muted);
+      background: #ffffff;
+      color: var(--ink);
       font: inherit;
       font-size: 13px;
       font-weight: 700;
       line-height: 1.3;
-      padding: 10px 12px;
+      padding: 10px 34px 10px 12px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      justify-content: flex-start;
       text-align: left;
       cursor: pointer;
+      position: relative;
     }
 
     .date-filter-trigger.is-open {
@@ -381,9 +547,18 @@
     }
 
     .date-filter-icon {
-      flex: 0 0 auto;
-      font-size: 14px;
-      line-height: 1;
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 12px;
+      height: 8px;
+      color: transparent;
+      background-image: linear-gradient(45deg, transparent 50%, #111111 50%), linear-gradient(135deg, #111111 50%, transparent 50%);
+      background-position: 0 2px, 6px 2px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      pointer-events: none;
     }
 
     .date-filter-panel {
@@ -395,8 +570,22 @@
       padding: 18px;
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
-      box-shadow: 0 16px 40px rgba(22, 50, 79, 0.12);
+      background: #ffffff;
+      box-shadow: 0 16px 40px rgba(17, 17, 17, 0.12);
+      scrollbar-color: #111111 #ffffff;
+    }
+
+    .date-filter-panel::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+
+    .date-filter-panel::-webkit-scrollbar-track {
+      background: #ffffff;
+    }
+
+    .date-filter-panel::-webkit-scrollbar-thumb {
+      background: #111111;
     }
 
     .date-filter-panel[hidden] {
@@ -415,14 +604,14 @@
       gap: 0;
       padding: 6px;
       border-radius: 0;
-      background: #e9eef6;
+      background: #efefef;
     }
 
     .date-filter-tab {
       border: 1px solid transparent;
       border-radius: 0;
       background: transparent;
-      color: var(--accent-2);
+      color: var(--ink);
       font: inherit;
       font-size: 15px;
       font-weight: 800;
@@ -432,8 +621,8 @@
 
     .date-filter-tab.is-active {
       border-color: var(--accent-2);
-      background: #ffffff;
-      color: var(--accent-2);
+      background: #111111;
+      color: #ffffff;
     }
 
     .date-filter-pane[hidden] {
@@ -489,7 +678,7 @@
     .date-range-nav {
       border: 0;
       background: transparent;
-      color: var(--accent-2);
+      color: var(--ink);
       font: inherit;
       font-size: 34px;
       line-height: 1;
@@ -544,7 +733,7 @@
     }
 
     .date-range-day.is-available {
-      color: var(--accent-2);
+      color: var(--ink);
       cursor: pointer;
     }
 
@@ -580,29 +769,39 @@
 
     .selection-panel {
       margin-top: 0;
-      padding: 18px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #fbfdff;
+      padding: 18px 0 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
     }
 
     #itineraryBrowser {
-      position: relative;
-      max-height: min(72vh, 860px);
-      overflow: auto;
-      overflow-x: hidden;
+      max-height: none;
+      overflow: visible;
       padding: 0;
+    }
+
+    .browser-results-area {
+      position: relative;
+      min-height: clamp(520px, 68vh, 980px);
+      overflow: hidden;
+    }
+
+    .browser-results-area.is-loading > #browserDestinationsPane,
+    .browser-results-area.is-loading > #browserItinerariesPane {
+      display: none;
     }
 
     .search-feedback {
       position: absolute;
       inset: 0;
-      z-index: 40;
+      z-index: 5;
       display: grid;
       place-items: center;
-      padding: 24px;
-      background: rgba(251, 253, 255, 0.84);
-      backdrop-filter: blur(4px);
+      padding: 0;
+      pointer-events: none;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(2px);
     }
 
     .search-feedback[hidden] {
@@ -610,32 +809,71 @@
     }
 
     .search-feedback-card {
-      display: grid;
-      justify-items: center;
-      gap: 10px;
-      min-width: 180px;
-      padding: 18px 22px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: rgba(255, 255, 255, 0.96);
-      box-shadow: 0 14px 32px rgba(22, 50, 79, 0.12);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      padding: 24px 24px 84px;
+      background: #ffffff;
     }
 
-    .search-feedback-spinner {
-      width: 34px;
-      height: 34px;
-      border: 3px solid rgba(47, 111, 174, 0.18);
-      border-top-color: var(--accent-2);
+    .search-feedback-monogram {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 0;
+    }
+
+    .search-feedback-monogram-frame {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background-image: url("./Black White Elegant Personal Monogram Logo (4).png");
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-size: auto 78%;
+    }
+
+    .search-feedback-monogram-mark {
+      display: none;
+    }
+
+    .search-feedback-caption {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 16px 0 0;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #111111;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .search-feedback-caption-spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(17, 17, 17, 0.18);
+      border-top-color: #111111;
       border-radius: 50%;
       animation: search-spin 0.9s linear infinite;
+      flex: 0 0 auto;
     }
 
-    .search-feedback-text {
-      color: var(--ink);
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+    .search-feedback-caption-text {
+      line-height: 1.2;
+      text-align: center;
     }
 
     @keyframes search-spin {
@@ -645,10 +883,11 @@
     }
 
     .itinerary-sticky-header {
-      position: static;
-      margin: 14px 0 0;
+      position: relative;
+      z-index: 20;
+      margin: 6px 0 0;
       padding: 0;
-      background: transparent;
+      background: #ffffff;
       border: 0;
       box-shadow: none;
     }
@@ -667,7 +906,7 @@
     .browser-toolbar .filter-controls {
       margin: 0;
       width: 100%;
-      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      grid-template-columns: repeat(9, minmax(120px, 1fr));
     }
 
     .selection-panel[hidden] {
@@ -698,8 +937,8 @@
 
     .reset-button {
       border: 1px solid var(--border);
-      border-radius: 999px;
-      background: #fbfdff;
+      border-radius: 0;
+      background: #ffffff;
       color: var(--ink);
       font: inherit;
       font-size: 13px;
@@ -757,8 +996,8 @@
     .departure-port-button {
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
-      color: var(--muted);
+      background: #ffffff;
+      color: var(--ink);
       font: inherit;
       font-size: 13px;
       font-weight: 700;
@@ -784,7 +1023,7 @@
       padding: 12px;
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
+      background: #ffffff;
     }
 
     .year-title {
@@ -814,7 +1053,7 @@
     .month-button[disabled] {
       cursor: default;
       color: var(--muted);
-      background: #f5f7fa;
+      background: #f2f2f2;
     }
 
     .month-button.is-active {
@@ -836,7 +1075,7 @@
       padding: 12px;
       border: 1px solid var(--border);
       border-radius: 12px;
-      background: #fbfdff;
+      background: #ffffff;
       display: grid;
       gap: 4px;
       font-size: 14px;
@@ -881,12 +1120,13 @@
     }
 
     .itinerary-pill.is-final-payment {
-      background: #f4df72;
-      color: #000000;
+      background: #ffffff;
+      color: #111111;
+      border: 1px solid #111111;
     }
 
     .itinerary-pill.is-final-payment.is-due-now {
-      color: #b42318;
+      color: #111111;
     }
 
     .itinerary-meta {
@@ -918,7 +1158,7 @@
       padding: 0;
       border: 0;
       background: transparent;
-      color: #1d7a34;
+      color: var(--ink);
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -981,11 +1221,11 @@
     }
 
     .itinerary-offer-status.is-eligible {
-      color: #1d7a34;
+      color: var(--ink);
     }
 
     .itinerary-offer-status.is-not-eligible {
-      color: #b3261e;
+      color: var(--ink);
     }
 
     .destination-panel {
@@ -1026,6 +1266,24 @@
       font-weight: 700;
     }
 
+    .destination-status-title {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      line-height: 1.1;
+    }
+
+    .destination-status-copy {
+      display: block;
+      max-width: 960px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
     .destination-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1035,18 +1293,18 @@
     .destination-card {
       border: 1px solid var(--border);
       border-radius: 0;
-      background: #fbfdff;
+      background: #ffffff;
       overflow: hidden;
       cursor: default;
       text-align: left;
       padding: 0;
-      box-shadow: 0 10px 24px rgba(22, 50, 79, 0.06);
+      box-shadow: 0 10px 24px rgba(17, 17, 17, 0.06);
     }
 
     .destination-card-image {
       position: relative;
       aspect-ratio: 16 / 10;
-      background: #dce6f0;
+      background: #ececec;
       border-radius: 0;
       overflow: hidden;
     }
@@ -1061,8 +1319,79 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(22, 50, 79, 0.08) 0%, rgba(22, 50, 79, 0.26) 100%);
+      background: linear-gradient(180deg, rgba(17, 17, 17, 0.08) 0%, rgba(17, 17, 17, 0.28) 100%);
       pointer-events: none;
+    }
+
+    .destination-card-badge-stack {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 2;
+      display: grid;
+      gap: 8px;
+      max-width: calc(100% - 24px);
+    }
+
+    .destination-card-seasonal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 100%;
+      padding: 8px 14px 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.44);
+      border-radius: 0;
+      background:
+        linear-gradient(180deg, rgba(17, 17, 17, 0.84) 0%, rgba(17, 17, 17, 0.66) 100%);
+      backdrop-filter: blur(16px) saturate(140%);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      white-space: nowrap;
+      text-transform: uppercase;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+      box-shadow:
+        0 10px 24px rgba(17, 17, 17, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    .destination-card-holiday-badge {
+      border-color: rgba(255, 255, 255, 0.38);
+      background:
+        linear-gradient(180deg, rgba(17, 17, 17, 0.78) 0%, rgba(34, 34, 34, 0.6) 100%);
+    }
+
+    .destination-card-holiday-badge .destination-card-seasonal-badge-icon {
+      background: linear-gradient(180deg, rgba(17, 17, 17, 0.94) 0%, rgba(56, 56, 56, 0.92) 100%);
+    }
+
+    .destination-card-seasonal-badge-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      border-radius: 0;
+      background: linear-gradient(180deg, rgba(17, 17, 17, 0.96) 0%, rgba(58, 58, 58, 0.92) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.34),
+        0 4px 10px rgba(17, 17, 17, 0.18);
+    }
+
+    .destination-card-seasonal-badge-icon svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+      fill: #ffffff;
+    }
+
+    .destination-card-seasonal-badge-text {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .destination-card-explore {
@@ -1074,7 +1403,7 @@
       opacity: 0;
       visibility: hidden;
       border: 1px solid rgba(255, 255, 255, 0.92);
-      border-radius: 999px;
+      border-radius: 0;
       background: rgba(255, 255, 255, 0.92);
       color: var(--ink);
       font: inherit;
@@ -1084,7 +1413,7 @@
       text-transform: uppercase;
       padding: 10px 18px;
       cursor: pointer;
-      box-shadow: 0 12px 24px rgba(22, 50, 79, 0.16);
+      box-shadow: 0 12px 24px rgba(17, 17, 17, 0.16);
       transition: opacity 0.18s ease, visibility 0.18s ease;
     }
 
@@ -1129,7 +1458,7 @@
       padding: 18px;
       border: 1px dashed var(--border);
       border-radius: 14px;
-      background: #fbfdff;
+      background: #ffffff;
       color: var(--muted);
       text-align: center;
       font-weight: 700;
@@ -1160,7 +1489,7 @@
       border-radius: 20px;
       background: #ffffff;
       overflow: hidden;
-      box-shadow: 0 24px 60px rgba(22, 50, 79, 0.26);
+      box-shadow: 0 24px 60px rgba(17, 17, 17, 0.26);
     }
 
     .destination-modal-head {
@@ -1187,7 +1516,7 @@
     .destination-modal-close {
       border: 1px solid var(--border);
       border-radius: 999px;
-      background: #fbfdff;
+      background: #ffffff;
       color: var(--ink);
       width: 40px;
       height: 40px;
@@ -1208,7 +1537,7 @@
       max-height: 280px;
       border-radius: 16px;
       overflow: hidden;
-      background: #dce6f0;
+      background: #ececec;
     }
 
     .destination-modal-hero-image img {
@@ -1228,8 +1557,8 @@
     .destination-tab {
       border: 1px solid var(--border);
       border-radius: 999px;
-      background: #fbfdff;
-      color: var(--muted);
+      background: #ffffff;
+      color: var(--ink);
       font: inherit;
       font-size: 12px;
       font-weight: 800;
@@ -1256,7 +1585,7 @@
     .destination-block {
       border: 1px solid var(--border);
       border-radius: 16px;
-      background: #fbfdff;
+      background: #ffffff;
       padding: 18px;
     }
 
@@ -1298,7 +1627,7 @@
     .destination-section-image {
       border-radius: 14px;
       overflow: hidden;
-      background: #dce6f0;
+      background: #ececec;
     }
 
     .destination-section-image img {
@@ -1309,10 +1638,15 @@
 
     #browserDestinationsPane {
       padding: 18px;
+      min-height: calc(clamp(520px, 68vh, 980px) - 18px);
     }
 
     #browserDestinationsPane[hidden] {
       display: none;
+    }
+
+    #browserItinerariesPane {
+      min-height: calc(clamp(520px, 68vh, 980px) - 18px);
     }
 
     #browserDestinationsPane .destination-panel-head h2 {
@@ -1322,10 +1656,10 @@
     .datamaps-hoverover {
       padding: 10px 12px;
       border-radius: 10px;
-      border: 1px solid rgba(22, 50, 79, 0.12);
+      border: 1px solid rgba(17, 17, 17, 0.12);
       background: rgba(255, 255, 255, 0.96);
       color: var(--ink);
-      box-shadow: 0 10px 30px rgba(22, 50, 79, 0.15);
+      box-shadow: 0 10px 30px rgba(17, 17, 17, 0.15);
       font-family: inherit;
     }
 
@@ -1338,6 +1672,10 @@
     @media (max-width: 1280px) {
       .browser-toolbar {
         grid-template-columns: 1fr;
+      }
+
+      .browser-toolbar .filter-controls {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .year-sections {
@@ -1362,27 +1700,27 @@
 
     @media (max-width: 720px) {
       .page {
-        width: min(100% - 20px, 1440px);
-        padding-top: 12px;
+        width: 100%;
+        padding-top: 0;
       }
 
       .hero,
       .map-panel,
       .categories-panel {
-        border-radius: 16px;
+        border-radius: 0;
       }
 
       .hero,
       .categories-panel {
-        padding: 18px;
+        padding: 12px;
       }
 
       .hero {
-        border-radius: 16px 16px 0 0;
+        border-radius: 0;
       }
 
       .map-panel {
-        border-radius: 0 0 16px 16px;
+        border-radius: 0;
       }
 
       .hero-actions {
@@ -1499,18 +1837,46 @@
         </div>
         <p id="itineraryCopy" class="itinerary-copy"></p>
         <div class="browser-toolbar">
-          <div class="filter-control browser-category-control">
-            <label for="browserCategorySelect">Category</label>
-            <select id="browserCategorySelect" class="filter-select">
+          <div class="filter-control filter-control--placeholder-only browser-category-control">
+            <select id="browserCategorySelect" class="filter-select" aria-label="Category">
               <option value="destinations">Destinations (0)</option>
               <option value="itineraries">Itineraries (0)</option>
+              <option value="collection-holiday">Holiday Collection</option>
+              <option value="collection-spring">Spring Collection</option>
+              <option value="collection-summer">Summer Collection</option>
+              <option value="collection-fall">Autumn Collection</option>
+              <option value="collection-winter">Winter Collection</option>
             </select>
           </div>
           <div class="filter-controls" id="filterControls">
-            <div class="filter-control">
+            <div class="filter-control filter-control--placeholder-only">
+              <label for="destinationRegionFilter">Region</label>
+              <select id="destinationRegionFilter" class="filter-select" aria-label="Region">
+                <option value="">Region</option>
+              </select>
+            </div>
+            <div class="filter-control filter-control--placeholder-only">
+              <label for="destinationNameFilter">Destinations</label>
+              <select id="destinationNameFilter" class="filter-select" aria-label="Destinations">
+                <option value="">Destinations</option>
+              </select>
+            </div>
+            <div class="filter-control filter-control--placeholder-only">
+              <label for="destinationSettingFilter">Setting</label>
+              <select id="destinationSettingFilter" class="filter-select" aria-label="Setting">
+                <option value="">Setting</option>
+              </select>
+            </div>
+            <div class="filter-control filter-control--placeholder-only">
+              <label for="destinationPortOfCallFilter">Ports of Call</label>
+              <select id="destinationPortOfCallFilter" class="filter-select" aria-label="Ports of Call">
+                <option value="">Ports of Call</option>
+              </select>
+            </div>
+            <div class="filter-control filter-control--placeholder-only">
               <label for="sailToFilter">Sail To</label>
-              <select id="sailToFilter" class="filter-select">
-                <option value="">All Destinations</option>
+              <select id="sailToFilter" class="filter-select" aria-label="Sail To">
+                <option value="">Sail To</option>
                 <optgroup label="Americas">
                   <option value="alaska">Alaska</option>
                   <option value="bahamas">The Bahamas</option>
@@ -1544,15 +1910,21 @@
                 </optgroup>
               </select>
             </div>
-            <div class="filter-control">
+            <div class="filter-control filter-control--placeholder-only">
               <label for="departurePortFilterSelect">Sail From</label>
-              <select id="departurePortFilterSelect" class="filter-select">
-                <option value="">All Sail From Ports</option>
+              <select id="departurePortFilterSelect" class="filter-select" aria-label="Sail From">
+                <option value="">Sail From</option>
               </select>
             </div>
-            <div class="filter-control date-filter-control">
+            <div class="filter-control filter-control--placeholder-only">
+              <label for="destinationBestTimeFilter">Best Time to Visit</label>
+              <select id="destinationBestTimeFilter" class="filter-select" aria-label="Best Time to Visit">
+                <option value="">Best Time to Visit</option>
+              </select>
+            </div>
+            <div class="filter-control filter-control--placeholder-only date-filter-control">
               <label for="dateFilterButton">Dates</label>
-              <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="dateFilterPanel">
+              <button id="dateFilterButton" class="date-filter-trigger" type="button" aria-label="Dates" aria-expanded="false" aria-controls="dateFilterPanel">
                 <span id="dateFilterButtonText">All Dates</span>
                 <span class="date-filter-icon" id="dateFilterButtonIcon">▼</span>
               </button>
@@ -1575,9 +1947,9 @@
                 </div>
               </div>
             </div>
-            <div class="filter-control date-filter-control">
+            <div class="filter-control filter-control--placeholder-only date-filter-control">
               <label for="durationFilterButton">Duration</label>
-              <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-expanded="false" aria-controls="durationFilterPanel">
+              <button id="durationFilterButton" class="date-filter-trigger" type="button" aria-label="Duration" aria-expanded="false" aria-controls="durationFilterPanel">
                 <span id="durationFilterButtonText">All Durations</span>
                 <span class="date-filter-icon">▼</span>
               </button>
@@ -1592,18 +1964,6 @@
                 </div>
               </div>
             </div>
-            <div class="filter-control">
-              <label for="destinationSettingFilter">Setting</label>
-              <select id="destinationSettingFilter" class="filter-select">
-                <option value="">Setting</option>
-              </select>
-            </div>
-            <div class="filter-control">
-              <label for="destinationBestTimeFilter">Best Time to Visit</label>
-              <select id="destinationBestTimeFilter" class="filter-select">
-                <option value="">Best Time to Visit</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -1613,18 +1973,27 @@
       <section class="map-panel">
         <div class="map-main has-itinerary" id="mapMain">
           <section id="itineraryBrowser" class="selection-panel">
-            <div id="searchFeedback" class="search-feedback" hidden aria-live="polite" aria-busy="true">
-              <div class="search-feedback-card">
-                <div class="search-feedback-spinner" aria-hidden="true"></div>
-                <div class="search-feedback-text" id="searchFeedbackText">Searching...</div>
+            <div class="browser-results-area">
+              <div id="searchFeedback" class="search-feedback" hidden aria-live="polite" aria-busy="true">
+                <div class="search-feedback-card">
+                <div class="search-feedback-monogram" aria-hidden="true">
+                  <div class="search-feedback-monogram-frame">
+                      <img class="search-feedback-monogram-mark" src="./Black White Elegant Personal Monogram Logo (4).png" alt="Steward Manor Estate monogram">
+                  </div>
+                </div>
+                <div class="search-feedback-caption">
+                  <span class="search-feedback-caption-spinner" aria-hidden="true"></span>
+                  <span class="search-feedback-caption-text" id="searchFeedbackText">Loading...</span>
+                </div>
               </div>
             </div>
-            <div id="browserDestinationsPane">
-              <p class="destination-status" id="destinationStatus">Loading destinations...</p>
-              <div class="destination-grid" id="destinationGrid"></div>
-            </div>
-            <div id="browserItinerariesPane" hidden>
-              <ul id="itineraryList" class="itinerary-list"></ul>
+              <div id="browserDestinationsPane">
+                <p class="destination-status" id="destinationStatus">Loading destinations...</p>
+                <div class="destination-grid" id="destinationGrid"></div>
+              </div>
+              <div id="browserItinerariesPane" hidden>
+                <ul id="itineraryList" class="itinerary-list"></ul>
+              </div>
             </div>
           </section>
         </div>
@@ -1817,9 +2186,9 @@
     };
 
     const MAP_FILLS = {
-      active: "#2f6fae",
-      inactive: "#d7e6f6",
-      defaultFill: "#eef3f8"
+      active: "#111111",
+      inactive: "#d9d9d9",
+      defaultFill: "#f2f2f2"
     };
 
     const COUNTRY_ZOOM_OVERRIDES = {
@@ -2043,13 +2412,26 @@
     let mapPanState = { dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
     let currentDestinationSettingFilter = "";
     let currentDestinationBestTimeFilter = "";
+    let currentHolidayCollectionFilter = false;
+    let currentDestinationNameFilter = "";
+    let currentDestinationRegionFilter = "";
+    let currentDestinationPortOfCallFilter = "";
     let currentDestinationCruiseIdSet = null;
+    let currentDestinationPlaceLabels = new Map();
+    let isInitialCollectionMode = true;
     let currentItineraryResultsCount = 0;
     let currentDestinationResultsCount = 0;
+    let totalItineraryCount = 0;
+    let totalDestinationCount = 0;
     let rerenderDestinationGrid = null;
     let currentBrowserTab = "destinations";
+    let currentBrowserCategoryValue = "destinations";
+    let destinationMatchedCruisesCache = new Map();
     let destinationMatchedCruiseIdsCache = new Map();
     let isBootstrappingBrowserView = false;
+    let customFilterSelectRegistry = new Map();
+    let customFilterSelectsInitialized = false;
+    let customFilterSelectSyncTimer = null;
 
     const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const DURATION_FILTER_OPTIONS = [
@@ -2059,6 +2441,41 @@
     ];
     const DESTINATION_SETTING_ORDER = ["Beach", "City", "Countryside", "Desert"];
     const DESTINATION_BEST_TIME_ORDER = ["Spring", "Winter", "Summer", "Fall"];
+    const FEDERAL_HOLIDAY_DATES = new Map([
+      ["2026-01-01", "New Year's Day"],
+      ["2026-01-19", "Birthday of Martin Luther King, Jr."],
+      ["2026-02-16", "Washington's Birthday"],
+      ["2026-05-25", "Memorial Day"],
+      ["2026-06-19", "Juneteenth National Independence Day"],
+      ["2026-07-03", "Independence Day (observed)"],
+      ["2026-09-07", "Labor Day"],
+      ["2026-10-12", "Columbus Day"],
+      ["2026-11-11", "Veterans Day"],
+      ["2026-11-26", "Thanksgiving Day"],
+      ["2026-12-25", "Christmas Day"],
+      ["2027-01-01", "New Year's Day"],
+      ["2027-01-18", "Birthday of Martin Luther King, Jr."],
+      ["2027-02-15", "Washington's Birthday"],
+      ["2027-05-31", "Memorial Day"],
+      ["2027-06-18", "Juneteenth National Independence Day (observed)"],
+      ["2027-07-05", "Independence Day (observed)"],
+      ["2027-09-06", "Labor Day"],
+      ["2027-10-11", "Columbus Day"],
+      ["2027-11-11", "Veterans Day"],
+      ["2027-11-25", "Thanksgiving Day"],
+      ["2027-12-24", "Christmas Day (observed)"],
+      ["2027-12-31", "New Year's Day (observed)"],
+      ["2028-01-17", "Birthday of Martin Luther King, Jr."],
+      ["2028-02-21", "Washington's Birthday"],
+      ["2028-05-29", "Memorial Day"],
+      ["2028-06-19", "Juneteenth National Independence Day"],
+      ["2028-07-04", "Independence Day"],
+      ["2028-09-04", "Labor Day"],
+      ["2028-10-09", "Columbus Day"],
+      ["2028-11-10", "Veterans Day (observed)"],
+      ["2028-11-23", "Thanksgiving Day"],
+      ["2028-12-25", "Christmas Day"]
+    ]);
 
     const DESTINATION_LOOKUP = {
       "Aarhus": "DNK",
@@ -2852,6 +3269,24 @@
       return today;
     }
 
+    function getCurrentMonthFilterKey() {
+      return getYearMonthFromDate(getTodayDateObject());
+    }
+
+    function resetItineraryDateSelectionToCurrentMonth() {
+      const currentMonth = getCurrentMonthFilterKey();
+      currentItineraryMonth = currentMonth;
+      currentDateFilter = null;
+      currentDateRangeEnd = null;
+      currentDateRangeBaseMonth = currentMonth;
+      draftItineraryMonth = currentMonth;
+      draftDateFilter = null;
+      draftDateRangeEnd = null;
+      draftDateRangeBaseMonth = currentMonth;
+      draftDateFilterTab = "months";
+      isDateFilterPanelOpen = false;
+    }
+
     function matchesDurationFilters(duration, filters) {
       const activeFilters = Array.isArray(filters) ? filters : [];
       if (!activeFilters.length) {
@@ -3122,6 +3557,7 @@
       const listEl = document.getElementById("itineraryList");
       const titleEl = document.getElementById("itineraryTitle");
       const copyEl = document.getElementById("itineraryCopy");
+      const searchOverlayEl = document.getElementById("searchFeedback");
       const sailToSelect = document.getElementById("sailToFilter");
       const sailFromSelect = document.getElementById("departurePortFilterSelect");
       const dateFilterButton = document.getElementById("dateFilterButton");
@@ -3152,6 +3588,7 @@
         ? { cruises: filteredStatsCruises }
         : null;
       const destinationFilterCopy = formatActiveDestinationFilterCopy();
+      const searchFeedbackVisible = !!(searchOverlayEl && !searchOverlayEl.hidden);
       const years = filteredAllCruises.length
         ? [...new Set(filteredAllCruises.map(function(cruise) {
             return String(cruise.departureDate || "").slice(0, 4);
@@ -3183,13 +3620,13 @@
 
       if (!filteredStatsCruises.length) {
         titleEl.textContent = "";
-        copyEl.textContent = "No itineraries match the current filters" + destinationFilterCopy + ".";
-        listEl.innerHTML = '<li><p class="itinerary-summary">No itineraries match the current filters.</p></li>';
+        copyEl.textContent = "";
+        listEl.innerHTML = "";
         currentItineraryResultsCount = 0;
         updateBrowserTabCounts();
         autoSwitchBrowserTabIfNeeded();
         if (sailFromSelect) {
-          sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>';
+          sailFromSelect.innerHTML = '<option value="">Sail From</option>';
           sailFromSelect.value = "";
         }
         if (dateFilterButtonText) {
@@ -3206,7 +3643,7 @@
         copyEl.textContent = "";
         listEl.innerHTML = "";
         if (sailFromSelect) {
-          sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>';
+          sailFromSelect.innerHTML = '<option value="">Sail From</option>';
         }
         if (dateFilterButtonText) {
           dateFilterButtonText.textContent = "All Dates";
@@ -3260,7 +3697,7 @@
       }
 
       if (sailFromSelect) {
-        sailFromSelect.innerHTML = '<option value="">All Sail From Ports</option>' + departurePorts.map(function(portName) {
+        sailFromSelect.innerHTML = '<option value="">Sail From</option>' + departurePorts.map(function(portName) {
           return '<option value="' + portName.replace(/"/g, "&quot;") + '">' + portName + '</option>';
         }).join("");
         sailFromSelect.value = currentDeparturePortFilter || "";
@@ -3293,13 +3730,6 @@
       const availableYearMonths = new Set(dateOptions.map(function(option) {
         return String(option.value || "").slice(0, 7);
       }).filter(Boolean));
-
-      if (currentItineraryMonth && !availableYearMonths.has(currentItineraryMonth)) {
-        currentItineraryMonth = null;
-      }
-      if (draftItineraryMonth && !availableYearMonths.has(draftItineraryMonth)) {
-        draftItineraryMonth = null;
-      }
 
       const selectedDateRange = getNormalizedSelectedDateRange();
       if (selectedDateRange) {
@@ -3527,7 +3957,7 @@
                 '<div class="itinerary-meta">' + offer.detail + '</div></div>';
             }).join("") +
           "</div></li>";
-      }).join("") : '<li><p class="itinerary-summary">No itineraries match the current filters.</p></li>';
+      }).join("") : "";
 
       listEl.querySelectorAll("[data-offer-target]").forEach(function(button) {
         button.addEventListener("click", function() {
@@ -4048,15 +4478,6 @@
         currentSelectionId = null;
         currentSelectionIds = [];
         currentActiveCategoryKey = null;
-        currentDateFilter = null;
-        currentDateRangeEnd = null;
-        currentDateRangeBaseMonth = null;
-        draftItineraryMonth = null;
-        draftDateFilter = null;
-        draftDateRangeEnd = null;
-        draftDateRangeBaseMonth = null;
-        draftDateFilterTab = "months";
-        isDateFilterPanelOpen = false;
         isDurationFilterPanelOpen = false;
         renderSelectedPlace([], COUNTRY_NAME_LOOKUP, currentPortsByCountry, "Country");
         applyCountrySelectionStyles(currentPortsByCountry);
@@ -4071,18 +4492,7 @@
       });
 
       currentActiveCategoryKey = key;
-      currentItineraryMonth = null;
-      currentDateFilter = null;
-      currentDateRangeEnd = null;
-      currentDateRangeBaseMonth = null;
-      draftItineraryMonth = null;
-      draftDateFilter = null;
-      draftDateRangeEnd = null;
-      draftDateRangeBaseMonth = null;
-      draftDateFilterTab = "months";
-      isDateFilterPanelOpen = false;
       isDurationFilterPanelOpen = false;
-      currentDeparturePortFilter = null;
       currentSelectionIds = countryCodes.slice();
       currentSelectionId = currentSelectionIds.length ? currentSelectionIds[currentSelectionIds.length - 1] : null;
       renderSelectedPlace(currentSelectionIds, COUNTRY_NAME_LOOKUP, currentPortsByCountry, "Country");
@@ -4115,6 +4525,7 @@
       if (sailToSelect) {
         sailToSelect.addEventListener("change", function() {
           runSearchFeedback(function() {
+            exitInitialCollectionMode("sailTo");
             applySailToSelection(sailToSelect.value || "");
             refreshDestinationGridIfAvailable();
             refreshDestinationModalIfOpen();
@@ -4125,17 +4536,8 @@
       if (sailFromSelect) {
         sailFromSelect.addEventListener("change", function() {
           runSearchFeedback(function() {
+            exitInitialCollectionMode("sailFrom");
             currentDeparturePortFilter = sailFromSelect.value || null;
-            currentItineraryMonth = null;
-            currentDateFilter = null;
-            currentDateRangeEnd = null;
-            currentDateRangeBaseMonth = null;
-            draftItineraryMonth = null;
-            draftDateFilter = null;
-            draftDateRangeEnd = null;
-            draftDateRangeBaseMonth = null;
-            draftDateFilterTab = "months";
-            isDateFilterPanelOpen = false;
             isDurationFilterPanelOpen = false;
             renderItineraryBrowser();
             refreshDestinationGridIfAvailable();
@@ -4185,6 +4587,7 @@
         dateFilterApplyButton.addEventListener("click", function(event) {
           event.stopPropagation();
           runSearchFeedback(function() {
+            exitInitialCollectionMode("date");
             applyDraftDateSelection();
             renderItineraryBrowser();
             refreshDestinationGridIfAvailable();
@@ -4197,6 +4600,7 @@
         dateFilterClearButton.addEventListener("click", function(event) {
           event.stopPropagation();
           runSearchFeedback(function() {
+            exitInitialCollectionMode("date");
             resetItineraryDateSelectionState();
             renderItineraryBrowser();
             refreshDestinationGridIfAvailable();
@@ -4244,6 +4648,7 @@
         durationFilterApplyButton.addEventListener("click", function(event) {
           event.stopPropagation();
           runSearchFeedback(function() {
+            exitInitialCollectionMode("duration");
             applyDraftDurationSelection();
             renderItineraryBrowser();
             refreshDestinationGridIfAvailable();
@@ -4462,6 +4867,7 @@
     let currentDestinationTab = "overview";
     let refreshInFlight = false;
     let searchFeedbackHideTimer = null;
+    let searchFeedbackShownAt = 0;
 
     function formatRefreshTimestamp(value) {
       if (!value) {
@@ -4629,6 +5035,7 @@
     }
 
     function setSearchFeedbackVisible(visible, message) {
+      const resultsAreaEl = document.querySelector(".browser-results-area");
       const overlayEl = document.getElementById("searchFeedback");
       const textEl = document.getElementById("searchFeedbackText");
       if (!overlayEl) {
@@ -4644,24 +5051,29 @@
         textEl.textContent = message;
       }
 
+      if (visible) {
+        searchFeedbackShownAt = Date.now();
+      }
+      if (resultsAreaEl) {
+        resultsAreaEl.classList.toggle("is-loading", !!visible);
+      }
       overlayEl.hidden = !visible;
     }
 
-    function runSearchFeedback(action, message) {
-      const start = Date.now();
-      setSearchFeedbackVisible(true, message || "Searching...");
-
+    function runSearchFeedback(action) {
+      setSearchFeedbackVisible(true, "Loading...");
+      const overlayEl = document.getElementById("searchFeedback");
+      if (overlayEl) {
+        void overlayEl.offsetWidth;
+      }
       requestAnimationFrame(function() {
-        setTimeout(function() {
-          try {
-            action();
-          } finally {
-            const remaining = Math.max(0, 220 - (Date.now() - start));
-            searchFeedbackHideTimer = setTimeout(function() {
-              setSearchFeedbackVisible(false);
-            }, remaining);
-          }
-        }, 0);
+        try {
+          action();
+        } finally {
+          requestAnimationFrame(function() {
+            setSearchFeedbackVisible(false);
+          });
+        }
       });
     }
 
@@ -4673,13 +5085,46 @@
 
       Array.from(categorySelect.options).forEach(function(option) {
         if (option.value === "itineraries") {
-          option.textContent = "Itineraries (" + currentItineraryResultsCount + ")";
+          option.textContent = "Itineraries (" + totalItineraryCount + ")";
           return;
         }
         if (option.value === "destinations") {
-          option.textContent = "Destinations (" + currentDestinationResultsCount + ")";
+          option.textContent = "Destinations (" + totalDestinationCount + ")";
         }
       });
+      syncAllCustomFilterSelects(false);
+    }
+
+    function getCollectionCategoryValueForSeason(season) {
+      const normalized = String(season || "").toLowerCase();
+      if (normalized === "spring" || normalized === "summer" || normalized === "fall" || normalized === "winter") {
+        return "collection-" + normalized;
+      }
+      return "destinations";
+    }
+
+    function getSeasonForCollectionCategoryValue(categoryValue) {
+      const value = String(categoryValue || "");
+      if (value === "collection-holiday") {
+        return "";
+      }
+      if (value === "collection-spring") {
+        return "Spring";
+      }
+      if (value === "collection-summer") {
+        return "Summer";
+      }
+      if (value === "collection-fall") {
+        return "Fall";
+      }
+      if (value === "collection-winter") {
+        return "Winter";
+      }
+      return "";
+    }
+
+    function isHolidayCollectionCategoryValue(categoryValue) {
+      return String(categoryValue || "") === "collection-holiday";
     }
 
     function setBrowserTab(tabKey) {
@@ -4691,9 +5136,12 @@
       }
 
       currentBrowserTab = tabKey === "itineraries" ? "itineraries" : "destinations";
-      categorySelect.value = currentBrowserTab;
+      categorySelect.value = Array.from(categorySelect.options).some(function(option) {
+        return option.value === currentBrowserCategoryValue;
+      }) ? currentBrowserCategoryValue : currentBrowserTab;
       itinerariesPane.hidden = currentBrowserTab !== "itineraries";
       destinationsPane.hidden = currentBrowserTab !== "destinations";
+      syncAllCustomFilterSelects(false);
     }
 
     function autoSwitchBrowserTabIfNeeded() {
@@ -4715,12 +5163,336 @@
       }
     }
 
+    function resetAllFiltersForCategorySwitch(collectionSeason, holidayCollection) {
+      isInitialCollectionMode = !!(collectionSeason || holidayCollection);
+      currentDestinationNameFilter = "";
+      currentDestinationRegionFilter = "";
+      currentDestinationPortOfCallFilter = "";
+      currentDestinationSettingFilter = "";
+      currentDestinationBestTimeFilter = collectionSeason || "";
+      currentHolidayCollectionFilter = !!holidayCollection;
+      currentDestinationCruiseIdSet = null;
+      currentActiveCategoryKey = null;
+      currentSelectionId = null;
+      currentSelectionIds = [];
+      currentDeparturePortFilter = null;
+      currentDurationFilters = [];
+      draftDurationFilters = [];
+      isDurationFilterPanelOpen = false;
+      resetItineraryDateSelectionState();
+
+      const sailToSelect = document.getElementById("sailToFilter");
+      const sailFromSelect = document.getElementById("departurePortFilterSelect");
+      const destinationFilter = document.getElementById("destinationNameFilter");
+      const regionFilter = document.getElementById("destinationRegionFilter");
+      const portOfCallFilter = document.getElementById("destinationPortOfCallFilter");
+      const settingFilter = document.getElementById("destinationSettingFilter");
+      const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
+
+      if (sailToSelect) {
+        sailToSelect.value = "";
+      }
+      if (sailFromSelect) {
+        sailFromSelect.value = "";
+      }
+      if (destinationFilter) {
+        destinationFilter.value = "";
+      }
+      if (regionFilter) {
+        regionFilter.value = "";
+      }
+      if (portOfCallFilter) {
+        portOfCallFilter.value = "";
+      }
+      if (settingFilter) {
+        settingFilter.value = "";
+      }
+      if (bestTimeFilter) {
+        bestTimeFilter.value = isInitialCollectionMode ? "" : currentDestinationBestTimeFilter;
+      }
+    }
+
+    function exitInitialCollectionMode(preserveKey) {
+      if (!isInitialCollectionMode) {
+        return;
+      }
+
+      isInitialCollectionMode = false;
+      currentBrowserCategoryValue = "destinations";
+      currentBrowserTab = "destinations";
+      currentHolidayCollectionFilter = false;
+
+      const categorySelect = document.getElementById("browserCategorySelect");
+      if (categorySelect) {
+        categorySelect.value = "destinations";
+      }
+
+      if (preserveKey !== "destination") {
+        currentDestinationNameFilter = "";
+      }
+      if (preserveKey !== "region") {
+        currentDestinationRegionFilter = "";
+      }
+      if (preserveKey !== "port") {
+        currentDestinationPortOfCallFilter = "";
+      }
+      if (preserveKey !== "setting") {
+        currentDestinationSettingFilter = "";
+      }
+      if (preserveKey !== "bestTime") {
+        currentDestinationBestTimeFilter = "";
+      }
+      if (preserveKey !== "sailTo") {
+        currentActiveCategoryKey = null;
+        currentSelectionId = null;
+        currentSelectionIds = [];
+      }
+      if (preserveKey !== "sailFrom") {
+        currentDeparturePortFilter = null;
+      }
+      if (preserveKey !== "date") {
+        resetItineraryDateSelectionState();
+      }
+      if (preserveKey !== "duration") {
+        currentDurationFilters = [];
+        draftDurationFilters = [];
+        isDurationFilterPanelOpen = false;
+      }
+    }
+
     function escapeHtml(value) {
       return String(value == null ? "" : value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;");
+    }
+
+    function closeCustomFilterSelect(select) {
+      const registryKey = select && select.id ? select.id : "";
+      const state = registryKey ? customFilterSelectRegistry.get(registryKey) : null;
+      if (!state) {
+        return;
+      }
+      state.shell.classList.remove("is-open");
+      state.button.setAttribute("aria-expanded", "false");
+      state.menu.hidden = true;
+    }
+
+    function closeAllCustomFilterSelects(exceptSelect) {
+      customFilterSelectRegistry.forEach(function(state) {
+        if (exceptSelect && state.select === exceptSelect) {
+          return;
+        }
+        closeCustomFilterSelect(state.select);
+      });
+    }
+
+    function serializeCustomFilterSelectOptions(select) {
+      return Array.from(select.children).map(function(child) {
+        if (child.tagName === "OPTION") {
+          return [
+            "option",
+            child.value,
+            child.textContent,
+            child.disabled ? "1" : "0",
+            child.selected ? "1" : "0"
+          ].join("::");
+        }
+        if (child.tagName === "OPTGROUP") {
+          return [
+            "group",
+            child.label,
+            Array.from(child.children).map(function(option) {
+              return [
+                option.value,
+                option.textContent,
+                option.disabled ? "1" : "0",
+                option.selected ? "1" : "0"
+              ].join("::");
+            }).join("||")
+          ].join("::");
+        }
+        return "";
+      }).join("###");
+    }
+
+    function getCustomFilterSelectButtonLabel(select) {
+      const selectedOption = select.options[select.selectedIndex] || select.options[0];
+      if (!selectedOption) {
+        return select.getAttribute("aria-label") || "Select";
+      }
+      return selectedOption.textContent || select.getAttribute("aria-label") || "Select";
+    }
+
+    function buildCustomFilterSelectMenuMarkup(select) {
+      return Array.from(select.children).map(function(child) {
+        if (child.tagName === "OPTION") {
+          return '<button class="filter-select-option' + (child.selected ? ' is-active' : '') + '" type="button" data-custom-select-value="' + escapeHtml(child.value) + '">' + escapeHtml(child.textContent || "") + '</button>';
+        }
+        if (child.tagName === "OPTGROUP") {
+          const optionsMarkup = Array.from(child.children).map(function(option) {
+            return '<button class="filter-select-option' + (option.selected ? ' is-active' : '') + '" type="button" data-custom-select-value="' + escapeHtml(option.value) + '">' + escapeHtml(option.textContent || "") + '</button>';
+          }).join("");
+          return optionsMarkup
+            ? '<div class="filter-select-group-label">' + escapeHtml(child.label || "") + '</div>' + optionsMarkup
+            : "";
+        }
+        return "";
+      }).join("");
+    }
+
+    function renderCustomFilterSelect(select, force) {
+      if (!select || !select.id) {
+        return;
+      }
+      const state = customFilterSelectRegistry.get(select.id);
+      if (!state) {
+        return;
+      }
+
+      const signature = serializeCustomFilterSelectOptions(select);
+      const nextLabel = getCustomFilterSelectButtonLabel(select);
+      const nextDisabled = !!select.disabled;
+
+      if (!force && state.signature === signature && state.label === nextLabel && state.disabled === nextDisabled) {
+        return;
+      }
+
+      state.signature = signature;
+      state.label = nextLabel;
+      state.disabled = nextDisabled;
+      state.buttonText.textContent = nextLabel;
+      state.button.disabled = nextDisabled;
+      state.shell.classList.toggle("is-disabled", nextDisabled);
+      state.menu.innerHTML = buildCustomFilterSelectMenuMarkup(select);
+    }
+
+    function ensureCustomFilterSelect(select) {
+      if (!select || !select.id) {
+        return;
+      }
+      if (customFilterSelectRegistry.has(select.id)) {
+        renderCustomFilterSelect(select);
+        return;
+      }
+
+      const shell = document.createElement("div");
+      shell.className = "filter-select-shell";
+      select.parentNode.insertBefore(shell, select);
+      shell.appendChild(select);
+      select.classList.add("is-customized");
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "filter-select-button";
+      button.setAttribute("aria-haspopup", "listbox");
+      button.setAttribute("aria-expanded", "false");
+
+      const buttonText = document.createElement("span");
+      buttonText.className = "filter-select-button-text";
+
+      const buttonIcon = document.createElement("span");
+      buttonIcon.className = "filter-select-button-icon";
+      buttonIcon.setAttribute("aria-hidden", "true");
+
+      button.appendChild(buttonText);
+      button.appendChild(buttonIcon);
+
+      const menu = document.createElement("div");
+      menu.className = "filter-select-menu";
+      menu.hidden = true;
+      menu.setAttribute("role", "listbox");
+
+      shell.appendChild(button);
+      shell.appendChild(menu);
+
+      const state = {
+        select: select,
+        shell: shell,
+        button: button,
+        buttonText: buttonText,
+        menu: menu,
+        signature: "",
+        label: "",
+        disabled: false
+      };
+
+      customFilterSelectRegistry.set(select.id, state);
+
+      button.addEventListener("click", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (select.disabled) {
+          return;
+        }
+        const willOpen = !shell.classList.contains("is-open");
+        closeAllCustomFilterSelects(select);
+        shell.classList.toggle("is-open", willOpen);
+        button.setAttribute("aria-expanded", willOpen ? "true" : "false");
+        menu.hidden = !willOpen;
+      });
+
+      menu.addEventListener("click", function(event) {
+        const optionButton = event.target.closest("[data-custom-select-value]");
+        if (!optionButton) {
+          return;
+        }
+        const nextValue = optionButton.getAttribute("data-custom-select-value") || "";
+        const didChange = select.value !== nextValue;
+        select.value = nextValue;
+        renderCustomFilterSelect(select, true);
+        closeCustomFilterSelect(select);
+        if (didChange) {
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      });
+
+      const observer = new MutationObserver(function() {
+        renderCustomFilterSelect(select, true);
+      });
+      observer.observe(select, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ["disabled"]
+      });
+
+      state.observer = observer;
+      renderCustomFilterSelect(select, true);
+    }
+
+    function syncAllCustomFilterSelects(force) {
+      document.querySelectorAll(".filter-select").forEach(function(select) {
+        ensureCustomFilterSelect(select);
+        renderCustomFilterSelect(select, !!force);
+      });
+    }
+
+    function initializeCustomFilterSelects() {
+      syncAllCustomFilterSelects(true);
+      if (customFilterSelectsInitialized) {
+        return;
+      }
+      customFilterSelectsInitialized = true;
+
+      document.addEventListener("click", function(event) {
+        if (event.target.closest(".filter-select-shell")) {
+          return;
+        }
+        closeAllCustomFilterSelects();
+      });
+
+      document.addEventListener("keydown", function(event) {
+        if (event.key === "Escape") {
+          closeAllCustomFilterSelects();
+        }
+      });
+
+      customFilterSelectSyncTimer = window.setInterval(function() {
+        syncAllCustomFilterSelects(false);
+      }, 150);
     }
 
     function normalizeDestinationKey(name, country) {
@@ -4738,6 +5510,96 @@
       }).join("");
     }
 
+    function fillOptionSelect(select, options, allLabel) {
+      select.innerHTML = '<option value="">' + escapeHtml(allLabel) + '</option>' + (options || []).map(function(option) {
+        return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
+      }).join("");
+    }
+
+    function fillGroupedOptionSelect(select, groups, allLabel) {
+      const groupMarkup = (groups || []).map(function(group) {
+        const optionsMarkup = (group.options || []).map(function(option) {
+          return '<option value="' + escapeHtml(option.value) + '">' + escapeHtml(option.label) + '</option>';
+        }).join("");
+        return optionsMarkup
+          ? '<optgroup label="' + escapeHtml(group.label) + '">' + optionsMarkup + '</optgroup>'
+          : '';
+      }).join("");
+      select.innerHTML = '<option value="">' + escapeHtml(allLabel) + '</option>' + groupMarkup;
+    }
+
+    function createDestinationPlaceOptionValue(type, rawValue) {
+      return type + ":" + String(rawValue || "");
+    }
+
+    function parseDestinationPlaceOptionValue(value) {
+      const stringValue = String(value || "");
+      const separatorIndex = stringValue.indexOf(":");
+      if (separatorIndex === -1) {
+        return { type: "", value: stringValue };
+      }
+      return {
+        type: stringValue.slice(0, separatorIndex),
+        value: stringValue.slice(separatorIndex + 1)
+      };
+    }
+
+    function getFeaturedDestinationAliasSet() {
+      return new Set(
+        Object.keys(CATEGORY_DEFINITIONS).filter(function(key) {
+          return CATEGORY_DEFINITIONS[key] && CATEGORY_DEFINITIONS[key].group === "featured-destinations";
+        }).flatMap(function(key) {
+          return (CATEGORY_DEFINITIONS[key].portNames || []).map(function(portName) {
+            return normalizeDestinationRouteValue(normalizeStopName(portName));
+          });
+        }).filter(Boolean)
+      );
+    }
+
+    const FEATURED_DESTINATION_ALIAS_SET = getFeaturedDestinationAliasSet();
+
+    function getBroadDestinationGroupLabelForRegion(regionLabel) {
+      if (["North America", "Central America & Caribbean", "South America"].indexOf(regionLabel) !== -1) {
+        return "Americas";
+      }
+      if (regionLabel === "Oceania") {
+        return "Australia & South Pacific";
+      }
+      if ([
+        "Eastern Europe",
+        "Western Europe",
+        "Northern Europe",
+        "Southern Europe",
+        "South & East Asia",
+        "Middle East & North Africa",
+        "Sub-Saharan Africa"
+      ].indexOf(regionLabel) !== -1) {
+        return "Europe & Asia";
+      }
+      return "Other Destinations";
+    }
+
+    function isFeaturedDestinationItem(item) {
+      return getDestinationRouteAliases(item).some(function(alias) {
+        return FEATURED_DESTINATION_ALIAS_SET.has(alias);
+      });
+    }
+
+    function getDestinationOptionGroupLabel(item) {
+      if (isFeaturedDestinationItem(item)) {
+        return "Featured Destinations";
+      }
+      return getBroadDestinationGroupLabelForRegion(item.region || "");
+    }
+
+    function getLocationOptionGroupLabel(locationLabel) {
+      const normalized = normalizeDestinationRouteValue(locationLabel);
+      if (FEATURED_DESTINATION_ALIAS_SET.has(normalized)) {
+        return "Featured Destinations";
+      }
+      return "Itinerary Locations";
+    }
+
     function orderValuesByPreferred(values, preferredOrder) {
       const valueSet = new Set((values || []).filter(Boolean));
       const ordered = (preferredOrder || []).filter(function(value) {
@@ -4751,17 +5613,182 @@
       return ordered.concat(remaining);
     }
 
-    function refreshDestinationCruiseIdSet() {
-      if (!currentDestinationSettingFilter) {
-        currentDestinationCruiseIdSet = null;
-        return;
+    function getBaseDestinationItemsForCurrentCategory() {
+      const scopedCruises = getCruisesForSelectedDestinationScope();
+      const scopedCruiseIds = new Set(scopedCruises.map(function(cruise) {
+        return String(cruise && cruise.sailingId || "");
+      }).filter(Boolean));
+
+      return currentActiveCategoryKey
+        ? destinationGalleryData.filter(function(item) {
+            return getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
+              return scopedCruiseIds.has(String(cruiseId || ""));
+            });
+          })
+        : destinationGalleryData.slice();
+    }
+
+    function getCruisePortOfCalls(cruise) {
+      const seen = new Set();
+      const ports = [];
+      const stops = []
+        .concat(Array.isArray(cruise && cruise.itinerary) ? cruise.itinerary.slice(1, -1) : [])
+        .concat(Array.isArray(cruise && cruise.portsToDisplay) ? cruise.portsToDisplay : []);
+
+      stops.forEach(function(stop) {
+        const label = normalizeStopName(stop);
+        const normalized = normalizeDestinationRouteValue(label);
+        if (!normalized || normalized === "fun day at sea" || normalized === "cross international date line" || normalized === "crossing the equator") {
+          return;
+        }
+        if (seen.has(normalized)) {
+          return;
+        }
+        seen.add(normalized);
+        ports.push({
+          value: normalized,
+          label: label
+        });
+      });
+
+      return ports;
+    }
+
+    function cruiseMatchesPortOfCall(cruise, portValue) {
+      if (!portValue) {
+        return true;
       }
 
-      currentDestinationCruiseIdSet = new Set(
-        destinationGalleryData
-          .filter(function(item) {
-            return item.setting === currentDestinationSettingFilter;
-          })
+      return getCruisePortOfCalls(cruise).some(function(port) {
+        return port.value === portValue;
+      });
+    }
+
+    function getCruiseLocations(cruise) {
+      const seen = new Set();
+      const locations = [];
+      const departureLabel = String(cruise && cruise.departurePortName || "").trim();
+      const departureValue = normalizeDestinationRouteValue(departureLabel);
+
+      if (departureValue && !seen.has(departureValue)) {
+        seen.add(departureValue);
+        locations.push({
+          value: departureValue,
+          label: departureLabel
+        });
+      }
+
+      getCruisePortOfCalls(cruise).forEach(function(port) {
+        if (seen.has(port.value)) {
+          return;
+        }
+        seen.add(port.value);
+        locations.push(port);
+      });
+
+      return locations;
+    }
+
+    function cruiseMatchesLocation(cruise, locationValue) {
+      if (!locationValue) {
+        return true;
+      }
+
+      return getCruiseLocations(cruise).some(function(location) {
+        return location.value === locationValue;
+      });
+    }
+
+    function destinationMatchesCombinedPlace(destination, optionValue) {
+      if (!optionValue) {
+        return true;
+      }
+
+      const parsed = parseDestinationPlaceOptionValue(optionValue);
+      if (parsed.type === "destination") {
+        return destination.key === parsed.value;
+      }
+      if (parsed.type === "location") {
+        return destinationMatchesLocation(destination, parsed.value);
+      }
+      return false;
+    }
+
+    function cruiseMatchesCombinedPlace(cruise, optionValue) {
+      if (!optionValue) {
+        return true;
+      }
+
+      const parsed = parseDestinationPlaceOptionValue(optionValue);
+      if (parsed.type === "destination") {
+        return getBaseDestinationItemsForCurrentCategory().some(function(item) {
+          return item.key === parsed.value && getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
+            return String(cruiseId || "") === String(cruise && cruise.sailingId || "");
+          });
+        });
+      }
+      if (parsed.type === "location") {
+        return cruiseMatchesLocation(cruise, parsed.value);
+      }
+      return false;
+    }
+
+    function destinationMatchesPortOfCall(destination, portValue) {
+      if (!portValue) {
+        return true;
+      }
+
+      const aliasSet = new Set(getDestinationRouteAliases(destination));
+      if (aliasSet.has(portValue)) {
+        return true;
+      }
+
+      return getDestinationMatchedCruises(destination).some(function(cruise) {
+        return cruiseMatchesPortOfCall(cruise, portValue);
+      });
+    }
+
+    function destinationMatchesLocation(destination, locationValue) {
+      if (!locationValue) {
+        return true;
+      }
+
+      const aliasSet = new Set(getDestinationRouteAliases(destination));
+      if (aliasSet.has(locationValue)) {
+        return true;
+      }
+
+      return getDestinationMatchedCruises(destination).some(function(cruise) {
+        return cruiseMatchesLocation(cruise, locationValue);
+      });
+    }
+
+    function matchesActiveDestinationItemFilters(item, ignoredFilterKey) {
+      if (currentDestinationNameFilter && ignoredFilterKey !== "destination" && !destinationMatchesCombinedPlace(item, currentDestinationNameFilter)) {
+        return false;
+      }
+      if (currentDestinationRegionFilter && ignoredFilterKey !== "region" && item.region !== currentDestinationRegionFilter) {
+        return false;
+      }
+      if (currentDestinationSettingFilter && ignoredFilterKey !== "setting" && item.setting !== currentDestinationSettingFilter) {
+        return false;
+      }
+      if (currentDestinationPortOfCallFilter && ignoredFilterKey !== "port" && !destinationMatchesPortOfCall(item, currentDestinationPortOfCallFilter)) {
+        return false;
+      }
+      return true;
+    }
+
+    function getDestinationItemsForFilterScope(ignoredFilterKey) {
+      return getBaseDestinationItemsForCurrentCategory().filter(function(item) {
+        return matchesActiveDestinationItemFilters(item, ignoredFilterKey);
+      });
+    }
+
+    function getCruisesForDestinationFilterScope(ignoredFilterKey) {
+      const scopedDestinations = getDestinationItemsForFilterScope(ignoredFilterKey);
+      const destinationCruiseIds = new Set(
+        scopedDestinations
           .flatMap(function(item) {
             return getDestinationMatchedCruiseIds(item);
           })
@@ -4769,6 +5796,49 @@
             return String(cruiseId || "");
           })
           .filter(Boolean)
+      );
+
+      return getCruisesForSelectedDestinationScope().filter(function(cruise) {
+        const sailingId = String(cruise && cruise.sailingId || "");
+        if (!destinationCruiseIds.has(sailingId)) {
+          return false;
+        }
+        if (currentHolidayCollectionFilter && !cruiseFallsOnFederalHoliday(cruise)) {
+          return false;
+        }
+        if (ignoredFilterKey !== "port" && currentDestinationPortOfCallFilter && !cruiseMatchesPortOfCall(cruise, currentDestinationPortOfCallFilter)) {
+          return false;
+        }
+        if (ignoredFilterKey !== "bestTime" && currentDestinationBestTimeFilter && !matchesCurrentBestTimeFilter(cruise)) {
+          return false;
+        }
+        if (ignoredFilterKey !== "destination" && currentDestinationNameFilter && !cruiseMatchesCombinedPlace(cruise, currentDestinationNameFilter)) {
+          return false;
+        }
+        if (ignoredFilterKey !== "region" && currentDestinationRegionFilter) {
+          const matchingItems = destinationGalleryData.filter(function(item) {
+            return item.region === currentDestinationRegionFilter && getDestinationMatchedCruiseIds(item).some(function(cruiseId) {
+              return String(cruiseId || "") === sailingId;
+            });
+          });
+          if (!matchingItems.length) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    function refreshDestinationCruiseIdSet() {
+      if (!currentDestinationNameFilter && !currentDestinationRegionFilter && !currentDestinationSettingFilter && !currentDestinationPortOfCallFilter) {
+        currentDestinationCruiseIdSet = null;
+        return;
+      }
+
+      currentDestinationCruiseIdSet = new Set(
+        getCruisesForDestinationFilterScope("bestTime").map(function(cruise) {
+          return String(cruise && cruise.sailingId || "");
+        }).filter(Boolean)
       );
     }
 
@@ -4784,8 +5854,26 @@
 
     function formatActiveDestinationFilterCopy() {
       const parts = [];
+      if (currentDestinationNameFilter) {
+        const placeLabel = currentDestinationPlaceLabels.get(currentDestinationNameFilter) || currentDestinationNameFilter;
+        parts.push("destination " + placeLabel);
+      }
+      if (currentDestinationRegionFilter) {
+        parts.push("region " + currentDestinationRegionFilter);
+      }
       if (currentDestinationSettingFilter) {
         parts.push("setting " + currentDestinationSettingFilter);
+      }
+      if (currentDestinationPortOfCallFilter) {
+        const cruiseWithPort = getCruisesForSelectedDestinationScope().find(function(cruise) {
+          return getCruisePortOfCalls(cruise).some(function(port) {
+            return port.value === currentDestinationPortOfCallFilter;
+          });
+        });
+        const matchedPort = cruiseWithPort ? getCruisePortOfCalls(cruiseWithPort).find(function(port) {
+          return port.value === currentDestinationPortOfCallFilter;
+        }) : null;
+        parts.push("port of call " + (matchedPort ? matchedPort.label : currentDestinationPortOfCallFilter));
       }
       if (currentDestinationBestTimeFilter) {
         parts.push("best time " + currentDestinationBestTimeFilter);
@@ -4804,6 +5892,182 @@
       draftDateRangeBaseMonth = null;
       draftDateFilterTab = "months";
       isDateFilterPanelOpen = false;
+    }
+
+    function getCruisesForSelectedDestinationScope() {
+      const baseStats = currentActiveCategoryKey
+        ? currentCategoryStats.categoryStats[currentActiveCategoryKey]
+        : currentCategoryStats.allStats;
+      return Array.isArray(baseStats && baseStats.cruises) ? baseStats.cruises.slice() : [];
+    }
+
+    function refreshDestinationDependentFilterOptions() {
+      const destinationFilter = document.getElementById("destinationNameFilter");
+      const regionFilter = document.getElementById("destinationRegionFilter");
+      const portOfCallFilter = document.getElementById("destinationPortOfCallFilter");
+      const settingFilter = document.getElementById("destinationSettingFilter");
+      const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
+
+      if (!destinationFilter || !regionFilter || !portOfCallFilter || !settingFilter || !bestTimeFilter || !destinationGalleryData.length) {
+        return;
+      }
+
+      const destinationScopedItems = getDestinationItemsForFilterScope("destination");
+      const regionScopedItems = getDestinationItemsForFilterScope("region");
+      const settingScopedItems = getDestinationItemsForFilterScope("setting");
+      const portScopedCruises = getCruisesForDestinationFilterScope("port");
+      const bestTimeScopedCruises = getCruisesForDestinationFilterScope("bestTime");
+      const previousPlaceLabels = new Map(currentDestinationPlaceLabels);
+      const destinationNameCounts = destinationScopedItems.reduce(function(acc, item) {
+        acc[item.name] = (acc[item.name] || 0) + 1;
+        return acc;
+      }, {});
+      const destinationNameValues = new Set(destinationScopedItems.map(function(item) {
+        return normalizeDestinationRouteValue(item.name);
+      }).filter(Boolean));
+      const destinationOptions = destinationScopedItems
+        .map(function(item) {
+          return {
+            value: createDestinationPlaceOptionValue("destination", item.key),
+            label: destinationNameCounts[item.name] > 1 ? (item.name + " | " + item.country) : item.name,
+            groupLabel: getDestinationOptionGroupLabel(item)
+          };
+        });
+      const itineraryOnlyLocationOptions = currentBrowserTab === "itineraries"
+        ? Array.from(
+            getCruisesForDestinationFilterScope("destination").reduce(function(map, cruise) {
+              getCruiseLocations(cruise).forEach(function(location) {
+                if (destinationNameValues.has(location.value) || map.has(location.value)) {
+                  return;
+                }
+                map.set(location.value, location.label);
+              });
+              return map;
+            }, new Map()).entries()
+          ).map(function(entry) {
+            return {
+              value: createDestinationPlaceOptionValue("location", entry[0]),
+              label: entry[1],
+              groupLabel: getLocationOptionGroupLabel(entry[1])
+            };
+          })
+        : [];
+      let combinedDestinationOptions = destinationOptions.concat(itineraryOnlyLocationOptions);
+      if (currentDestinationNameFilter && combinedDestinationOptions.every(function(option) { return option.value !== currentDestinationNameFilter; })) {
+        combinedDestinationOptions.push({
+          value: currentDestinationNameFilter,
+          label: previousPlaceLabels.get(currentDestinationNameFilter) || currentDestinationNameFilter,
+          groupLabel: "Selected"
+        });
+      }
+      combinedDestinationOptions = combinedDestinationOptions.sort(function(a, b) {
+        return String(a.groupLabel || "").localeCompare(String(b.groupLabel || "")) || a.label.localeCompare(b.label);
+      });
+      currentDestinationPlaceLabels = new Map(combinedDestinationOptions.map(function(option) {
+        return [option.value, option.label];
+      }));
+
+      const destinationGroups = combinedDestinationOptions.reduce(function(groups, option) {
+        const groupLabel = option.groupLabel || "Destinations";
+        let group = groups.find(function(entry) {
+          return entry.label === groupLabel;
+        });
+        if (!group) {
+          group = { label: groupLabel, options: [] };
+          groups.push(group);
+        }
+        group.options.push({
+          value: option.value,
+          label: option.label
+        });
+        return groups;
+      }, []);
+
+      fillGroupedOptionSelect(
+        destinationFilter,
+        destinationGroups,
+        "Destinations"
+      );
+
+      fillDestinationSelect(
+        regionFilter,
+        Array.from(new Set(regionScopedItems.map(function(item) { return item.region; }).filter(Boolean))).concat(
+          currentDestinationRegionFilter ? [currentDestinationRegionFilter] : []
+        ).filter(Boolean).sort(function(a, b) {
+          return a.localeCompare(b);
+        }),
+        "Region"
+      );
+
+      fillDestinationSelect(
+        settingFilter,
+        orderValuesByPreferred(
+          Array.from(new Set(settingScopedItems.map(function(item) { return item.setting; }).filter(Boolean))).concat(
+            currentDestinationSettingFilter ? [currentDestinationSettingFilter] : []
+          ),
+          DESTINATION_SETTING_ORDER
+        ),
+        "Setting"
+      );
+
+      fillOptionSelect(
+        portOfCallFilter,
+        Array.from(
+          portScopedCruises.reduce(function(map, cruise) {
+            getCruisePortOfCalls(cruise).forEach(function(port) {
+              if (!map.has(port.value)) {
+                map.set(port.value, port.label);
+              }
+            });
+            return map;
+          }, new Map()).entries()
+        ).map(function(entry) {
+          return {
+            value: entry[0],
+            label: entry[1]
+          };
+        }).concat(
+          currentDestinationPortOfCallFilter && Array.from(
+            portScopedCruises.reduce(function(map, cruise) {
+              getCruisePortOfCalls(cruise).forEach(function(port) {
+                if (!map.has(port.value)) {
+                  map.set(port.value, port.label);
+                }
+              });
+              return map;
+            }, new Map()).entries()
+          ).every(function(entry) {
+            return entry[0] !== currentDestinationPortOfCallFilter;
+          }) ? [{
+            value: currentDestinationPortOfCallFilter,
+            label: currentDestinationPortOfCallFilter
+          }] : []
+        ).sort(function(a, b) {
+          return a.label.localeCompare(b.label);
+        }),
+        "Ports of Call"
+      );
+
+      fillDestinationSelect(
+        bestTimeFilter,
+        orderValuesByPreferred(
+          Array.from(new Set(bestTimeScopedCruises.map(function(cruise) {
+            return getSeasonLabelForDepartureDate(cruise && cruise.departureDate);
+          }).filter(Boolean))).concat(
+            currentDestinationBestTimeFilter ? [currentDestinationBestTimeFilter] : []
+          ),
+          DESTINATION_BEST_TIME_ORDER
+        ),
+        "Best Time to Visit"
+      );
+
+      destinationFilter.value = currentDestinationNameFilter;
+      regionFilter.value = currentDestinationRegionFilter;
+      settingFilter.value = currentDestinationSettingFilter;
+      portOfCallFilter.value = currentDestinationPortOfCallFilter;
+      bestTimeFilter.value = isInitialCollectionMode ? "" : currentDestinationBestTimeFilter;
+      refreshDestinationCruiseIdSet();
+      syncAllCustomFilterSelects(false);
     }
 
     function getSeasonLabelForDepartureDate(dateString) {
@@ -4832,6 +6096,102 @@
       return "Winter";
     }
 
+    function getCurrentSeasonLabel() {
+      return getSeasonLabelForDepartureDate(getTodayDateObject().toISOString().slice(0, 10));
+    }
+
+    function getSeasonDisplayLabel(season) {
+      if (season === "Fall") {
+        return "Autumn";
+      }
+      return season || "";
+    }
+
+    function getSeasonCollectionBadgeText(season) {
+      const display = getSeasonDisplayLabel(season);
+      return display ? display + " Collection | Steward Manor Estate" : "Seasonal Journeys | Steward Manor Estate";
+    }
+
+    function getHolidayCollectionBadgeText() {
+      return "Holiday Collection | Steward Manor Estate";
+    }
+
+    function getSeasonStatusContent(season) {
+      const normalized = String(season || "").toLowerCase();
+      if (normalized === "spring") {
+        return {
+          title: "Spring Collection | Steward Manor Estate",
+          copy: "A season of renewal, beauty, and fresh possibility. The Spring Collection by Steward Manor Estate features thoughtfully selected journeys that embrace blooming landscapes, lighter days, and experiences designed to awaken the spirit."
+        };
+      }
+      if (normalized === "summer") {
+        return {
+          title: "Summer Collection | Steward Manor Estate",
+          copy: "A season of warmth, energy, and unforgettable escape. The Summer Collection by Steward Manor Estate highlights vibrant journeys shaped by sun-filled days, lively destinations, and moments made for lasting memories."
+        };
+      }
+      if (normalized === "fall") {
+        return {
+          title: "Autumn Collection | Steward Manor Estate",
+          copy: "A season of richness, charm, and quiet sophistication. The Autumn Collection by Steward Manor Estate brings together journeys inspired by changing scenery, cooler air, and travel experiences that feel both grounded and indulgent."
+        };
+      }
+      if (normalized === "winter") {
+        return {
+          title: "Winter Collection | Steward Manor Estate",
+          copy: "A season of wonder, retreat, and meaningful escape. The Winter Collection by Steward Manor Estate presents curated journeys that capture the magic of the season, from peaceful hideaways to warm destinations that restore the heart and soul."
+        };
+      }
+      return null;
+    }
+
+    function getHolidayCollectionStatusContent() {
+      return {
+        title: "Holiday Collection | Steward Manor Estate",
+        copy: "Journeys with sail dates that intersect federal holidays, curated for celebratory getaways and meaningful long-weekend escapes."
+      };
+    }
+
+    function getCruiseHolidayMatches(cruise) {
+      if (!cruise) {
+        return [];
+      }
+      const start = String(cruise.departureDate || "");
+      const end = String(cruise.arrivalDate || cruise.departureDate || "");
+      if (!start || !end) {
+        return [];
+      }
+      const normalizedStart = start <= end ? start : end;
+      const normalizedEnd = end >= start ? end : start;
+      return Array.from(FEDERAL_HOLIDAY_DATES.entries()).filter(function(entry) {
+        return entry[0] >= normalizedStart && entry[0] <= normalizedEnd;
+      }).map(function(entry) {
+        return { date: entry[0], name: entry[1] };
+      });
+    }
+
+    function cruiseFallsOnFederalHoliday(cruise) {
+      return getCruiseHolidayMatches(cruise).length > 0;
+    }
+
+    function destinationHasHolidayCollection(item) {
+      return getDestinationMatchedCruises(item).some(function(cruise) {
+        return cruiseFallsOnFederalHoliday(cruise);
+      });
+    }
+
+    function destinationMatchesSeason(item, season) {
+      if (!item || !season) {
+        return false;
+      }
+      if (item.bestTime === season) {
+        return true;
+      }
+      return getDestinationMatchedCruises(item).some(function(cruise) {
+        return getSeasonLabelForDepartureDate(cruise && cruise.departureDate) === season;
+      });
+    }
+
     function matchesCurrentBestTimeFilter(cruise) {
       if (!currentDestinationBestTimeFilter) {
         return true;
@@ -4842,6 +6202,9 @@
     function filterCruisesByCurrentControls(cruises) {
       return (Array.isArray(cruises) ? cruises : []).filter(function(cruise) {
         if (currentDeparturePortFilter && cruise.departurePortName !== currentDeparturePortFilter) {
+          return false;
+        }
+        if (currentHolidayCollectionFilter && !cruiseFallsOnFederalHoliday(cruise)) {
           return false;
         }
         if (!matchesCurrentBestTimeFilter(cruise)) {
@@ -4882,10 +6245,14 @@
     function hasActiveCruiseFilters() {
       return Boolean(
         currentActiveCategoryKey ||
+        currentDestinationNameFilter ||
+        currentDestinationSettingFilter ||
+        currentDestinationPortOfCallFilter ||
         currentDeparturePortFilter ||
         currentItineraryMonth ||
         currentDateFilter ||
         (Array.isArray(currentDurationFilters) && currentDurationFilters.length) ||
+        currentHolidayCollectionFilter ||
         currentDestinationBestTimeFilter
       );
     }
@@ -5025,6 +6392,15 @@
     }
 
     function getDestinationMatchedCruises(destination) {
+      const cacheKey = destination && destination.key ? destination.key : "";
+      if (!cacheKey) {
+        return [];
+      }
+
+      if (destinationMatchedCruisesCache.has(cacheKey)) {
+        return destinationMatchedCruisesCache.get(cacheKey);
+      }
+
       const cruiseIndex = (currentMergedPayload && currentMergedPayload.__cruises_index) || {};
       const matched = new Map();
       const aliasSet = new Set(getDestinationRouteAliases(destination));
@@ -5053,10 +6429,13 @@
         }
       });
 
-      return Array.from(matched.values()).sort(function(a, b) {
+      const matchedCruises = Array.from(matched.values()).sort(function(a, b) {
         return String(a.departureDate || "").localeCompare(String(b.departureDate || "")) ||
           String(a.itineraryTitle || "").localeCompare(String(b.itineraryTitle || ""));
       });
+
+      destinationMatchedCruisesCache.set(cacheKey, matchedCruises);
+      return matchedCruises;
     }
 
     function getDestinationMatchedCruiseIds(destination) {
@@ -5081,7 +6460,7 @@
       const cruises = filterCruisesByCurrentControls(getDestinationMatchedCruises(destination));
 
       if (!cruises.length) {
-        return '<div class="destination-block"><div class="destination-rich"><p>No itineraries match the current filters for this destination.</p></div></div>';
+        return '';
       }
 
       return '<section class="destination-block"><h3>Applicable Itineraries</h3><div class="destination-rich"><p>' +
@@ -5196,7 +6575,11 @@
 
     function renderDestinationGallery(mergedPayload) {
       currentMergedPayload = mergedPayload;
+      destinationMatchedCruisesCache = new Map();
       destinationMatchedCruiseIdsCache = new Map();
+      const destinationNameFilter = document.getElementById("destinationNameFilter");
+      const regionFilter = document.getElementById("destinationRegionFilter");
+      const portOfCallFilter = document.getElementById("destinationPortOfCallFilter");
       const settingFilter = document.getElementById("destinationSettingFilter");
       const bestTimeFilter = document.getElementById("destinationBestTimeFilter");
       const statusEl = document.getElementById("destinationStatus");
@@ -5228,39 +6611,15 @@
         return a.name.localeCompare(b.name) || a.country.localeCompare(b.country);
       });
 
-      fillDestinationSelect(
-        settingFilter,
-        orderValuesByPreferred(
-          Array.from(new Set(destinationGalleryData.map(function(item) { return item.setting; }).filter(Boolean))),
-          DESTINATION_SETTING_ORDER
-        ),
-        "Setting"
-      );
-      fillDestinationSelect(
-        bestTimeFilter,
-        orderValuesByPreferred(
-          Array.from(new Set(destinationGalleryData.map(function(item) { return item.bestTime; }).filter(Boolean))),
-          DESTINATION_BEST_TIME_ORDER
-        ),
-        "Best Time to Visit"
-      );
+      totalDestinationCount = destinationGalleryData.length;
 
-      if (currentDestinationSettingFilter && Array.from(settingFilter.options).every(function(option) { return option.value !== currentDestinationSettingFilter; })) {
-        currentDestinationSettingFilter = "";
-      }
-      if (currentDestinationBestTimeFilter && Array.from(bestTimeFilter.options).every(function(option) { return option.value !== currentDestinationBestTimeFilter; })) {
-        currentDestinationBestTimeFilter = "";
-      }
-
-      settingFilter.value = currentDestinationSettingFilter;
-      bestTimeFilter.value = currentDestinationBestTimeFilter;
-      refreshDestinationCruiseIdSet();
+      refreshDestinationDependentFilterOptions();
 
       function renderGrid() {
         const filteredCruiseIdSet = getCurrentFilteredCruiseIdSet();
         const applyCruiseFiltersToDestinations = hasActiveCruiseFilters();
-        const filtered = destinationGalleryData.filter(function(item) {
-          if (currentDestinationSettingFilter && item.setting !== currentDestinationSettingFilter) {
+        const filtered = getDestinationItemsForFilterScope("bestTime").filter(function(item) {
+          if (!matchesActiveDestinationItemFilters(item, "bestTime")) {
             return false;
           }
           if (!applyCruiseFiltersToDestinations) {
@@ -5274,11 +6633,42 @@
         currentDestinationResultsCount = filtered.length;
         updateBrowserTabCounts();
         autoSwitchBrowserTabIfNeeded();
-        statusEl.textContent = filtered.length + " destinations";
+        const seasonStatus = getSeasonStatusContent(currentDestinationBestTimeFilter);
+        const holidayStatus = currentHolidayCollectionFilter ? getHolidayCollectionStatusContent() : null;
+        statusEl.innerHTML = holidayStatus
+          ? '<span class="destination-status-title">' + escapeHtml(holidayStatus.title) + '</span>' +
+            '<span class="destination-status-copy">' + escapeHtml(holidayStatus.copy) + '</span>'
+          : seasonStatus
+          ? '<span class="destination-status-title">' + escapeHtml(seasonStatus.title) + '</span>' +
+            '<span class="destination-status-copy">' + escapeHtml(seasonStatus.copy) + '</span>'
+          : (filtered.length + " destinations");
         gridEl.innerHTML = filtered.length ? filtered.map(function(item) {
+          const badgeSeason = currentDestinationBestTimeFilter || getCurrentSeasonLabel();
+          const showSeasonalBadge = destinationMatchesSeason(item, badgeSeason);
+          const showHolidayBadge = destinationHasHolidayCollection(item);
+          const seasonalBadgeHtml = showSeasonalBadge
+            ? '<div class="destination-card-seasonal-badge">' +
+                '<span class="destination-card-seasonal-badge-icon" aria-hidden="true">' +
+                  '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M12 2l2.3 4.66 5.14.75-3.72 3.63.88 5.12L12 13.77 7.4 16.16l.88-5.12L4.56 7.41l5.14-.75L12 2z"/></svg>' +
+                '</span>' +
+                '<span class="destination-card-seasonal-badge-text">' + escapeHtml(getSeasonCollectionBadgeText(badgeSeason)) + '</span>' +
+              '</div>'
+            : '';
+          const holidayBadgeHtml = showHolidayBadge
+            ? '<div class="destination-card-seasonal-badge destination-card-holiday-badge">' +
+                '<span class="destination-card-seasonal-badge-icon" aria-hidden="true">' +
+                  '<svg viewBox="0 0 24 24" focusable="false" aria-hidden="true"><path d="M7 2h2v2h6V2h2v2h3v18H4V4h3V2zm11 8H6v10h12V10zm-9 3h2v2H9v-2zm4 0h2v2h-2v-2zm-4 4h2v2H9v-2z"/></svg>' +
+                '</span>' +
+                '<span class="destination-card-seasonal-badge-text">' + escapeHtml(getHolidayCollectionBadgeText()) + '</span>' +
+              '</div>'
+            : '';
+          const badgeStackHtml = (seasonalBadgeHtml || holidayBadgeHtml)
+            ? '<div class="destination-card-badge-stack">' + seasonalBadgeHtml + holidayBadgeHtml + '</div>'
+            : '';
           return '<article class="destination-card">' +
             '<div class="destination-card-image">' +
               (item.imageUrl ? '<img src="' + escapeHtml(item.imageUrl) + '" alt="' + escapeHtml(item.name + " " + item.country) + '" loading="lazy" decoding="async">' : '') +
+              badgeStackHtml +
               '<button class="destination-card-explore" type="button" data-destination-key="' + escapeHtml(item.key) + '">Explore</button>' +
             '</div>' +
             '<div class="destination-card-copy">' +
@@ -5291,14 +6681,28 @@
 
       rerenderDestinationGrid = renderGrid;
 
-      function handleSingleDestinationFilter(changedSelect) {
+      function handleDestinationFiltersChange(changedKey) {
         runSearchFeedback(function() {
-          currentDestinationSettingFilter = changedSelect === settingFilter ? (settingFilter.value || "") : "";
-          currentDestinationBestTimeFilter = changedSelect === bestTimeFilter ? (bestTimeFilter.value || "") : "";
+          exitInitialCollectionMode(changedKey);
+          currentDestinationNameFilter = destinationNameFilter ? (destinationNameFilter.value || "") : "";
+          currentDestinationRegionFilter = regionFilter ? (regionFilter.value || "") : "";
+          currentDestinationPortOfCallFilter = portOfCallFilter ? (portOfCallFilter.value || "") : "";
+          currentDestinationSettingFilter = settingFilter ? (settingFilter.value || "") : "";
+          currentDestinationBestTimeFilter = isInitialCollectionMode && bestTimeFilter && !bestTimeFilter.value
+            ? currentDestinationBestTimeFilter
+            : (bestTimeFilter ? (bestTimeFilter.value || "") : "");
+          if (destinationNameFilter) {
+            destinationNameFilter.value = currentDestinationNameFilter;
+          }
+          if (regionFilter) {
+            regionFilter.value = currentDestinationRegionFilter;
+          }
           settingFilter.value = currentDestinationSettingFilter;
+          if (portOfCallFilter) {
+            portOfCallFilter.value = currentDestinationPortOfCallFilter;
+          }
           bestTimeFilter.value = currentDestinationBestTimeFilter;
-          resetItineraryDateSelectionState();
-          currentDeparturePortFilter = null;
+          refreshDestinationDependentFilterOptions();
           refreshDestinationCruiseIdSet();
           renderGrid();
           renderItineraryBrowser();
@@ -5306,8 +6710,50 @@
         }, "Searching destinations...");
       }
 
-      settingFilter.onchange = function() { handleSingleDestinationFilter(settingFilter); };
-      bestTimeFilter.onchange = function() { handleSingleDestinationFilter(bestTimeFilter); };
+      if (destinationNameFilter) {
+        destinationNameFilter.onchange = function() {
+          handleDestinationFiltersChange("destination");
+        };
+      }
+      if (regionFilter) {
+        regionFilter.onchange = function() {
+          handleDestinationFiltersChange("region");
+        };
+      }
+      if (portOfCallFilter) {
+        portOfCallFilter.onchange = function() {
+          handleDestinationFiltersChange("port");
+        };
+      }
+      settingFilter.onchange = function() {
+        handleDestinationFiltersChange("setting");
+      };
+      bestTimeFilter.onchange = function() {
+        runSearchFeedback(function() {
+          exitInitialCollectionMode("bestTime");
+          currentDestinationNameFilter = destinationNameFilter ? (destinationNameFilter.value || "") : "";
+          currentDestinationRegionFilter = regionFilter ? (regionFilter.value || "") : "";
+          currentDestinationPortOfCallFilter = portOfCallFilter ? (portOfCallFilter.value || "") : "";
+          currentDestinationSettingFilter = settingFilter ? (settingFilter.value || "") : "";
+          currentDestinationBestTimeFilter = bestTimeFilter ? (bestTimeFilter.value || "") : "";
+          if (destinationNameFilter) {
+            destinationNameFilter.value = currentDestinationNameFilter;
+          }
+          if (regionFilter) {
+            regionFilter.value = currentDestinationRegionFilter;
+          }
+          settingFilter.value = currentDestinationSettingFilter;
+          if (portOfCallFilter) {
+            portOfCallFilter.value = currentDestinationPortOfCallFilter;
+          }
+          bestTimeFilter.value = currentDestinationBestTimeFilter;
+          refreshDestinationDependentFilterOptions();
+          refreshDestinationCruiseIdSet();
+          renderGrid();
+          renderItineraryBrowser();
+          refreshDestinationModalIfOpen();
+        }, "Searching destinations...");
+      };
       gridEl.onclick = function(event) {
         const button = event.target.closest("[data-destination-key]");
         const destination = button ? destinationGalleryData.find(function(item) { return item.key === button.getAttribute("data-destination-key"); }) : null;
@@ -5356,7 +6802,17 @@
       }
 
       categorySelect.addEventListener("change", function() {
-        setBrowserTab(categorySelect.value || "destinations");
+        const nextValue = categorySelect.value || "destinations";
+        const collectionSeason = getSeasonForCollectionCategoryValue(nextValue);
+        const holidayCollection = isHolidayCollectionCategoryValue(nextValue);
+        const nextTab = nextValue === "itineraries" ? "itineraries" : "destinations";
+        currentBrowserCategoryValue = (collectionSeason || holidayCollection) ? nextValue : nextTab;
+        setBrowserTab(nextTab);
+        resetAllFiltersForCategorySwitch(collectionSeason, holidayCollection);
+        refreshDestinationDependentFilterOptions();
+        refreshDestinationGridIfAvailable();
+        renderItineraryBrowser();
+        refreshDestinationModalIfOpen();
       });
 
       setBrowserTab(currentBrowserTab);
@@ -5365,6 +6821,7 @@
     async function loadMap() {
       try {
         isBootstrappingBrowserView = true;
+        setSearchFeedbackVisible(true, "Loading " + getSeasonDisplayLabel(getCurrentSeasonLabel()) + " Collection...");
         currentBrowserTab = "destinations";
         setBrowserTab("destinations");
         const mergedResponse = await fetch("./destinations.json", { cache: "no-store" });
@@ -5394,9 +6851,11 @@
           cruises: cruises
         };
 
+        totalItineraryCount = cruises.length;
         currentPayload = payload;
         renderWorldMap(payload);
         renderDestinationGallery(mergedPayload);
+        updateBrowserTabCounts();
         currentBrowserTab = "destinations";
         setBrowserTab("destinations");
         updateRefreshStatusFromPayload(mergedPayload);
@@ -5406,6 +6865,7 @@
         setRefreshStatus(error.message, "error");
       } finally {
         isBootstrappingBrowserView = false;
+        setSearchFeedbackVisible(false);
       }
     }
 
@@ -5467,6 +6927,9 @@
       }, 150);
     });
 
+    currentDestinationBestTimeFilter = getCurrentSeasonLabel();
+    currentBrowserCategoryValue = getCollectionCategoryValueForSeason(currentDestinationBestTimeFilter);
+    resetItineraryDateSelectionState();
     currentPayload = { cruises: [] };
     renderWorldMap(currentPayload);
     loadMap();
@@ -5476,6 +6939,7 @@
     wireBrowserTabs();
     wireItineraryCountButtons();
     wireRefreshMergedButton();
+    initializeCustomFilterSelects();
     queueEmbedHeightPost();
 
     if (window.ResizeObserver) {
