@@ -30,6 +30,10 @@
         linear-gradient(180deg, #f8fbfe 0%, var(--page-bg) 100%);
     }
 
+    body.is-embedded {
+      min-height: 0;
+    }
+
     .page {
       width: calc(100% - 16px);
       margin: 0 auto;
@@ -5387,6 +5391,10 @@
       } finally {
         isBootstrappingBrowserView = false;
       }
+    }
+
+    if (window.parent !== window) {
+      document.body.classList.add("is-embedded");
     }
 
     let resizeTimer = null;
