@@ -5397,12 +5397,13 @@
         return;
       }
 
-      const nextHeight = Math.max(
+      const pageEl = document.querySelector(".page");
+      const pageRect = pageEl ? pageEl.getBoundingClientRect() : null;
+      const nextHeight = Math.ceil(Math.max(
+        pageRect ? pageRect.height : 0,
         document.documentElement ? document.documentElement.scrollHeight : 0,
-        document.body ? document.body.scrollHeight : 0,
-        document.documentElement ? document.documentElement.offsetHeight : 0,
-        document.body ? document.body.offsetHeight : 0
-      );
+        document.body ? document.body.scrollHeight : 0
+      ));
 
       if (!nextHeight) {
         return;
