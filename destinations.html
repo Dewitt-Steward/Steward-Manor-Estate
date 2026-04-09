@@ -33,7 +33,7 @@
     .page {
       width: calc(100% - 16px);
       margin: 0 auto;
-      padding: 24px 0 32px;
+      padding: 24px 0 0;
     }
 
     .hero,
@@ -48,6 +48,12 @@
     .hero {
       padding: 24px 28px;
       margin-bottom: 20px;
+    }
+
+    .hero.is-compact {
+      padding-top: 18px;
+      padding-bottom: 18px;
+      margin-bottom: 12px;
     }
 
     .hero-head {
@@ -77,6 +83,10 @@
       line-height: 1.5;
     }
 
+    .hero p[hidden] {
+      display: none;
+    }
+
     .hero .filter-controls {
       width: min(1100px, 100%);
       margin: 18px auto 0;
@@ -90,6 +100,10 @@
       border: 0;
       border-radius: 0;
       box-shadow: none;
+    }
+
+    .hero .categories-panel:empty {
+      display: none;
     }
 
     .hero-actions {
@@ -143,7 +157,7 @@
     }
 
     .map-panel {
-      padding: 18px 18px 12px;
+      padding: 18px 18px 0;
     }
 
     .map-main,
@@ -239,7 +253,7 @@
     .categories-panel {
       margin-top: 0;
       padding: 18px;
-      margin-bottom: 20px;
+      margin-bottom: 0;
     }
 
     .map-panel .categories-panel {
@@ -3523,8 +3537,23 @@
     }
 
     function updateSidebar(payload, counts, options) {
-      document.getElementById("heroTitle").textContent = options.heroTitle;
-      document.getElementById("heroCopy").innerHTML = options.heroCopy;
+      const heroEl = document.querySelector(".hero");
+      const heroTitleEl = document.getElementById("heroTitle");
+      const heroCopyEl = document.getElementById("heroCopy");
+      const heroCopy = options.heroCopy || "";
+
+      if (heroTitleEl) {
+        heroTitleEl.textContent = options.heroTitle;
+      }
+
+      if (heroCopyEl) {
+        heroCopyEl.innerHTML = heroCopy;
+        heroCopyEl.hidden = !heroCopy.trim();
+      }
+
+      if (heroEl) {
+        heroEl.classList.toggle("is-compact", !heroCopy.trim());
+      }
     }
 
     function updateDrilldownSidebar(payload, countryCode, portsByCountry) {
@@ -5361,18 +5390,55 @@
     }
 
     let resizeTimer = null;
+    let embedHeightFrame = null;
+
+    function postEmbedHeight() {
+      if (window.parent === window) {
+        return;
+      }
+
+      const nextHeight = Math.max(
+        document.documentElement ? document.documentElement.scrollHeight : 0,
+        document.body ? document.body.scrollHeight : 0,
+        document.documentElement ? document.documentElement.offsetHeight : 0,
+        document.body ? document.body.offsetHeight : 0
+      );
+
+      if (!nextHeight) {
+        return;
+      }
+
+      window.parent.postMessage({
+        type: "sme-destinations-height",
+        height: nextHeight
+      }, "*");
+    }
+
+    function queueEmbedHeightPost() {
+      if (embedHeightFrame) {
+        cancelAnimationFrame(embedHeightFrame);
+      }
+      embedHeightFrame = requestAnimationFrame(function() {
+        embedHeightFrame = null;
+        postEmbedHeight();
+      });
+    }
+
     window.addEventListener("resize", function() {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(function() {
         if (!currentPayload) {
           loadMap();
+          queueEmbedHeightPost();
           return;
         }
         if (currentView === "country" && currentDrilldownCode) {
           renderCountryDrilldown(currentDrilldownCode, currentPayload);
+          queueEmbedHeightPost();
           return;
         }
         renderWorldMap(currentPayload);
+        queueEmbedHeightPost();
       }, 150);
     });
 
@@ -5385,6 +5451,16 @@
     wireBrowserTabs();
     wireItineraryCountButtons();
     wireRefreshMergedButton();
+    queueEmbedHeightPost();
+
+    if (window.ResizeObserver) {
+      const pageEl = document.querySelector(".page");
+      if (pageEl) {
+        new ResizeObserver(function() {
+          queueEmbedHeightPost();
+        }).observe(pageEl);
+      }
+    }
   </script>
 </body>
 </html>
