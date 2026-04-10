@@ -2742,6 +2742,7 @@
     let currentDestinationPlaceLabels = new Map();
     let isInitialCollectionMode = true;
     let canSubmitLocalIntakeForm = false;
+    let currentIntakeSubmitEndpoint = "./send-travel-email";
     let currentItineraryResultsCount = 0;
     let currentDestinationResultsCount = 0;
     let totalItineraryCount = 0;
@@ -5272,6 +5273,7 @@
 
       controlsEl.hidden = false;
       canSubmitLocalIntakeForm = false;
+      currentIntakeSubmitEndpoint = "https://stewardmanorestate.com/wp-json/sme/v1/destinations-contact";
 
       try {
         const response = await fetch("./healthz", { cache: "no-store" });
@@ -5284,14 +5286,18 @@
         });
 
         canSubmitLocalIntakeForm = !!(payload && payload.ok);
+        if (canSubmitLocalIntakeForm) {
+          currentIntakeSubmitEndpoint = "./send-travel-email";
+        }
         if (statusEl) {
           statusEl.textContent = "";
           statusEl.removeAttribute("data-state");
         }
       } catch (error) {
+        canSubmitLocalIntakeForm = true;
         if (statusEl) {
-          statusEl.textContent = "The intake form is visible here, but sending is currently enabled on the localhost manager server only.";
-          statusEl.setAttribute("data-state", "error");
+          statusEl.textContent = "";
+          statusEl.removeAttribute("data-state");
         }
       }
 
@@ -5650,7 +5656,7 @@
       setLocalEmailStatus("Sending...", "");
 
       try {
-        const response = await fetch("./send-travel-email", {
+        const response = await fetch(currentIntakeSubmitEndpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
