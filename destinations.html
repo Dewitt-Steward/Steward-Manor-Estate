@@ -33,7 +33,9 @@
     }
 
     body.page-screen-client-intake .itinerary-sticky-header,
-    body.page-screen-client-intake .layout {
+    body.page-screen-client-intake .layout,
+    body.page-screen-consultation .itinerary-sticky-header,
+    body.page-screen-consultation .layout {
       display: none !important;
     }
 
@@ -434,11 +436,38 @@
       padding: 0 18px 18px;
     }
 
+    .consultation-screen {
+      padding: 0 18px 18px;
+    }
+
     .client-intake-panel {
       width: 100%;
       max-width: none;
       display: grid;
       gap: 16px;
+    }
+
+    .consultation-panel {
+      width: 100%;
+      max-width: none;
+      display: grid;
+      gap: 16px;
+    }
+
+    .consultation-frame-wrap {
+      border: 1px solid var(--border);
+      background: #ffffff;
+      min-height: 980px;
+      overflow: hidden;
+    }
+
+    .consultation-frame {
+      display: block;
+      width: 100%;
+      min-height: 980px;
+      height: calc(100vh - 190px);
+      border: 0;
+      background: #ffffff;
     }
 
     .client-intake-panel h2 {
@@ -466,6 +495,11 @@
 
       .intake-label[data-span="full"] {
         grid-column: auto;
+      }
+
+      .consultation-frame,
+      .consultation-frame-wrap {
+        min-height: 860px;
       }
     }
 
@@ -1905,6 +1939,73 @@
       gap: 16px;
     }
 
+    .intake-success-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(17, 17, 17, 0.52);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    .intake-success-modal.is-open {
+      display: flex;
+    }
+
+    .intake-success-modal-panel {
+      width: min(100%, 760px);
+      border: 1px solid var(--border);
+      background: #ffffff;
+      box-shadow: 0 24px 64px rgba(17, 17, 17, 0.22);
+      padding: 28px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .intake-success-modal-title {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+
+    .intake-success-modal-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .intake-success-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .intake-success-modal-button {
+      min-height: 46px;
+      border: 1px solid #111111;
+      border-radius: 0;
+      background: #111111;
+      color: #ffffff;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+
+    .intake-success-modal-button--secondary {
+      background: #ffffff;
+      color: #111111;
+    }
+
     .destination-detail-pane {
       display: grid;
       gap: 18px;
@@ -2217,6 +2318,7 @@
       <div class="screen-switcher" id="screenSwitcher">
         <button class="screen-switch-button is-active" id="destinationsScreenButton" type="button" data-screen="destinations">Explore Destinations</button>
         <button class="screen-switch-button" id="clientIntakeScreenButton" type="button" data-screen="client-intake">Client Intake Form</button>
+        <button class="screen-switch-button" id="consultationScreenButton" type="button" data-screen="consultation">Bookings</button>
       </div>
       <div class="page-screen" id="destinationsScreen">
       <div class="itinerary-sticky-header">
@@ -2320,6 +2422,20 @@
           </div>
         </div>
       </section>
+      <section class="page-screen consultation-screen" id="consultationScreen" hidden>
+        <div class="consultation-panel">
+          <div class="consultation-frame-wrap">
+            <iframe
+              id="consultationFrame"
+              class="consultation-frame"
+              src="https://book.titan.email/stewardmanorestate"
+              title="Consultation Booking"
+              loading="lazy"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen></iframe>
+          </div>
+        </div>
+      </section>
   </div>
 
   <div class="destination-modal" id="destinationModal" aria-hidden="true">
@@ -2338,6 +2454,17 @@
         </div>
       </div>
       <div class="destination-modal-body" id="destinationModalBody"></div>
+    </div>
+  </div>
+
+  <div class="intake-success-modal" id="intakeSuccessModal" aria-hidden="true">
+    <div class="intake-success-modal-panel" role="dialog" aria-modal="true" aria-labelledby="intakeSuccessModalTitle">
+      <h2 class="intake-success-modal-title" id="intakeSuccessModalTitle">Continue to Bookings</h2>
+      <p class="intake-success-modal-copy" id="intakeSuccessModalCopy">Enjoy life, wherever it leads. With Dewitt Steward by Steward Manor Estate, your journey is handled with care so you can travel in comfort, confidence, and peace. Please click continue to schedule a dedicated time to discuss your travel needs, review available options, move forward with a booking, or receive support for an existing reservation. Whether you are just getting started, reviewing a quote, ready to confirm your plans, or need help with a trip already booked, this service provides one place to continue the conversation.</p>
+      <div class="intake-success-modal-actions">
+        <button class="intake-success-modal-button intake-success-modal-button--secondary" id="intakeSuccessModalClose" type="button">Close</button>
+        <button class="intake-success-modal-button" id="intakeSuccessModalContinue" type="button">Continue</button>
+      </div>
     </div>
   </div>
 
@@ -5313,22 +5440,32 @@
     }
 
     function setPageScreen(screenKey) {
-      const nextScreen = screenKey === "client-intake" ? "client-intake" : "destinations";
+      const nextScreen = screenKey === "client-intake" || screenKey === "consultation"
+        ? screenKey
+        : "destinations";
       const heroTitleEl = document.getElementById("heroTitle");
       const heroCopyEl = document.getElementById("heroCopy");
       const destinationsScreenEl = document.getElementById("destinationsScreen");
       const clientIntakeScreenEl = document.getElementById("clientIntakeScreen");
+      const consultationScreenEl = document.getElementById("consultationScreen");
       const switcherButtons = document.querySelectorAll("[data-screen]");
 
       currentPageScreen = nextScreen;
-      document.body.classList.remove("page-screen-destinations", "page-screen-client-intake");
-      document.body.classList.add(nextScreen === "client-intake" ? "page-screen-client-intake" : "page-screen-destinations");
+      document.body.classList.remove("page-screen-destinations", "page-screen-client-intake", "page-screen-consultation");
+      document.body.classList.add(
+        nextScreen === "client-intake"
+          ? "page-screen-client-intake"
+          : (nextScreen === "consultation" ? "page-screen-consultation" : "page-screen-destinations")
+      );
 
       if (destinationsScreenEl) {
         destinationsScreenEl.hidden = nextScreen !== "destinations";
       }
       if (clientIntakeScreenEl) {
         clientIntakeScreenEl.hidden = nextScreen !== "client-intake";
+      }
+      if (consultationScreenEl) {
+        consultationScreenEl.hidden = nextScreen !== "consultation";
       }
 
       switcherButtons.forEach(function(button) {
@@ -5338,12 +5475,12 @@
       });
 
       if (heroTitleEl) {
-        heroTitleEl.textContent = nextScreen === "client-intake" ? "Client Intake Form" : "Explore Destinations";
+        heroTitleEl.textContent = nextScreen === "client-intake"
+          ? "Client Intake Form"
+          : (nextScreen === "consultation" ? "Bookings" : "Explore Destinations");
       }
       if (heroCopyEl) {
-        heroCopyEl.textContent = nextScreen === "client-intake"
-          ? "Use this form to send your travel request directly through Steward Manor Estate."
-          : "";
+        heroCopyEl.textContent = "";
         heroCopyEl.hidden = heroCopyEl.textContent === "";
       }
 
@@ -5482,6 +5619,49 @@
         statusEl.setAttribute("data-state", state);
       } else {
         statusEl.removeAttribute("data-state");
+      }
+    }
+
+    function setIntakeSuccessModalOpen(isOpen) {
+      const modalEl = document.getElementById("intakeSuccessModal");
+      if (!modalEl) {
+        return;
+      }
+
+      modalEl.classList.toggle("is-open", !!isOpen);
+      modalEl.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    }
+
+    function wireIntakeSuccessModal() {
+      const modalEl = document.getElementById("intakeSuccessModal");
+      const closeButtonEl = document.getElementById("intakeSuccessModalClose");
+      const continueButtonEl = document.getElementById("intakeSuccessModalContinue");
+
+      if (closeButtonEl) {
+        closeButtonEl.addEventListener("click", function() {
+          setIntakeSuccessModalOpen(false);
+        });
+      }
+
+      if (continueButtonEl) {
+        continueButtonEl.addEventListener("click", function() {
+          setIntakeSuccessModalOpen(false);
+          setPageScreen("consultation");
+          window.requestAnimationFrame(function() {
+            const heroEl = document.querySelector(".hero");
+            if (heroEl) {
+              heroEl.scrollIntoView({ block: "start", behavior: "smooth" });
+            }
+          });
+        });
+      }
+
+      if (modalEl) {
+        modalEl.addEventListener("click", function(event) {
+          if (event.target === modalEl) {
+            setIntakeSuccessModalOpen(false);
+          }
+        });
       }
     }
 
@@ -5631,12 +5811,6 @@
         return;
       }
 
-      if (!canSubmitLocalIntakeForm) {
-        setLocalEmailStatus("Sending is not enabled from this page yet.", "error");
-        updateLocalEmailSubmitButtonState();
-        return;
-      }
-
       const intakeData = collectIntakeValues();
       const payload = {
         name: "Client Intake Submission",
@@ -5646,6 +5820,12 @@
 
       if (!payload.message) {
         setLocalEmailStatus("Complete the intake form before sending.", "error");
+        return;
+      }
+
+      if (!canSubmitLocalIntakeForm) {
+        setLocalEmailStatus("Sending is not enabled from this page yet.", "error");
+        updateLocalEmailSubmitButtonState();
         return;
       }
 
@@ -5672,7 +5852,8 @@
           throw new Error(result.error || "Email failed.");
         }
 
-        setLocalEmailStatus("Your message has been sent.", "success");
+        setLocalEmailStatus("", "");
+        setIntakeSuccessModalOpen(true);
       } catch (error) {
         setLocalEmailStatus(error && error.message ? error.message : "Email failed.", "error");
       } finally {
@@ -7451,6 +7632,7 @@
     wireScreenSwitcher();
     wireRefreshMergedButton();
     wireLocalEmailControls();
+    wireIntakeSuccessModal();
     initializeCustomFilterSelects();
     setPageScreen("destinations");
     queueEmbedHeightPost();
