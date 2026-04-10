@@ -2741,6 +2741,7 @@
     let currentDestinationCruiseIdSet = null;
     let currentDestinationPlaceLabels = new Map();
     let isInitialCollectionMode = true;
+    let canSubmitLocalIntakeForm = false;
     let currentItineraryResultsCount = 0;
     let currentDestinationResultsCount = 0;
     let totalItineraryCount = 0;
@@ -5269,29 +5270,40 @@
         return;
       }
 
-      controlsEl.hidden = true;
+      controlsEl.hidden = false;
+      canSubmitLocalIntakeForm = false;
 
       try {
         const response = await fetch("./healthz", { cache: "no-store" });
         if (!response.ok) {
-          return;
+          throw new Error("Local manager unavailable.");
         }
 
         const payload = await response.json().catch(function() {
           return {};
         });
 
-        controlsEl.hidden = !payload || !payload.ok;
-        if (!controlsEl.hidden && statusEl) {
+        canSubmitLocalIntakeForm = !!(payload && payload.ok);
+        if (statusEl) {
           statusEl.textContent = "";
           statusEl.removeAttribute("data-state");
         }
       } catch (error) {
         if (statusEl) {
-          statusEl.textContent = "This form is available on the localhost manager server.";
+          statusEl.textContent = "The intake form is visible here, but sending is currently enabled on the localhost manager server only.";
           statusEl.setAttribute("data-state", "error");
         }
       }
+
+      updateLocalEmailSubmitButtonState();
+    }
+
+    function updateLocalEmailSubmitButtonState() {
+      const submitButton = document.getElementById("localEmailSubmitButton");
+      if (!submitButton) {
+        return;
+      }
+      submitButton.disabled = !canSubmitLocalIntakeForm;
     }
 
     function setPageScreen(screenKey) {
@@ -5613,6 +5625,12 @@
         return;
       }
 
+      if (!canSubmitLocalIntakeForm) {
+        setLocalEmailStatus("Sending is not enabled from this page yet.", "error");
+        updateLocalEmailSubmitButtonState();
+        return;
+      }
+
       const intakeData = collectIntakeValues();
       const payload = {
         name: "Client Intake Submission",
@@ -5678,6 +5696,7 @@
       }
 
       renderClientIntakeForm();
+      updateLocalEmailSubmitButtonState();
 
       mountEl.addEventListener("input", function(event) {
         const field = event.target;
