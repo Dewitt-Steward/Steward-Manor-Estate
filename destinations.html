@@ -32,6 +32,11 @@
       min-height: 0;
     }
 
+    body.page-screen-client-intake .itinerary-sticky-header,
+    body.page-screen-client-intake .layout {
+      display: none !important;
+    }
+
     .page {
       width: 100%;
       margin: 0;
@@ -120,6 +125,32 @@
       display: none;
     }
 
+    .screen-switcher {
+      display: flex;
+      gap: 10px;
+      margin: 12px 0 0;
+      flex-wrap: wrap;
+    }
+
+    .screen-switch-button {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      background: #ffffff;
+      color: var(--ink);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 12px 16px;
+      cursor: pointer;
+    }
+
+    .screen-switch-button.is-active {
+      border-color: var(--accent-2);
+      background: var(--accent-2);
+      color: #ffffff;
+    }
+
     .hero-actions {
       display: grid;
       gap: 10px;
@@ -169,7 +200,7 @@
     .local-email-controls {
       display: grid;
       gap: 12px;
-      margin: 16px 0 0;
+      margin: 0;
     }
 
     .local-email-controls[hidden] {
@@ -230,8 +261,212 @@
       color: var(--ink);
     }
 
+    .intake-form {
+      display: grid;
+      gap: 20px;
+    }
+
+    .intake-form-card {
+      border: 1px solid #d9dce1;
+      background: #ffffff;
+      padding: 28px;
+      display: grid;
+      gap: 22px;
+      box-shadow: 0 10px 28px rgba(17, 17, 17, 0.05);
+    }
+
+    .intake-form-heading {
+      display: grid;
+      gap: 8px;
+    }
+
+    .intake-form-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.15;
+    }
+
+    .intake-form-description {
+      margin: 0;
+      color: #606770;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 860px;
+    }
+
+    .intake-required-note {
+      margin: 0;
+      color: #606770;
+      font-size: 12px;
+      line-height: 1.5;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .intake-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px 20px;
+    }
+
+    .intake-label {
+      display: grid;
+      gap: 8px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .intake-label[data-span="full"] {
+      grid-column: 1 / -1;
+    }
+
+    .intake-label input,
+    .intake-label select,
+    .intake-label textarea {
+      width: 100%;
+      min-height: 46px;
+      height: 46px;
+      border: 1px solid #c7ccd4;
+      border-radius: 3px;
+      background: #ffffff;
+      color: #20252b;
+      font: inherit;
+      padding: 11px 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .intake-label input::placeholder,
+    .intake-label textarea::placeholder {
+      color: #8b929c;
+    }
+
+    .intake-label input:focus,
+    .intake-label select:focus,
+    .intake-label textarea:focus {
+      outline: none;
+      border-color: #111111;
+      box-shadow: 0 0 0 1px #111111;
+    }
+
+    .intake-label textarea {
+      resize: none;
+    }
+
+    .intake-range-field {
+      display: grid;
+      gap: 10px;
+    }
+
+    .intake-range-value {
+      min-height: 46px;
+      border: 1px solid #c7ccd4;
+      border-radius: 3px;
+      background: #ffffff;
+      color: #20252b;
+      display: flex;
+      align-items: center;
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 700;
+    }
+
+    .intake-range-field input[type="range"] {
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      padding: 0;
+      border: 0;
+      box-shadow: none;
+      accent-color: #111111;
+    }
+
+    .intake-range-ticks {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      align-items: start;
+    }
+
+    .intake-range-tick {
+      display: grid;
+      justify-items: center;
+      gap: 6px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
+      color: #606770;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .intake-range-tick::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 2px solid #111111;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .intake-range-tick.is-filled::before {
+      background: #111111;
+      transform: scale(1.05);
+    }
+
+    .intake-actions {
+      display: flex;
+      justify-content: flex-start;
+    }
+
+    .page-screen[hidden] {
+      display: none !important;
+    }
+
+    .client-intake-screen {
+      padding: 0 18px 18px;
+    }
+
+    .client-intake-panel {
+      width: 100%;
+      max-width: none;
+      display: grid;
+      gap: 16px;
+    }
+
+    .client-intake-panel h2 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .client-intake-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
     .layout {
       display: block;
+    }
+
+    @media (max-width: 880px) {
+      .intake-form-card {
+        padding: 22px 18px;
+      }
+
+      .intake-label[data-span="full"] {
+        grid-column: auto;
+      }
     }
 
     .map-panel {
@@ -1979,31 +2214,11 @@
           <p id="refreshMergedStatus" class="refresh-status">Latest merged data status will appear here.</p>
         </div>
       </div>
-      <div class="local-email-controls" id="localEmailControls" hidden>
-        <div>
-          <button id="localEmailToggleButton" class="refresh-button" type="button" aria-expanded="false">Email Steward Manor Estate Travel</button>
-        </div>
-        <div class="local-email-panel" id="localEmailPanel" hidden>
-          <form id="localEmailForm">
-            <label class="local-email-field">
-              Name
-              <input id="localEmailName" name="name" type="text" required>
-            </label>
-            <label class="local-email-field">
-              Email
-              <input id="localEmailAddress" name="email" type="email" required>
-            </label>
-            <label class="local-email-field">
-              Message
-              <textarea id="localEmailMessage" name="message" required></textarea>
-            </label>
-            <div>
-              <button id="localEmailSubmitButton" class="refresh-button" type="submit">Send Email</button>
-            </div>
-            <p id="localEmailStatus" class="local-email-status"></p>
-          </form>
-        </div>
+      <div class="screen-switcher" id="screenSwitcher">
+        <button class="screen-switch-button is-active" id="destinationsScreenButton" type="button" data-screen="destinations">Explore Destinations</button>
+        <button class="screen-switch-button" id="clientIntakeScreenButton" type="button" data-screen="client-intake">Client Intake Form</button>
       </div>
+      <div class="page-screen" id="destinationsScreen">
       <div class="itinerary-sticky-header">
         <div class="selection-head">
           <h3 id="itineraryTitle" class="selection-title"></h3>
@@ -2092,6 +2307,19 @@
         </div>
       </section>
     </div>
+      </div>
+      <section class="page-screen client-intake-screen" id="clientIntakeScreen" hidden>
+        <div class="client-intake-panel">
+          <div class="local-email-controls" id="localEmailControls" hidden>
+            <div class="local-email-panel" id="localEmailPanel">
+              <form id="localEmailForm" class="intake-form">
+                <div id="clientIntakeFormMount"></div>
+                <p id="localEmailStatus" class="local-email-status"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
   </div>
 
   <div class="destination-modal" id="destinationModal" aria-hidden="true">
@@ -2499,6 +2727,7 @@
     let currentPortsByCountry = {};
     let currentDrilldownCode = null;
     let currentView = "world";
+    let currentPageScreen = "destinations";
     let currentPayload = null;
     let currentMapProjection = null;
     let currentMapTransform = { x: 0, y: 0, scale: 1 };
@@ -5035,6 +5264,7 @@
 
     async function configureLocalEmailControls() {
       const controlsEl = document.getElementById("localEmailControls");
+      const statusEl = document.getElementById("localEmailStatus");
       if (!controlsEl) {
         return;
       }
@@ -5052,8 +5282,69 @@
         });
 
         controlsEl.hidden = !payload || !payload.ok;
+        if (!controlsEl.hidden && statusEl) {
+          statusEl.textContent = "";
+          statusEl.removeAttribute("data-state");
+        }
       } catch (error) {
+        if (statusEl) {
+          statusEl.textContent = "This form is available on the localhost manager server.";
+          statusEl.setAttribute("data-state", "error");
+        }
       }
+    }
+
+    function setPageScreen(screenKey) {
+      const nextScreen = screenKey === "client-intake" ? "client-intake" : "destinations";
+      const heroTitleEl = document.getElementById("heroTitle");
+      const heroCopyEl = document.getElementById("heroCopy");
+      const destinationsScreenEl = document.getElementById("destinationsScreen");
+      const clientIntakeScreenEl = document.getElementById("clientIntakeScreen");
+      const switcherButtons = document.querySelectorAll("[data-screen]");
+
+      currentPageScreen = nextScreen;
+      document.body.classList.remove("page-screen-destinations", "page-screen-client-intake");
+      document.body.classList.add(nextScreen === "client-intake" ? "page-screen-client-intake" : "page-screen-destinations");
+
+      if (destinationsScreenEl) {
+        destinationsScreenEl.hidden = nextScreen !== "destinations";
+      }
+      if (clientIntakeScreenEl) {
+        clientIntakeScreenEl.hidden = nextScreen !== "client-intake";
+      }
+
+      switcherButtons.forEach(function(button) {
+        const isActive = button.getAttribute("data-screen") === nextScreen;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+
+      if (heroTitleEl) {
+        heroTitleEl.textContent = nextScreen === "client-intake" ? "Client Intake Form" : "Explore Destinations";
+      }
+      if (heroCopyEl) {
+        heroCopyEl.textContent = nextScreen === "client-intake"
+          ? "Use this form to send your travel request directly through Steward Manor Estate."
+          : "";
+        heroCopyEl.hidden = heroCopyEl.textContent === "";
+      }
+
+      queueEmbedHeightPost();
+    }
+
+    function wireScreenSwitcher() {
+      const switcher = document.getElementById("screenSwitcher");
+      if (!switcher) {
+        return;
+      }
+
+      switcher.addEventListener("click", function(event) {
+        const button = event.target.closest("[data-screen]");
+        if (!button) {
+          return;
+        }
+        setPageScreen(button.getAttribute("data-screen"));
+      });
     }
 
     function getQuarterStartForDate(value) {
@@ -5176,27 +5467,161 @@
       }
     }
 
+    const FLEXIBILITY_OPTIONS = ["", "Flexible", "Somewhat Flexible", "Not Flexible"];
+    const TRAVELER_COUNT_OPTIONS = [""].concat(Array.from({ length: 100 }, function(_, index) {
+      return String(index + 1);
+    }));
+    const TRAVELER_SUBCOUNT_OPTIONS = [""].concat(Array.from({ length: 101 }, function(_, index) {
+      return String(index);
+    }));
+    const ROOM_COUNT_OPTIONS = [""].concat(Array.from({ length: 20 }, function(_, index) {
+      return String(index + 1);
+    }));
+    const INTAKE_FORM_FIELDS = [
+      { label: "When are you looking to travel?", key: "travel_when", type: "date" },
+      { label: "How flexible are your travel dates?", key: "travel_date_flexibility", type: "select", options: FLEXIBILITY_OPTIONS },
+      { label: "When would you like to return home?", key: "return_home_when", type: "date" },
+      { label: "How flexible are you on trip length?", key: "trip_length_flexibility", type: "select", options: FLEXIBILITY_OPTIONS },
+      { label: "How many travelers are going?", key: "traveler_count", type: "select", options: TRAVELER_COUNT_OPTIONS },
+      { label: "How many travelers 55+ years old?", key: "traveler_count_55_plus", type: "select", options: TRAVELER_SUBCOUNT_OPTIONS },
+      { label: "How many travelers 17 years of age or younger?", key: "traveler_count_17_or_younger", type: "select", options: TRAVELER_SUBCOUNT_OPTIONS },
+      { label: "How many rooms will you need?", key: "room_count", type: "select", options: ROOM_COUNT_OPTIONS },
+      { label: "Where would you like to go?", key: "where_to_go" },
+      { label: "Are there any specific places you want to visit?", key: "specific_places", type: "textarea", span: "full" },
+      { label: "Have you taken a trip like this before?", key: "similar_trip_before" },
+      { label: "What did you like or dislike about your last trip?", key: "last_trip_feedback", type: "textarea", span: "full" },
+      { label: "What is the maximum total amount you are willing to spend for this trip?", key: "max_budget", type: "range", min: 1, max: 10000, step: 1, defaultValue: 5000, tickValues: [2000, 4000, 6000, 8000, 10000] },
+      { label: "What type of room or accommodations are you looking for?", key: "accommodation_type", type: "textarea", span: "full" },
+      { label: "Where would you like to leave from?", key: "departure_location" },
+      { label: "Are you flexible on your departure location?", key: "departure_flexibility", type: "select", options: FLEXIBILITY_OPTIONS },
+      { label: "Will you be driving, flying, or making your own travel arrangements?", key: "transport_arrangements", type: "textarea", span: "full" },
+      { label: "Would you like help with transportation or lodging?", key: "travel_help", type: "textarea", span: "full" },
+      { label: "What travel documents will you be using for this trip?", key: "travel_documents", type: "textarea", span: "full" }
+    ];
+
+    function escapeAttribute(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function renderIntakeField(field, fieldValue) {
+      const fieldType = field.type || "text";
+      const fieldId = "intake_" + field.key;
+      const fieldName = field.key;
+      const wrapperClass = "intake-label";
+      const normalizedValue = fieldValue == null ? (field.defaultValue == null ? "" : String(field.defaultValue)) : String(fieldValue);
+      const fieldSpan = field.span === "full" ? ' data-span="full"' : "";
+      const requiredAttr = field.required ? " required" : "";
+      const placeholderAttr = field.placeholder ? ' placeholder="' + escapeAttribute(field.placeholder) + '"' : "";
+      let controlHtml = "";
+
+      if (fieldType === "select") {
+        controlHtml = '<select id="' + escapeAttribute(fieldId) + '" name="' + escapeAttribute(fieldName) + '">' +
+          (field.options || []).map(function(option, index) {
+            const value = index === 0 && option === "" ? "" : option;
+            const label = index === 0 && option === "" ? "Select an option" : option;
+            const selectedAttr = value === normalizedValue ? ' selected' : '';
+            return '<option value="' + escapeAttribute(value) + '"' + selectedAttr + '>' + escapeHtml(label) + '</option>';
+          }).join("") +
+        '</select>';
+      } else if (fieldType === "range") {
+        const min = Number(field.min || 0);
+        const max = Number(field.max || 100);
+        const step = Number(field.step || 1);
+        const displayValue = normalizedValue || String(field.defaultValue || min);
+        const tickLabelsHtml = Array.isArray(field.tickValues) && field.tickValues.length
+          ? '<div class="intake-range-ticks">' + field.tickValues.map(function(value) {
+              const isFilled = Number(value) <= Number(displayValue || 0);
+              return '<button class="intake-range-tick' + (isFilled ? ' is-filled' : '') + '" type="button" data-range-target="' + escapeAttribute(fieldId) + '" data-range-value="' + escapeAttribute(value) + '">$' + escapeHtml(value) + '</button>';
+            }).join("") + '</div>'
+          : "";
+        controlHtml = '<div class="intake-range-field">' +
+          '<div class="intake-range-value" id="' + escapeAttribute(fieldId) + '_display">$' + escapeHtml(displayValue) + '</div>' +
+          '<input id="' + escapeAttribute(fieldId) + '" name="' + escapeAttribute(fieldName) + '" type="range" min="' + escapeAttribute(min) + '" max="' + escapeAttribute(max) + '" step="' + escapeAttribute(step) + '" value="' + escapeAttribute(displayValue) + '"' + requiredAttr + '>' +
+          tickLabelsHtml +
+        '</div>';
+      } else if (fieldType === "textarea") {
+        controlHtml = '<textarea id="' + escapeAttribute(fieldId) + '" name="' + escapeAttribute(fieldName) + '"' + placeholderAttr + requiredAttr + '>' + escapeHtml(normalizedValue) + '</textarea>';
+      } else {
+        controlHtml = '<input id="' + escapeAttribute(fieldId) + '" name="' + escapeAttribute(fieldName) + '" type="' + escapeAttribute(fieldType) + '" value="' + escapeAttribute(normalizedValue) + '"' + placeholderAttr + requiredAttr + '>';
+      }
+
+      return '<label class="' + wrapperClass + '"' + fieldSpan + '>' +
+        '<span>' + escapeHtml(field.label) + '</span>' +
+        controlHtml +
+      '</label>';
+    }
+
+    function renderIntakeSectionsMarkup(values) {
+      const intakeValues = values || {};
+      return '<section class="intake-form-card">' +
+        '<div class="intake-form-heading">' +
+          '<h2 class="intake-form-title">Client Intake Form</h2>' +
+          '<p class="intake-form-description">Please complete this form to share your travel plans, preferences, and budget. At Dewitt Steward by Steward Manor Estate, every journey is handled with care so you can travel in comfort, confidence, and peace—enjoying life wherever it leads.</p>' +
+        '</div>' +
+        '<div class="intake-grid">' +
+          INTAKE_FORM_FIELDS.map(function(field) {
+            return renderIntakeField(field, intakeValues[field.key]);
+          }).join("") +
+        '</div>' +
+        '<div class="intake-actions">' +
+          '<button type="submit" class="reset-button" id="localEmailSubmitButton">Submit</button>' +
+        '</div>' +
+      '</section>';
+    }
+
+    function collectIntakeValues() {
+      return INTAKE_FORM_FIELDS.map(function(field) {
+        const fieldEl = document.getElementById("intake_" + field.key);
+        return {
+          label: field.label,
+          value: fieldEl ? String(fieldEl.value || "").trim() : ""
+        };
+      });
+    }
+
+    function buildClientIntakeMessage(rows) {
+      const answeredRows = rows.filter(function(row) {
+        return String(row && row.value || "").trim() !== "";
+      });
+
+      if (!answeredRows.length) {
+        return "";
+      }
+
+      return '<div style="margin:0;padding:16px;background:#f7f7f7;font-family:Arial, Helvetica, sans-serif;color:#111111;">' +
+        '<div style="max-width:720px;margin:0 auto;display:grid;gap:8px;">' +
+          answeredRows.map(function(row) {
+            return '<div style="border:1px solid #dddddd;background:#ffffff;padding:10px 12px;">' +
+              '<div style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#666666;font-weight:700;margin:0 0 4px;">' + escapeHtml(row.label) + '</div>' +
+              '<div style="font-size:13px;line-height:1.5;color:#111111;white-space:pre-wrap;">' + escapeHtml(row.value) + '</div>' +
+            '</div>';
+          }).join("") +
+        '</div>' +
+      '</div>';
+    }
+
     async function handleLocalEmailSubmit(event) {
       event.preventDefault();
 
       const submitButton = document.getElementById("localEmailSubmitButton");
       const formEl = document.getElementById("localEmailForm");
-      const nameEl = document.getElementById("localEmailName");
-      const emailEl = document.getElementById("localEmailAddress");
-      const messageEl = document.getElementById("localEmailMessage");
-
-      if (!formEl || !nameEl || !emailEl || !messageEl) {
+      if (!formEl) {
         return;
       }
 
+      const intakeData = collectIntakeValues();
       const payload = {
-        name: nameEl.value.trim(),
-        email: emailEl.value.trim(),
-        message: messageEl.value.trim()
+        name: "Client Intake Submission",
+        email: "travel@stewardmanorestate.com",
+        message: buildClientIntakeMessage(intakeData)
       };
 
-      if (!payload.name || !payload.email || !payload.message) {
-        setLocalEmailStatus("Name, email, and message are required.", "error");
+      if (!payload.message) {
+        setLocalEmailStatus("Complete the intake form before sending.", "error");
         return;
       }
 
@@ -5223,31 +5648,64 @@
           throw new Error(result.error || "Email failed.");
         }
 
-        formEl.reset();
         setLocalEmailStatus("Your message has been sent.", "success");
       } catch (error) {
         setLocalEmailStatus(error && error.message ? error.message : "Email failed.", "error");
       } finally {
         if (submitButton) {
           submitButton.disabled = false;
-          submitButton.textContent = "Send Email";
+          submitButton.textContent = "Submit";
         }
       }
     }
 
-    function wireLocalEmailControls() {
-      const toggleButton = document.getElementById("localEmailToggleButton");
-      const panelEl = document.getElementById("localEmailPanel");
-      const formEl = document.getElementById("localEmailForm");
-
-      if (!toggleButton || !panelEl || !formEl) {
+    function renderClientIntakeForm(values) {
+      const mountEl = document.getElementById("clientIntakeFormMount");
+      if (!mountEl) {
         return;
       }
 
-      toggleButton.addEventListener("click", function() {
-        const nextExpanded = panelEl.hidden;
-        panelEl.hidden = !nextExpanded;
-        toggleButton.setAttribute("aria-expanded", nextExpanded ? "true" : "false");
+      const intakeValues = values || {};
+      mountEl.innerHTML = renderIntakeSectionsMarkup(intakeValues);
+    }
+
+    function wireLocalEmailControls() {
+      const formEl = document.getElementById("localEmailForm");
+      const mountEl = document.getElementById("clientIntakeFormMount");
+
+      if (!formEl || !mountEl) {
+        return;
+      }
+
+      renderClientIntakeForm();
+
+      mountEl.addEventListener("input", function(event) {
+        const field = event.target;
+        if (!field || field.type !== "range" || !field.id) {
+          return;
+        }
+        const displayEl = document.getElementById(field.id + "_display");
+        if (displayEl) {
+          displayEl.textContent = "$" + String(field.value || "");
+        }
+        mountEl.querySelectorAll('[data-range-target="' + field.id + '"]').forEach(function(tickEl) {
+          tickEl.classList.toggle("is-filled", Number(tickEl.getAttribute("data-range-value") || 0) <= Number(field.value || 0));
+        });
+      });
+
+      mountEl.addEventListener("click", function(event) {
+        const tickEl = event.target.closest("[data-range-target][data-range-value]");
+        if (!tickEl) {
+          return;
+        }
+        const targetId = tickEl.getAttribute("data-range-target");
+        const nextValue = tickEl.getAttribute("data-range-value") || "";
+        const rangeEl = targetId ? document.getElementById(targetId) : null;
+        if (!rangeEl) {
+          return;
+        }
+        rangeEl.value = nextValue;
+        rangeEl.dispatchEvent(new Event("input", { bubbles: true }));
       });
 
       formEl.addEventListener("submit", handleLocalEmailSubmit);
@@ -6720,8 +7178,8 @@
       refreshDestinationDependentFilterOptions();
 
       function renderGrid() {
-        const filtered = getDestinationItemsForFilterScope("bestTime").filter(function(item) {
-          return matchesActiveDestinationItemFilters(item, "bestTime");
+        const filtered = getDestinationItemsForFilterScope().filter(function(item) {
+          return matchesActiveDestinationItemFilters(item);
         });
 
         currentDestinationResultsCount = filtered.length;
@@ -6863,8 +7321,11 @@
     async function loadMap() {
       try {
         isBootstrappingBrowserView = true;
-        setSearchFeedbackVisible(true, "Loading " + getSeasonDisplayLabel(getCurrentSeasonLabel()) + " Collection...");
+        const initialSeason = getCurrentSeasonLabel();
+        setSearchFeedbackVisible(true, "Loading " + getSeasonDisplayLabel(initialSeason) + " Collection...");
         currentBrowserTab = "destinations";
+        currentBrowserCategoryValue = getCollectionCategoryValueForSeason(initialSeason);
+        resetAllFiltersForCategorySwitch(initialSeason, false);
         setBrowserTab("destinations");
         const mergedResponse = await fetch("./destinations.json", { cache: "no-store" });
 
@@ -6878,6 +7339,7 @@
         currentPayload = payload;
         renderWorldMap(payload);
         renderDestinationGallery(mergedPayload);
+        renderClientIntakeForm();
         updateBrowserTabCounts();
         currentBrowserTab = "destinations";
         setBrowserTab("destinations");
@@ -6961,9 +7423,11 @@
     bindMapViewControls();
     wireDropdownFilters();
     wireBrowserTabs();
+    wireScreenSwitcher();
     wireRefreshMergedButton();
     wireLocalEmailControls();
     initializeCustomFilterSelects();
+    setPageScreen("destinations");
     queueEmbedHeightPost();
 
     if (window.ResizeObserver) {
